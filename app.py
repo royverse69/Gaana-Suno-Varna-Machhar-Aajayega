@@ -210,10 +210,26 @@ def suggest():
     query = raw_query.lower().strip()
 
     try:
-        # We now simply return the raw songs to let the frontend normalize them properly!
-        # This fixes missing images and unplayable cards in suggestions.
         songs = search_songs(query)
-        return jsonify(songs[:10])
+        suggestions = []
+        seen = set()
+
+        for song in songs[:10]:
+            title = (song.get("title") or song.get("name", "")).replace("&quot;", '"').replace("&amp;", "&")
+            artist = (song.get("primaryArtists") or song.get("artists", "")).replace("&quot;", '"').replace("&amp;", "&")
+            
+            dedupe_key = f"{title}_{artist}".lower()
+            if dedupe_key not in seen and title:
+                seen.add(dedupe_key)
+                suggestions.append({
+                    "id": song.get("id"),
+                    "title": title,
+                    "artist": artist,
+                    # Fallback image extraction for suggestions
+                    "image": song.get("image")[-1]["url"] if (song.get("image") and isinstance(song.get("image"), list)) else ""
+                })
+
+        return jsonify(suggestions)
     except Exception:
         return jsonify([])
 
@@ -223,17 +239,13 @@ def artist_songs(name):
     
     query = name.lower().strip()
     try:
+        # Trusting the primary search engine results for the artist 
+        # avoids strict string matching issues that cause empty pages.
         raw_results = search_songs(query)
-        artist_songs_filtered = []
-        
-        for song in raw_results:
-            artists_string = str(song.get("primaryArtists", "")).lower()
-            if query in artists_string:
-                artist_songs_filtered.append(song)
                 
         return jsonify({
             "artist": name,
-            "songs": artist_songs_filtered[:50]
+            "songs": raw_results[:50]
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -244,14 +256,16 @@ def trending():
     if cached: return jsonify(cached)
 
     try:
-        queries = ["The Weeknd", "Imagine Dragons", "Taylor Swift", "Arijit Singh"]
+        # Fetching a solid mix of globally trending artists to populate homescreen
+        queries = ["The Weeknd", "Arijit Singh", "Ed Sheeran", "Pritam", "Imagine Dragons"]
         results = []
         for q in queries:
             songs = search_songs(q)
-            results.extend(songs[:5])
+            if songs: results.extend(songs[:3])
             
-        set_cache(trending_cache, "global_trending", {"songs": results})
-        return jsonify({"songs": results})
+        random.shuffle(results)
+        set_cache(trending_cache, "global_trending", {"songs": results[:15]})
+        return jsonify({"songs": results[:15]})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

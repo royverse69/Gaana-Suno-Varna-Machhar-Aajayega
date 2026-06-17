@@ -12,17 +12,27 @@ Compress(app)
 
 BASE_API = "https://music-api.albatross0071.workers.dev/api"
 
-# --- TCP Connection Pooling ---
+# --- 1 & 2. TCP Connection Pooling & Cache Headers ---
 session = requests.Session()
 adapter = HTTPAdapter(
-    pool_connections=20, 
-    pool_maxsize=20,
+    pool_connections=50,  # Increased to 50
+    pool_maxsize=50,      # Increased to 50
     max_retries=3
 )
 session.mount("https://", adapter)
 session.mount("http://", adapter)
 
-# --- Globals & Caching ---
+@app.after_request
+def add_cache_headers(response):
+    """Automatically applies Render/Browser caching to successful GETs"""
+    if request.method == 'GET' and response.status_code == 200:
+        # Exclude dynamic monitoring routes from being cached
+        if request.path not in ['/health', '/stats']:
+            response.headers["Cache-Control"] = "public, max-age=300"
+    return response
+
+
+# --- Globals & Internal Caching ---
 search_cache = {}
 song_cache = {}
 lyrics_cache = {}
@@ -107,17 +117,13 @@ def generate_recommendations(song_id):
 
     recommendations = []
     
-    # Issue 3 Fix: Wrap upstream calls in granular try blocks to prevent cascade failures
-    # 40% Album
     if album_name:
         try: recommendations.extend(search_songs(album_name)[:12])
         except: pass
-    # 30% Artist
     if artist:
         try: recommendations.extend(search_songs(artist)[:9])
         except: pass
     
-    # De-duplication queries
     if artist and song_name:
         try: recommendations.extend(search_songs(f"{artist} {song_name}")[:8])
         except: pass
@@ -125,7 +131,6 @@ def generate_recommendations(song_id):
         try: recommendations.extend(search_songs(song_name)[:8])
         except: pass
     
-    # 20% Language/Genre & 10% Trending Mix
     if language in TRENDING_MAP:
         try:
             trending_artists = random.sample(TRENDING_MAP[language], 2)
@@ -162,13 +167,12 @@ def generate_recommendations(song_id):
 # --- Base Routes ---
 @app.route("/")
 def home():
-    return jsonify({"status": "online", "name": "Royverse Music API Hardened"})
+    return jsonify({"status": "online", "name": "Royverse Music API Edge-Optimized"})
 
 @app.route("/health")
 def health():
     return jsonify({"status": "ok", "timestamp": int(time.time())})
 
-# Issue 1 Fix: Restored /stats route for active debugging
 @app.route("/stats")
 def stats():
     return jsonify({
@@ -183,8 +187,11 @@ def stats():
 # --- Search & Content Routes ---
 @app.route("/search")
 def search():
-    query = request.args.get("q")
-    if not query: return jsonify({"error": "query required"}), 400
+    raw_query = request.args.get("q")
+    if not raw_query: return jsonify({"error": "query required"}), 400
+
+    # 4. Search Cache Key Lowercase Normalization
+    query = raw_query.lower().strip()
 
     cached = get_cache(search_cache, query)
     if cached: return jsonify(cached)
@@ -199,48 +206,47 @@ def search():
 
 @app.route("/suggest")
 def suggest():
-    query = request.args.get("q")
-    if not query: return jsonify([])
+    raw_query = request.args.get("q")
+    if not raw_query: return jsonify([])
+    
+    # 4. Normalization here too
+    query = raw_query.lower().strip()
 
     try:
-        results = search_songs(query)
-        seen = set()
+        songs = search_songs(query)
         suggestions = []
-        
-        for song in results:
-            title = song.get("name", "").replace("&quot;", '"').replace("&amp;", "&")
-            if title and title.lower() not in seen:
-                seen.add(title.lower())
-                suggestions.append(title)
-                
-            artist = song.get("primaryArtists", "")
-            if isinstance(artist, str) and artist:
-                first_artist = artist.split(",")[0].strip().replace("&quot;", '"').replace("&amp;", "&")
-                if first_artist and first_artist.lower() not in seen:
-                    seen.add(first_artist.lower())
-                    suggestions.append(first_artist)
+        seen = set()
+
+        for song in songs[:10]:
+            title = (song.get("title") or song.get("name", "")).replace("&quot;", '"').replace("&amp;", "&")
+            artist = (song.get("primaryArtists") or song.get("artists", "")).replace("&quot;", '"').replace("&amp;", "&")
             
-            album = song.get("album", {})
-            album_name = album.get("name", "") if isinstance(album, dict) else ""
-            album_name = album_name.replace("&quot;", '"').replace("&amp;", "&")
-            if album_name and album_name.lower() not in seen:
-                seen.add(album_name.lower())
-                suggestions.append(album_name)
-                
-        return jsonify(suggestions[:8])
-    except:
+            # Combine title and artist for deduplication to prevent identical text rows
+            dedupe_key = f"{title}_{artist}".lower()
+            if dedupe_key not in seen and title:
+                seen.add(dedupe_key)
+                suggestions.append({
+                    "id": song.get("id"),
+                    "title": title,
+                    "artist": artist
+                })
+
+        return jsonify(suggestions)
+    except Exception:
         return jsonify([])
 
 @app.route("/artist/<name>")
 def artist_songs(name):
     if not name: return jsonify({"artist": "", "songs": []})
+    
+    query = name.lower().strip()
     try:
-        raw_results = search_songs(name)
+        raw_results = search_songs(query)
         artist_songs_filtered = []
         
         for song in raw_results:
             artists_string = str(song.get("primaryArtists", "")).lower()
-            if name.lower() in artists_string:
+            if query in artists_string:
                 artist_songs_filtered.append(song)
                 
         return jsonify({
@@ -281,7 +287,6 @@ def stream(song_id):
     try:
         stream_url = extract_stream_url(song_id)
         
-        # Issue 2 Fix: Handle missing streaming links gracefully with an explicit 404
         if not stream_url:
             return jsonify({"error": "Stream unavailable"}), 404
             
@@ -308,6 +313,27 @@ def get_queue(song_id):
         return jsonify({
             "current": current_song,
             "queue": queue_pool
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# 3. Stream Preload Endpoint
+@app.route("/preload/<song_id>")
+def preload(song_id):
+    """Fetches current stream, next stream, and queue data to enable seamless frontend playback bridging."""
+    try:
+        current_stream = extract_stream_url(song_id)
+        queue = generate_recommendations(song_id).copy()
+        next_song = queue.pop(0) if queue else None
+
+        next_stream = None
+        if next_song:
+            next_stream = extract_stream_url(next_song["id"])
+
+        return jsonify({
+            "stream": current_stream,
+            "next_stream": next_stream,
+            "queue": queue
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 500

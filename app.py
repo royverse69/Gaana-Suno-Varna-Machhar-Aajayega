@@ -12,11 +12,11 @@ Compress(app)
 
 BASE_API = "https://music-api.albatross0071.workers.dev/api"
 
-# --- 1 & 2. TCP Connection Pooling & Cache Headers ---
+# --- TCP Connection Pooling & Cache Headers ---
 session = requests.Session()
 adapter = HTTPAdapter(
-    pool_connections=50,  # Increased to 50
-    pool_maxsize=50,      # Increased to 50
+    pool_connections=50,
+    pool_maxsize=50,
     max_retries=3
 )
 session.mount("https://", adapter)
@@ -26,7 +26,6 @@ session.mount("http://", adapter)
 def add_cache_headers(response):
     """Automatically applies Render/Browser caching to successful GETs"""
     if request.method == 'GET' and response.status_code == 200:
-        # Exclude dynamic monitoring routes from being cached
         if request.path not in ['/health', '/stats']:
             response.headers["Cache-Control"] = "public, max-age=300"
     return response
@@ -190,7 +189,6 @@ def search():
     raw_query = request.args.get("q")
     if not raw_query: return jsonify({"error": "query required"}), 400
 
-    # 4. Search Cache Key Lowercase Normalization
     query = raw_query.lower().strip()
 
     cached = get_cache(search_cache, query)
@@ -209,29 +207,13 @@ def suggest():
     raw_query = request.args.get("q")
     if not raw_query: return jsonify([])
     
-    # 4. Normalization here too
     query = raw_query.lower().strip()
 
     try:
+        # We now simply return the raw songs to let the frontend normalize them properly!
+        # This fixes missing images and unplayable cards in suggestions.
         songs = search_songs(query)
-        suggestions = []
-        seen = set()
-
-        for song in songs[:10]:
-            title = (song.get("title") or song.get("name", "")).replace("&quot;", '"').replace("&amp;", "&")
-            artist = (song.get("primaryArtists") or song.get("artists", "")).replace("&quot;", '"').replace("&amp;", "&")
-            
-            # Combine title and artist for deduplication to prevent identical text rows
-            dedupe_key = f"{title}_{artist}".lower()
-            if dedupe_key not in seen and title:
-                seen.add(dedupe_key)
-                suggestions.append({
-                    "id": song.get("id"),
-                    "title": title,
-                    "artist": artist
-                })
-
-        return jsonify(suggestions)
+        return jsonify(songs[:10])
     except Exception:
         return jsonify([])
 
@@ -317,10 +299,8 @@ def get_queue(song_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-# 3. Stream Preload Endpoint
 @app.route("/preload/<song_id>")
 def preload(song_id):
-    """Fetches current stream, next stream, and queue data to enable seamless frontend playback bridging."""
     try:
         current_stream = extract_stream_url(song_id)
         queue = generate_recommendations(song_id).copy()
@@ -339,7 +319,7 @@ def preload(song_id):
         return jsonify({"error": str(e)}), 500
 
 
-# --- Data Infrastructure & Bulk Lookups ---
+# --- Data Infrastructure ---
 @app.route("/songs/bulk")
 def bulk_songs():
     raw_ids = request.args.get("ids")
@@ -374,27 +354,6 @@ def bulk_songs():
         
     return jsonify(results)
 
-@app.route("/recommendations/bulk")
-def bulk_recommendations():
-    ids = request.args.get("ids")
-    if not ids: return jsonify({"recommendations": []})
-
-    try:
-        id_list = ids.split(",")
-        all_recs = []
-        seen = set()
-        
-        for song_id in id_list[:3]:
-            recs = generate_recommendations(song_id)
-            for r in recs:
-                r_id = r.get("id")
-                if r_id and r_id not in seen:
-                    seen.add(r_id)
-                    all_recs.append(r)
-                    
-        return jsonify({"recommendations": all_recs[:50]})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
 
 @app.route("/lyrics")
 def lyrics():

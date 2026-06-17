@@ -1,0 +1,2111 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="neo">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Gaana Suno - Premium</title>
+    <meta name="theme-color" content="#F4F1EA" id="metaThemeColor">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=JetBrains+Mono:wght@700;800;900&family=Syncopate:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/color-thief/2.3.0/color-thief.umd.js"></script>
+
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('gaana_theme') || 'neo';
+            if (savedTheme === 'amoled') localStorage.setItem('gaana_theme', 'neo');
+            document.documentElement.setAttribute('data-theme', localStorage.getItem('gaana_theme') || 'neo');
+            if(localStorage.getItem('gaana_motion') === 'reduce') {
+                document.documentElement.classList.add('reduce-motion');
+            }
+        })();
+    </script>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        themeBg: 'var(--bg)',
+                        themeText: 'var(--text)',
+                        themeCard: 'var(--card)',
+                        themeBorder: 'var(--border)',
+                        themeAccent1: 'var(--accent1)',
+                        themeAccent2: 'var(--accent2)',
+                        themeAccent3: 'var(--accent3)',
+                        themeMuted: 'var(--muted)',
+                        dominant: 'var(--dominant)',
+                        cardYellow: 'var(--card-yellow)',
+                        cardCyan: 'var(--card-cyan)',
+                        cardPink: 'var(--card-pink)',
+                        cardPurple: 'var(--card-purple)',
+                        cardOrange: 'var(--card-orange)',
+                    },
+                    fontFamily: {
+                        display: ['Syncopate', 'sans-serif'],
+                        code: ['JetBrains Mono', 'monospace'],
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'theme': 'var(--shadow-offset) var(--shadow-offset) 0px var(--shadow-color)',
+                        'theme-lg': 'calc(var(--shadow-offset) * 1.5) calc(var(--shadow-offset) * 1.5) 0px var(--shadow-color)',
+                        'theme-up': '0px calc(var(--shadow-offset) * -1) 0px var(--shadow-color)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        :root {
+            --bg: #F4F1EA;
+            --text: #000000;
+            --card: #FFFFFF;
+            --card-yellow: #FFF3A0;
+            --card-cyan: #CFFAF7;
+            --card-pink: #FFD3E6;
+            --card-purple: #D7D2FF;
+            --card-orange: #FFE5B8;
+            --border: #000000;
+            --accent1: #FFE600;
+            --accent2: #00E1D9;
+            --accent3: #FF2E93;
+            --muted: #666666;
+            --shadow-color: #000000;
+            --border-width: 4px;
+            --shadow-offset: 4px;
+            --dominant: #FFE600;
+            --icon-bg: var(--text);
+            --icon-fg: var(--bg);
+        }
+
+        [data-theme="glass"] {
+            --bg: #0B0B0F;
+            --text: #FFFFFF;
+            --card: rgba(255, 255, 255, 0.05);
+            --card-yellow: rgba(255, 255, 255, 0.05);
+            --card-cyan: rgba(255, 255, 255, 0.05);
+            --card-pink: rgba(255, 255, 255, 0.05);
+            --card-purple: rgba(255, 255, 255, 0.05);
+            --card-orange: rgba(255, 255, 255, 0.05);
+            --border: rgba(255, 255, 255, 0.08);
+            --accent1: #00E5FF;
+            --accent2: #B026FF;
+            --accent3: #FF2E93;
+            --muted: #999999;
+            --shadow-color: transparent;
+            --border-width: 1px;
+            --shadow-offset: 0px; 
+            --icon-bg: transparent;
+            --icon-fg: var(--text);
+        }
+
+        [data-theme="glass"] .brutal-btn,
+        [data-theme="glass"] .bg-themeCard,
+        [data-theme="glass"] .bg-cardYellow,
+        [data-theme="glass"] .bg-cardCyan,
+        [data-theme="glass"] .bg-cardPink,
+        [data-theme="glass"] .bg-cardPurple,
+        [data-theme="glass"] .bg-cardOrange,
+        [data-theme="glass"] .bottom-sheet,
+        [data-theme="glass"] .modal-overlay > div,
+        [data-theme="glass"] section,
+        [data-theme="glass"] .mobile-search-row {
+            border-radius: 16px !important;
+            box-shadow: none !important;
+            backdrop-filter: blur(20px) !important;
+            border: 1px solid rgba(255,255,255,0.08) !important;
+        }
+
+        [data-theme="glass"] .brutal-btn {
+            background: rgba(255,255,255,0.05) !important;
+            border: 1px solid rgba(255,255,255,0.1) !important;
+            color: #ffffff !important;
+        }
+
+        [data-theme="glass"] .brutal-btn:hover {
+            background: rgba(255,255,255,0.1) !important;
+        }
+
+        [data-theme="glass"] #playPauseBtn,
+        [data-theme="glass"] button[aria-label="Play/Pause"] {
+            background-color: #FFFFFF !important;
+            color: #000000 !important;
+            border: none !important;
+        }
+        
+        [data-theme="glass"] #playPauseIcon,
+        [data-theme="glass"] #fsPlayPauseIcon {
+            color: #000000 !important;
+        }
+
+        @media (max-width: 768px) {
+            :root { --border-width: 2px; --shadow-offset: 2px; }
+            [data-theme="glass"] { --border-width: 1px; --shadow-offset: 0px; }
+            .scanlines, .noise { display: none !important; }
+        }
+
+        .reduce-motion *, @media (prefers-reduced-motion: reduce) {
+            * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+        }
+
+        *:focus-visible { outline: none !important; box-shadow: 0 0 0 3px var(--accent1), 0 0 0 5px var(--border) !important; z-index: 50; }
+
+        * { cursor: none !important; box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+        @media (pointer: coarse) { * { cursor: auto !important; } }
+        
+        body {
+            background-color: var(--bg); color: var(--text);
+            -webkit-font-smoothing: antialiased; overflow-x: hidden; overscroll-behavior-y: none;
+            width: 100%; transition: background-color 0.3s ease, color 0.3s ease; height: 100vh; margin: 0; padding: 0;
+        }
+
+        ::selection { background: var(--text); color: var(--bg); }
+        .touch-target { min-width: 48px; min-height: 48px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        
+        .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
+        .pt-safe { padding-top: env(safe-area-inset-top, 0px); }
+        footer { box-sizing: border-box; border-bottom: none !important; }
+
+        [data-theme="glass"] .theme-glass-blur { backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); }
+        [data-theme="glass"] .noise { display: none !important; }
+        [data-theme="glass"] .neo-solid-icon { background-color: transparent !important; color: var(--text) !important; border-color: var(--border) !important;}
+        
+        .theme-highlight-text { color: var(--accent1); }
+        .theme-highlight-bg { background-color: var(--accent1); }
+        
+        .scanlines { position: fixed; inset: 0; pointer-events: none; z-index: 9000; background: linear-gradient(to bottom, rgba(0,0,0,0) 50%, rgba(0,0,0,0.02) 50%); background-size: 100% 4px; }
+        .noise { position: fixed; inset: 0; z-index: 9001; opacity: 0.008; pointer-events: none; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E"); animation: noiseMove 20s infinite alternate linear; }
+        
+        @keyframes noiseMove { 0% { transform: translate(0, 0); } 100% { transform: translate(-1%, -1%); } }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        @keyframes linkBounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+
+        #cursor-box { position: fixed; top: 0; left: 0; pointer-events: none; z-index: 99999999; transform: translate(-50%, -50%); display: flex; align-items: center; justify-content: center; transition: opacity 0.2s ease; will-change: transform;}
+        .cursor-dot { width: 16px; height: 16px; background: var(--accent1); border: 2px solid var(--border); box-shadow: 2px 2px 0px rgba(0,0,0,0.5); border-radius: 50%; }
+        @media (pointer: coarse) { #cursor-box { display: none !important; } }
+
+        .brutal-btn { border: var(--border-width) solid var(--border); box-shadow: var(--shadow-offset) var(--shadow-offset) 0px var(--shadow-color); transition: transform 0.1s, box-shadow 0.1s; font-family: 'JetBrains Mono', monospace; font-weight: 900; text-transform: uppercase; will-change: transform;}
+        @media (hover: hover) { .brutal-btn:hover { transform: translate(-1px, -1px); box-shadow: calc(var(--shadow-offset) + 1px) calc(var(--shadow-offset) + 1px) 0px var(--shadow-color); } }
+        .brutal-btn:active { transform: translate(var(--shadow-offset), var(--shadow-offset)); box-shadow: 0px 0px 0px var(--shadow-color); }
+
+        .cyber-badge { color: var(--bg); background: var(--text); padding: 2px 8px; border: var(--border-width) solid var(--border); box-shadow: var(--shadow-offset) var(--shadow-offset) 0px var(--shadow-color); font-weight: 900; display: inline-block; transform: rotate(-2deg); }
+
+        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; height: 24px; border: none; cursor: none; touch-action: none; position: relative;}
+        
+        #progressBar, #fsProgressBar {
+            opacity: 0 !important;
+        }
+
+        #volumeBar, #sleepSlider {
+            -webkit-appearance: none;
+            appearance: none;
+            opacity: 1 !important;
+            height: 6px !important;
+            background: var(--border) !important;
+            border-radius: 3px;
+            width: 100%;
+        }
+
+        #volumeBar::-webkit-slider-thumb, #sleepSlider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--dominant);
+            border: 2px solid var(--border);
+            cursor: pointer;
+            margin-top: -5px;
+        }
+
+        #volumeBar::-webkit-slider-runnable-track, #sleepSlider::-webkit-slider-runnable-track {
+            background: transparent;
+            border: none;
+        }
+
+        .progress-bar-track { position: absolute; top: 50%; left: 0; right: 0; transform: translateY(-50%); height: 8px; border: var(--border-width) solid var(--border); background: var(--card); pointer-events: none; opacity: 0.5;}
+        [data-theme="glass"] .progress-bar-track { background: rgba(255,255,255,0.1); border: none; opacity: 1; }
+        .progress-bar-fill { position: absolute; top: 0; left: 0; height: 100%; background: var(--accent1); pointer-events: none; border-right: var(--border-width) solid var(--border); transition: width 0.1s linear; }
+        [data-theme="glass"] .progress-bar-fill { border: none; background: #ffffff; }
+
+        .lyric-line { transition: all 0.2s ease; opacity: 0.3; transform: scale(0.95); cursor: none; font-family: 'Inter', sans-serif; font-weight: 700;}
+        .lyric-line:hover { opacity: 0.8; }
+        .lyric-line.active { opacity: 1; transform: scale(1.05); color: var(--text); font-weight: 900; background: var(--accent1); display: inline-block; padding: 4px 12px; border: var(--border-width) solid var(--border); box-shadow: var(--shadow-offset) var(--shadow-offset) 0px var(--shadow-color); transform: rotate(-1deg);}
+
+        @keyframes heartBurst { 0% { transform: scale(1); } 40% { transform: scale(1.35); color: var(--accent3); } 70% { transform: scale(0.9); } 100% { transform: scale(1); color: var(--accent3); } }
+        .animate-heart { animation: heartBurst 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; color: var(--accent3) !important; }
+
+        .bottom-sheet { transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); will-change: transform;}
+        .bottom-sheet.open { transform: translateY(0); }
+        .modal-overlay { background: rgba(0,0,0,0.7); opacity: 0; pointer-events: none; transition: opacity 0.3s ease; backdrop-filter: blur(5px);}
+        .modal-overlay.open { opacity: 1; pointer-events: all; }
+        .fade-in { animation: fadeIn 0.3s ease-out forwards; }
+        
+        .hidden-safely { display: none !important; }
+        #fullscreenPlayer { transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); will-change: transform; height: 100vh;}
+
+        .mobile-search-row { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px; }
+        .responsive-card-list { display: flex; flex-direction: column; gap: 12px; }
+        @media (min-width: 640px) { .responsive-card-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+        @media (min-width: 1024px) { .responsive-card-list { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+        @media (min-width: 1440px) { .responsive-card-list { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        #fsProgressKnob {
+            width: 18px !important;
+            height: 18px !important;
+            background: #ffffff !important;
+            border-radius: 50% !important;
+            border: 2px solid #000000 !important;
+            opacity: 1 !important;
+        }
+        [data-theme="glass"] #fsProgressKnob {
+            border: none !important;
+        }
+
+        .toggle-checkbox { opacity: 0; position: absolute; z-index: -1; }
+        .toggle-label { position: relative; background: #FFFFFF; transition: background 0.2s; border: 2px solid var(--border); border-radius: 999px; display: block; width: 48px; height: 28px; cursor: pointer; }
+        .toggle-label::after { content: ''; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; background: #000000; transition: transform 0.2s; border-radius: 50%; border: 2px solid var(--border); }
+        .toggle-checkbox:checked + .toggle-label { background: var(--accent1); }
+        .toggle-checkbox:checked + .toggle-label::after { transform: translateX(20px); }
+        [data-theme="glass"] .toggle-label { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); }
+        [data-theme="glass"] .toggle-label::after { background: #FFFFFF; border-color: transparent; }
+
+        .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; white-space: normal; }
+
+    </style>
+</head>
+<body class="flex flex-col overflow-hidden selection:bg-themeText selection:text-themeBg relative text-sm sm:text-base font-sans">
+
+    <div class="scanlines"></div>
+    <div class="noise"></div>
+    <div id="cursor-box"><div class="cursor-dot"></div></div>
+
+    <header class="fixed top-0 w-full z-40 bg-themeBg theme-glass-blur border-b-[length:var(--border-width)] border-themeBorder px-3 sm:px-6 py-2 sm:py-3 transition-transform duration-300 pt-safe" id="mainHeader">
+        <div class="flex flex-wrap sm:flex-nowrap items-center justify-between max-w-[1920px] mx-auto gap-2 sm:gap-4 relative">
+            
+            <div class="flex items-center gap-2 flex-shrink-0" id="brandContainer">
+                <button class="brutal-btn neo-solid-icon bg-themeText text-themeBg p-2 flex items-center justify-center touch-target rounded-full sm:rounded-none" onclick="goHome()" aria-label="Go Home">
+                    <i class="ph ph-music-notes text-xl font-black"></i>
+                </button>
+                <h1 class="text-xl font-display font-black tracking-tighter uppercase hidden md:block cursor-pointer text-themeText" onclick="goHome()">Gaana<span class="text-themeAccent1 mix-blend-difference">Suno</span></h1>
+            </div>
+
+            <button id="searchBackBtn" class="brutal-btn bg-themeCard p-2 items-center justify-center touch-target hidden-safely rounded-full sm:rounded-none flex-shrink-0" aria-label="Back" onclick="closeSearch()">
+                <i class="ph ph-arrow-left text-xl font-bold"></i>
+            </button>
+
+            <div class="flex-1 w-full order-last sm:order-none mt-2 sm:mt-0 relative group z-50 transition-all duration-300" id="searchContainer">
+                <i class="ph ph-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 font-bold text-lg text-themeText z-10"></i>
+                <input type="text" id="searchInput" placeholder="SEARCH AUDIO..." aria-label="Search" class="w-full bg-themeCard border-[length:var(--border-width)] border-themeBorder py-3 pl-12 pr-10 text-themeText font-code font-bold uppercase placeholder-themeMuted focus:outline-none focus:shadow-theme transition-all shadow-theme touch-target min-h-0" onfocus="openSearch()">
+                <button id="clearSearchBtn" class="absolute right-2 top-1/2 -translate-y-1/2 hidden-safely brutal-btn bg-themeCard p-1 touch-target min-h-0 min-w-0 w-8 h-8 flex items-center justify-center" onclick="clearSearch()"><i class="ph ph-x font-bold"></i></button>
+                <div id="searchSpinner" class="absolute right-4 top-1/2 -translate-y-1/2 hidden-safely pointer-events-none">
+                    <i class="ph ph-spinner animate-spin text-themeText text-xl font-bold"></i>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-2 flex-shrink-0 order-2 sm:order-none" id="settingsContainer">
+                <button class="brutal-btn bg-themeCard text-themeText p-2 flex items-center justify-center touch-target" onclick="openInfoModal()" aria-label="Settings">
+                    <i class="ph ph-gear text-xl font-bold"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main id="mainContent" class="flex-1 overflow-y-auto pt-[115px] sm:pt-24 pb-32 sm:pb-36 bg-themeBg relative z-10 w-full">
+        <div class="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 flex flex-col gap-10 sm:gap-14">
+            
+            <div id="heroSection" class="relative bg-themeCard border-[length:var(--border-width)] border-themeBorder shadow-theme-lg p-5 sm:p-10 overflow-hidden flex flex-row items-center justify-between gap-6 w-full fade-in">
+                <div class="relative z-10 w-full flex-1 pr-2 sm:pr-4">
+                    <div class="cyber-badge mb-3 text-[10px] sm:text-xs">GAANA SUNO</div>
+                    <h2 class="font-display text-3xl sm:text-5xl md:text-6xl font-black mb-3 uppercase leading-none tracking-tighter text-themeText">Varna Machhar<br>Aajayega.</h2>
+                    <p class="font-code font-bold text-themeMuted uppercase text-xs sm:text-sm border-l-[length:var(--border-width)] border-themeAccent1 pl-3 py-1 bg-themeCard inline-block">Premium brutal audio experience.</p>
+                </div>
+                <div class="flex w-[72px] h-[72px] sm:w-32 sm:h-32 md:w-48 md:h-48 border-4 border-themeAccent2 bg-[#111111] rounded-full items-center justify-center shadow-[inset_8px_8px_0px_rgba(0,0,0,0.5)] flex-shrink-0 hero-disc relative overflow-hidden" style="animation: spin 4s linear infinite; animation-play-state: paused;">
+                    <div class="absolute inset-[12%] border-[0.5px] border-[#ffffff22] rounded-full"></div>
+                    <div class="absolute inset-[24%] border-[0.5px] border-[#ffffff22] rounded-full"></div>
+                    <div class="absolute inset-[36%] border-[0.5px] border-[#ffffff22] rounded-full"></div>
+                    <div class="absolute inset-[48%] border-[0.5px] border-[#ffffff22] rounded-full"></div>
+                    <div class="w-1/4 h-1/4 bg-[#ff2e93] border-2 border-[#000000] rounded-full z-10 flex items-center justify-center relative shadow-inner">
+                        <div class="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-[#ffffff] border border-[#000000] rounded-full"></div>
+                    </div>
+                </div>
+            </div>
+
+            <section id="resumeSection" class="hidden-safely w-full fade-in">
+                <h3 class="font-display text-lg sm:text-xl font-black mb-3 uppercase text-themeMuted">Continue Listening</h3>
+                <div class="relative bg-cardOrange border-[length:var(--border-width)] border-themeBorder shadow-theme p-3 flex items-center justify-between gap-4 cursor-pointer touch-target w-full sm:max-w-md transition-transform active:translate-y-1 overflow-hidden" onclick="resumePlayback()" role="button">
+                    <div class="flex items-center gap-3 min-w-0 flex-1">
+                        <div class="w-14 h-14 border-[length:var(--border-width)] border-themeBorder relative overflow-hidden bg-themeBg flex-shrink-0">
+                            <img id="resumeCover" src="" class="w-full h-full object-cover">
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <div id="resumeTitle" class="font-display font-black text-sm uppercase text-themeText truncate">...</div>
+                            <div id="resumeArtist" class="font-code font-bold text-[10px] text-themeMuted uppercase truncate mt-0.5">...</div>
+                        </div>
+                    </div>
+                    <button class="brutal-btn neo-solid-icon bg-themeText text-themeBg w-10 h-10 flex items-center justify-center flex-shrink-0 rounded-full" onclick="event.stopPropagation(); resumePlayback();">
+                        <i class="ph ph-play text-lg font-black ml-0.5"></i>
+                    </button>
+                    <div class="absolute bottom-0 left-0 h-[6px] bg-themeAccent3" id="resumeProgress" style="width: 0%;"></div>
+                </div>
+            </section>
+
+            <div id="errorState" class="hidden-safely flex flex-col items-center justify-center py-8 text-center bg-cardPink border-[length:var(--border-width)] border-themeBorder shadow-theme p-4 w-full">
+                <i class="ph ph-warning-circle text-4xl mb-3 font-black text-themeBorder"></i>
+                <h3 class="font-display text-lg font-bold mb-1 uppercase text-themeText">System Error</h3>
+                <p id="errorText" class="font-code font-bold uppercase text-xs text-themeText">Unable to connect.</p>
+            </div>
+
+            <div id="dynamicSections" class="flex flex-col gap-10 sm:gap-14 w-full">
+                
+                <section id="trendingSection" class="hidden-safely w-full bg-cardYellow p-4 sm:p-6 border-[length:var(--border-width)] border-themeBorder shadow-theme">
+                    <h3 class="font-display text-xl sm:text-2xl font-black mb-4 uppercase flex items-center gap-2 text-themeText"><span class="bg-themeText text-themeBg px-2 py-0.5 border-2 border-themeBorder">1</span> Trending</h3>
+                    <div id="trendingGrid" class="flex overflow-x-auto pb-4 gap-4 snap-x no-scrollbar pt-1 -mx-2 px-2"></div>
+                </section>
+
+                <section id="recommendedSection" class="hidden-safely w-full">
+                    <h3 class="font-display text-xl sm:text-2xl font-black mb-4 uppercase flex items-center gap-2 text-themeText">Recommended</h3>
+                    <div id="recommendedGrid" class="flex overflow-x-auto pb-4 gap-4 snap-x no-scrollbar pt-1 -mx-2 px-2"></div>
+                </section>
+
+                <section id="recentSection" class="hidden-safely w-full bg-cardPurple p-4 sm:p-6 border-[length:var(--border-width)] border-themeBorder shadow-theme">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-display text-xl sm:text-2xl font-black uppercase text-themeText">History</h3>
+                    </div>
+                    <div id="recentGrid" class="flex overflow-x-auto pb-4 gap-4 snap-x no-scrollbar pt-1 -mx-2 px-2"></div>
+                </section>
+
+                <section id="favoritesSection" class="hidden-safely w-full bg-cardPink p-4 sm:p-6 border-[length:var(--border-width)] border-themeBorder shadow-theme">
+                    <h3 class="font-display text-xl sm:text-2xl font-black mb-4 uppercase flex items-center gap-2 text-themeText"><i class="ph ph-heart text-accent3" weight="fill"></i> Favorites</h3>
+                    <div id="favoritesGrid" class="flex overflow-x-auto pb-4 gap-4 snap-x no-scrollbar pt-1 -mx-2 px-2"></div>
+                </section>
+
+                <section id="playlistsSection" class="hidden-safely w-full bg-cardCyan p-4 sm:p-6 border-[length:var(--border-width)] border-themeBorder shadow-theme">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-display text-xl sm:text-2xl font-black uppercase text-themeText">Your Collections</h3>
+                        <button onclick="openPlaylistModal()" class="brutal-btn bg-themeCard text-themeText p-2 touch-target w-10 h-10 min-h-0 flex items-center justify-center"><i class="ph ph-plus font-bold"></i></button>
+                    </div>
+                    <div id="playlistsGrid" class="flex overflow-x-auto pb-4 gap-4 snap-x no-scrollbar pt-1 -mx-2 px-2"></div>
+                </section>
+
+                <section id="artistSection" class="hidden-safely fade-in w-full">
+                    <div class="flex flex-col sm:flex-row items-center sm:items-start gap-4 mb-6 p-4 bg-themeCard border-[length:var(--border-width)] border-themeBorder shadow-theme w-full relative">
+                        <button onclick="goBackFromArtist()" class="absolute top-4 right-4 brutal-btn bg-themeCard text-themeText p-2 touch-target w-10 h-10 min-h-0 flex justify-center items-center" aria-label="Go Back"><i class="ph ph-arrow-left text-lg font-bold"></i></button>
+                        <div class="w-24 h-24 sm:w-32 sm:h-32 border-[length:var(--border-width)] border-themeBorder bg-themeBg overflow-hidden shadow-theme flex-shrink-0">
+                            <img id="artistBannerImg" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><rect width='100' height='100' fill='%23666'/></svg>" class="w-full h-full object-cover aspect-square">
+                        </div>
+                        <div class="flex-1 min-w-0 text-center sm:text-left flex flex-col justify-center h-full w-full pr-12">
+                            <h3 class="font-display text-2xl sm:text-4xl font-black uppercase text-themeText truncate w-full" id="artistPageTitle">Artist</h3>
+                            <p class="font-code text-xs font-bold text-themeMuted uppercase mt-1"><span id="artistSongCount">0</span> Tracks</p>
+                            <div class="mt-4 flex gap-3 justify-center sm:justify-start">
+                                <button onclick="playAllArtistSongs()" class="brutal-btn neo-solid-icon bg-themeText text-themeBg px-6 py-2 flex items-center gap-2 text-xs touch-target">
+                                    <i class="ph ph-play-circle text-lg font-bold"></i> PLAY ALL
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="artistSongsGrid" class="responsive-card-list"></div>
+                </section>
+
+                <section id="playlistViewSection" class="hidden-safely fade-in w-full">
+                    <div class="flex flex-col sm:flex-row items-center sm:items-start gap-4 mb-6 p-4 bg-themeCard border-[length:var(--border-width)] border-themeBorder shadow-theme w-full relative">
+                        <button onclick="goBackFromPlaylist()" class="absolute top-4 right-4 brutal-btn bg-themeCard text-themeText p-2 touch-target w-10 h-10 min-h-0 flex justify-center items-center"><i class="ph ph-arrow-left text-lg font-bold"></i></button>
+                        <div class="w-24 h-24 sm:w-32 sm:h-32 border-[length:var(--border-width)] border-themeBorder bg-themeBg overflow-hidden shadow-theme flex-shrink-0 flex items-center justify-center">
+                            <i class="ph ph-list-numbers text-4xl text-themeMuted"></i>
+                        </div>
+                        <div class="flex-1 min-w-0 text-center sm:text-left flex flex-col justify-center h-full w-full pr-12">
+                            <h3 class="font-display text-2xl sm:text-4xl font-black uppercase text-themeText truncate w-full" id="playlistViewTitle">Playlist</h3>
+                            <p class="font-code text-xs font-bold text-themeMuted uppercase mt-1"><span id="playlistViewCount">0</span> Tracks</p>
+                            <div class="mt-4 flex gap-3 justify-center sm:justify-start">
+                                <button onclick="playCurrentPlaylistView()" class="brutal-btn neo-solid-icon bg-themeText text-themeBg px-6 py-2 flex items-center gap-2 text-xs touch-target">
+                                    <i class="ph ph-play-circle text-lg font-bold"></i> PLAY ALL
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="playlistViewGrid" class="responsive-card-list"></div>
+                </section>
+
+                <section id="searchViewSection" class="hidden-safely w-full fade-in">
+                    <div id="searchDefaultState" class="w-full flex flex-col gap-6">
+                        <div>
+                            <h3 class="font-display text-sm sm:text-base font-black mb-3 uppercase text-themeMuted flex items-center gap-2"><i class="ph ph-clock-counter-clockwise"></i> Recent Searches</h3>
+                            <div id="recentSearchesGrid" class="flex flex-wrap gap-2"></div>
+                        </div>
+                        <div>
+                            <h3 class="font-display text-sm sm:text-base font-black mb-3 uppercase text-themeMuted flex items-center gap-2"><i class="ph ph-fire"></i> Popular</h3>
+                            <div class="flex flex-wrap gap-3">
+                                <button class="brutal-btn bg-cardYellow text-themeText px-4 py-2 text-xs touch-target min-h-0" onclick="performFullSearch('Bollywood')">Bollywood</button>
+                                <button class="brutal-btn bg-cardCyan text-themeText px-4 py-2 text-xs touch-target min-h-0" onclick="performFullSearch('Hip Hop')">Hip Hop</button>
+                                <button class="brutal-btn bg-cardPink text-themeText px-4 py-2 text-xs touch-target min-h-0" onclick="performFullSearch('Lo-Fi')">Lo-Fi</button>
+                                <button class="brutal-btn bg-themeCard text-themeText px-4 py-2 text-xs touch-target min-h-0" onclick="performFullSearch('Arijit Singh')">Arijit Singh</button>
+                                <button class="brutal-btn bg-themeCard text-themeText px-4 py-2 text-xs touch-target min-h-0" onclick="performFullSearch('The Weeknd')">The Weeknd</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="searchContentState" class="hidden-safely w-full">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-display text-xl sm:text-2xl font-black uppercase text-themeText">Results</h3>
+                        </div>
+                        <div id="searchResultsGrid" class="responsive-card-list"></div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <footer class="fixed bottom-0 w-full bg-themeCard backdrop-blur-md z-40 pb-safe shadow-[0_-4px_10px_rgba(0,0,0,0.1)]">
+        <div class="absolute top-0 left-0 w-full h-[6px] bg-themeBg border-t-[length:var(--border-width)] border-b-[length:var(--border-width)] border-themeBorder overflow-hidden" id="miniScrubberContainer">
+            <div id="progressFill" class="h-full bg-dominant w-0 border-r-[length:var(--border-width)] border-themeBorder transition-all duration-100 ease-linear pointer-events-none"></div>
+            <input type="range" id="progressBar" min="0" max="100" value="0" step="0.1" class="absolute inset-0 opacity-0 z-10 w-full h-full cursor-none touch-target min-h-[30px] -mt-[12px]">
+        </div>
+
+        <div class="max-w-[1920px] mx-auto px-3 sm:px-6 lg:px-8 py-2 relative mt-[6px]">
+            <div class="flex items-center justify-between gap-3 h-14 sm:h-16">
+                
+                <div class="flex items-center gap-3 w-auto flex-1 min-w-0 cursor-pointer group touch-target justify-start" onclick="toggleFullscreen()" role="button">
+                    <div class="w-12 h-12 sm:w-14 sm:h-14 border-2 sm:border-[length:var(--border-width)] border-themeBorder bg-themeBg flex-shrink-0 relative shadow-[2px_2px_0px_var(--shadow-color)] overflow-hidden">
+                        <img id="playerCover" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><rect width='100' height='100' fill='%23666'/></svg>" class="w-full h-full object-cover aspect-square transition-transform group-hover:scale-105" alt="Cover">
+                    </div>
+                    <div class="min-w-0 flex-1 pr-2">
+                        <h4 id="playerTitle" class="font-display text-xs sm:text-sm font-black uppercase truncate text-themeText leading-tight">TRACK_NULL</h4>
+                        <p id="playerArtist" class="font-code text-[10px] sm:text-xs font-bold text-themeMuted uppercase truncate mt-0.5">ARTIST_NULL</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2 sm:gap-4 flex-shrink-0">
+                    <button class="brutal-btn bg-themeCard p-2 hidden sm:flex touch-target min-h-0 w-10 h-10 items-center justify-center" onclick="playPrevious()" aria-label="Previous">
+                        <i class="ph ph-skip-back text-lg font-bold"></i>
+                    </button>
+                    
+                    <button class="brutal-btn neo-solid-icon bg-themeText text-themeBg w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center shadow-[2px_2px_0px_var(--shadow-color)] touch-target transition-transform active:scale-95" onclick="togglePlay()" id="playPauseBtn" aria-label="Play/Pause">
+                        <i id="playPauseIcon" class="ph ph-play text-2xl sm:text-3xl font-black ml-1"></i>
+                    </button>
+                    
+                    <button class="brutal-btn bg-themeCard p-2 flex touch-target min-h-0 w-10 h-10 items-center justify-center sm:hidden" onclick="playNext(true)" aria-label="Next">
+                        <i class="ph ph-skip-forward text-lg font-bold"></i>
+                    </button>
+
+                    <button class="brutal-btn bg-themeCard p-2 hidden sm:flex touch-target min-h-0 w-10 h-10 items-center justify-center" onclick="playNext(true)" aria-label="Next">
+                        <i class="ph ph-skip-forward text-lg font-bold"></i>
+                    </button>
+                </div>
+
+                <div class="items-center justify-end gap-3 w-1/3 text-themeText hidden md:flex">
+                    <button class="brutal-btn bg-themeCard px-3 py-2 touch-target min-h-0 h-10 flex items-center justify-center" onclick="toggleFavoriteCurrent()">
+                        <i id="likeIcon" class="ph ph-heart text-lg font-bold"></i>
+                    </button>
+                    <button class="brutal-btn bg-themeCard px-3 py-2 touch-target min-h-0 h-10" onclick="toggleQueueSheet()" title="Queue">
+                        <i class="ph ph-list-dashes text-lg font-bold"></i>
+                    </button>
+                    <div class="flex items-center gap-2 w-28 bg-themeBg border-[length:var(--border-width)] border-themeBorder p-1 h-10 shadow-[inset_2px_2px_0px_rgba(0,0,0,0.1)]">
+                        <i class="ph ph-speaker-high text-sm font-bold ml-1 text-themeMuted"></i>
+                        <input type="range" id="volumeBar" min="0" max="100" value="100" class="w-full cursor-pointer" aria-label="Volume">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <div id="fullscreenPlayer" class="fixed inset-0 z-50 flex flex-col transform translate-y-full transition-transform duration-400 overflow-hidden touch-none w-full bg-themeBg h-[100vh]">
+        
+        <div class="absolute inset-0 z-0 bg-themeBg transition-colors duration-500" id="fsBgLayer"></div>
+        <div class="absolute inset-0 z-0 opacity-30 transition-all duration-700 blur-[100px]" style="background: radial-gradient(circle at 50% 30%, var(--dominant), transparent 80%);"></div>
+        <div class="noise opacity-10"></div>
+        
+        <div class="relative z-10 flex flex-col h-full w-full max-w-[800px] mx-auto pb-4 pt-safe flex-1">
+            
+            <div class="flex items-center justify-between px-4 sm:px-6 py-4 w-full flex-shrink-0">
+                <button class="brutal-btn bg-themeCard p-2 touch-target min-h-0 w-12 h-12 flex items-center justify-center rounded-full" onclick="toggleFullscreen()" aria-label="Close">
+                    <i class="ph ph-caret-down text-2xl font-bold"></i>
+                </button>
+                
+                <div class="flex font-code font-bold border-2 sm:border-[length:var(--border-width)] border-themeBorder bg-themeCard text-[10px] sm:text-sm uppercase rounded-full overflow-hidden shadow-theme">
+                    <button id="fsTabAudio" class="px-5 sm:px-6 py-2.5 bg-themeText text-themeBg transition-colors touch-target min-h-0" onclick="switchFsTab('audio')">Audio</button>
+                    <button id="fsTabLyrics" class="px-5 sm:px-6 py-2.5 text-themeText hover:bg-themeMuted transition-colors touch-target min-h-0" onclick="switchFsTab('lyrics')">Lyrics</button>
+                </div>
+                
+                <button class="brutal-btn bg-themeCard p-2 touch-target min-h-0 w-12 h-12 flex items-center justify-center rounded-full" onclick="openTrackDetailsModal()" aria-label="Options">
+                    <i class="ph ph-dots-three-vertical text-2xl font-bold"></i>
+                </button>
+            </div>
+            
+            <div class="flex-1 flex flex-col items-center justify-center w-full px-6 sm:px-12 relative overflow-hidden my-2 sm:my-4" id="fsSwipeArea">
+                
+                <div id="fsContentAudio" class="w-full flex flex-col items-center justify-center h-full transition-opacity duration-300">
+                    <div class="w-full max-w-[70vw] sm:max-w-[45vw] md:max-w-[380px] aspect-square border-4 sm:border-8 border-themeBorder bg-themeBg shadow-theme-xl relative overflow-hidden flex items-center justify-center">
+                        <img id="fsCover" src="" class="w-full h-full object-cover aspect-square transition-all duration-300 pointer-events-none" alt="Cover Art">
+                        <div class="absolute inset-0 border-4 sm:border-8 border-transparent pointer-events-none transition-colors" id="fsCoverBorder"></div>
+                        <div class="absolute bottom-3 right-3 bg-themeText text-themeBg font-code font-black text-[10px] px-2 py-1 shadow-[2px_2px_0px_var(--dominant)] transform rotate-2">PLAYING</div>
+                    </div>
+                </div>
+
+                <div id="fsContentLyrics" class="w-full h-full absolute inset-0 px-4 sm:px-12 py-4 flex flex-col items-center text-center overflow-y-auto hidden-safely font-display text-xl sm:text-3xl font-bold leading-relaxed space-y-8 scroll-smooth no-scrollbar">
+                </div>
+            </div>
+            
+            <div class="px-6 sm:px-10 flex flex-col w-full relative z-10 flex-shrink-0 mb-4 sm:mb-8">
+                <div class="flex items-start justify-between mb-4 w-full">
+                    <div class="flex flex-col min-w-0 flex-1 pr-4">
+                        <h2 id="fsTitle" class="font-display text-2xl sm:text-4xl font-black text-themeText uppercase leading-tight w-full line-clamp-2">---</h2>
+                        <div class="flex items-center gap-2 mt-1">
+                            <p id="fsArtist" class="font-code text-sm sm:text-base text-themeMuted font-bold uppercase truncate hover:text-dominant transition-colors cursor-pointer" onclick="toggleFullscreen(); openArtist(this.textContent.split(',')[0]);">---</p>
+                        </div>
+                    </div>
+                    <button class="brutal-btn bg-themeCard p-3 flex-shrink-0 touch-target min-h-0 w-12 h-12 flex items-center justify-center rounded-full" onclick="toggleFavoriteCurrent()" aria-label="Favorite">
+                        <i id="fsLikeIcon" class="ph ph-heart text-2xl font-bold"></i>
+                    </button>
+                </div>
+
+                <div class="mb-4 sm:mb-6 w-full relative">
+                    <div class="flex items-center w-full gap-3">
+                        <span id="fsCurrentTime" class="font-code font-bold text-[10px] sm:text-xs uppercase text-themeMuted w-10 text-right">0:00</span>
+                        <div class="flex-1 h-6 sm:h-8 relative touch-target min-h-0 flex items-center group">
+                            <div class="progress-bar-track"></div>
+                            <div id="fsProgressFill" class="absolute top-1/2 left-0 h-2 bg-dominant transform -translate-y-1/2 border-[length:var(--border-width)] border-themeBorder pointer-events-none transition-none"></div>
+                            <input type="range" id="fsProgressBar" min="0" max="100" value="0" step="0.1" class="absolute inset-0 opacity-0 z-20 w-full h-full cursor-none m-0 p-0" aria-label="Seek track">
+                            <div id="fsProgressKnob" class="absolute top-1/2 transform -translate-y-1/2 -translate-x-1/2 pointer-events-none z-10 transition-none group-active:scale-125 group-active:bg-themeText group-active:border-themeBg" style="left:0%;"></div>
+                        </div>
+                        <span id="fsTotalTime" class="font-code font-bold text-[10px] sm:text-xs uppercase text-themeMuted w-10 text-left">0:00</span>
+                    </div>
+                </div>
+                
+                <div class="flex items-center justify-between w-full">
+                    <button class="brutal-btn bg-themeCard p-3 touch-target min-h-0 w-12 h-12 flex items-center justify-center rounded-full" onclick="toggleRepeat()" aria-label="Repeat">
+                        <i id="fsRepeatBtn" class="ph ph-repeat text-xl font-bold"></i>
+                    </button>
+                    
+                    <div class="flex items-center gap-4 sm:gap-8">
+                        <button class="brutal-btn bg-themeCard p-4 touch-target min-h-0 w-14 h-14 flex items-center justify-center rounded-full" onclick="playPrevious()" aria-label="Previous">
+                            <i class="ph ph-skip-back text-2xl font-bold"></i>
+                        </button>
+                        
+                        <button class="brutal-btn neo-solid-icon bg-themeText text-themeBg w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center rounded-full shadow-theme-lg touch-target transition-transform active:scale-95" onclick="togglePlay()" aria-label="Play/Pause">
+                            <i id="fsPlayPauseIcon" class="ph ph-play text-4xl sm:text-5xl font-black ml-2"></i>
+                        </button>
+                        
+                        <button class="brutal-btn bg-themeCard p-4 touch-target min-h-0 w-14 h-14 flex items-center justify-center rounded-full" onclick="playNext(true)" aria-label="Next">
+                            <i class="ph ph-skip-forward text-2xl font-bold"></i>
+                        </button>
+                    </div>
+
+                    <button class="brutal-btn bg-themeCard p-3 touch-target min-h-0 w-12 h-12 flex items-center justify-center rounded-full" onclick="toggleShuffle()" aria-label="Shuffle">
+                        <i id="fsShuffleBtn" class="ph ph-shuffle text-xl font-bold"></i>
+                    </button>
+                </div>
+
+                <div class="mt-6 w-full border-[length:var(--border-width)] border-themeBorder bg-themeCard p-3 flex justify-between items-center cursor-pointer touch-target min-h-0 shadow-theme hidden-safely rounded-xl backdrop-blur-md" id="fsUpNextPreview" onclick="toggleQueueSheet()">
+                    <div class="flex items-center gap-3 min-w-0 flex-1">
+                        <div class="min-w-0 flex-1">
+                            <div class="font-code font-bold text-[10px] text-themeMuted uppercase mb-1 tracking-wider">UP NEXT • <span id="fsUpNextCount">0</span> SONGS</div>
+                            <div id="fsUpNextTitle" class="font-display font-black text-sm text-themeText truncate">...</div>
+                            <div id="fsUpNextArtist" class="font-code text-[10px] text-themeMuted truncate mt-0.5">...</div>
+                        </div>
+                    </div>
+                    <i class="ph ph-list-dashes text-themeText text-xl font-bold flex-shrink-0 ml-2"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="infoModal" class="modal-overlay fixed inset-0 z-[150] flex items-center justify-center p-4 pb-safe bg-themeBorder/80 theme-glass-blur" onclick="closeModals(event)">
+        <div class="bg-themeBg border-[length:var(--border-width)] border-themeBorder shadow-theme-xl w-full max-w-md flex flex-col transform transition-transform h-[85vh] sm:h-auto sm:max-h-[90vh]" onclick="event.stopPropagation()">
+            
+            <div class="bg-themeCard border-b-[length:var(--border-width)] border-themeBorder p-4 flex justify-between items-center sticky top-0 z-20">
+                <h3 class="font-display font-black uppercase text-xl text-themeText">Settings</h3>
+                <button class="brutal-btn bg-themeCard p-2 touch-target min-h-0 w-10 h-10 flex items-center justify-center" onclick="document.getElementById('infoModal').classList.remove('open')">
+                    <i class="ph ph-x font-bold text-lg"></i>
+                </button>
+            </div>
+
+            <div class="p-4 sm:p-6 flex flex-col gap-6 overflow-y-auto no-scrollbar">
+                
+                <div class="border-[length:var(--border-width)] border-themeBorder p-4 bg-themeCard shadow-theme relative">
+                    <h4 class="font-display font-black uppercase text-sm mb-3">Appearance</h4>
+                    <div class="flex flex-col gap-4 font-code text-[10px] font-bold uppercase">
+                        <div class="flex justify-between items-center">
+                            <span>Theme</span>
+                            <select id="themeSelect" onchange="changeTheme(this.value)" class="bg-themeBg border-2 border-themeBorder p-2 text-themeText outline-none touch-target min-h-0 cursor-pointer shadow-[2px_2px_0px_var(--shadow-color)]">
+                                <option value="neo">Neo Brutal</option>
+                                <option value="glass">Glass Dark</option>
+                            </select>
+                        </div>
+                        <div class="flex justify-between items-center mt-2">
+                            <span>Reduce Motion</span>
+                            <div>
+                                <input type="checkbox" id="motionToggle" class="toggle-checkbox" onchange="toggleMotion(this)"/>
+                                <label for="motionToggle" class="toggle-label"></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-[length:var(--border-width)] border-themeBorder p-4 bg-themeCard shadow-theme relative">
+                    <h4 class="font-display font-black uppercase text-sm mb-3">Playback</h4>
+                    <div class="flex justify-between items-center mb-2">
+                        <div class="font-code font-bold uppercase text-[10px]">Crossfade</div>
+                        <div>
+                            <input type="checkbox" id="cfToggle" class="toggle-checkbox" onclick="toggleCrossfadeSwitch(this)"/>
+                            <label for="cfToggle" class="toggle-label"></label>
+                        </div>
+                    </div>
+                    <div id="cfSliderContainer" class="opacity-50 pointer-events-none transition-opacity mt-2 flex items-center gap-3 mb-6">
+                        <span class="font-code text-[10px] font-bold">0S</span>
+                        <div class="flex-1 relative h-4 border-2 border-themeBorder bg-themeBg">
+                            <input type="range" id="cfSlider" min="1" max="10" value="0" step="1" class="absolute inset-0 w-full h-full opacity-0 z-10 cursor-none touch-target min-h-0 -mt-2" oninput="setCrossfadeSlider(this.value)">
+                            <div id="cfProgressFill" class="h-full bg-themeText w-[0%] pointer-events-none"></div>
+                        </div>
+                        <span id="cfValueDisplay" class="font-code text-[10px] font-bold bg-themeText text-themeBg px-2 py-0.5">0S</span>
+                    </div>
+                </div>
+
+                <div class="border-[length:var(--border-width)] border-themeBorder p-4 bg-themeCard shadow-theme relative">
+                    <h4 class="font-display font-black uppercase text-sm mb-3">App Storage</h4>
+                    <button class="brutal-btn bg-themeBg w-full py-3 flex justify-center items-center gap-2 touch-target text-xs min-h-0 font-code font-bold" onclick="clearAppCache()">
+                        <i class="ph ph-trash text-lg"></i> CLEAR CACHE
+                    </button>
+                </div>
+
+                <div class="border-[length:var(--border-width)] border-themeBorder p-4 bg-cardYellow shadow-theme relative text-themeText">
+                    <div class="cyber-badge absolute -top-3 -right-3 text-[10px]">DEV</div>
+                    <h4 class="font-display font-black uppercase text-sm mb-3">About Developer</h4>
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-12 h-12 border-2 border-themeBorder bg-themeBg flex items-center justify-center overflow-hidden flex-shrink-0 shadow-[2px_2px_0px_var(--shadow-color)]">
+                            <img src="https://raw.githubusercontent.com/royverse69/ask-me-/main/machhar.jpeg" class="w-full h-full object-cover" alt="Machhar Kumar">
+                        </div>
+                        <div>
+                            <a href="https://royverse69.github.io/ask-me-/" target="_blank" rel="noopener noreferrer" class="font-black font-display text-sm uppercase text-themeText" style="animation: linkBounce 1.5s infinite ease-in-out; display: inline-block;">Machhar Kumar</a>
+                            <div class="font-code text-[9px] font-bold uppercase bg-themeCard px-1 border-2 border-themeBorder mt-0.5 inline-block">Founder</div>
+                        </div>
+                    </div>
+                    <div class="flex gap-2 font-code text-[10px] font-bold uppercase">
+                        <a href="#" class="underline">Website</a> | <a href="#" class="underline">GitHub</a>
+                    </div>
+                    <div class="mt-4 pt-3 border-t-2 border-dashed border-themeBorder font-code text-[9px] font-bold uppercase text-themeMuted">
+                        Gaana Suno v4.1 Stable
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div id="trackDetailsModal" class="modal-overlay fixed inset-0 z-[160] flex items-end sm:items-center justify-center p-4 pb-safe bg-themeBorder/80 theme-glass-blur" onclick="document.getElementById('trackDetailsModal').classList.remove('open')">
+        <div class="bg-themeCard border-[length:var(--border-width)] border-themeBorder shadow-theme-xl w-full max-w-sm flex flex-col transform transition-transform relative" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-center border-b-[length:var(--border-width)] border-themeBorder p-4 bg-themeBg">
+                <h3 class="font-display font-black text-lg uppercase text-themeText">Options</h3>
+                <button onclick="document.getElementById('trackDetailsModal').classList.remove('open')" class="brutal-btn bg-themeCard p-2 touch-target min-h-0 w-10 h-10 flex items-center justify-center"><i class="ph ph-x font-bold text-lg"></i></button>
+            </div>
+            
+            <div class="p-4 flex flex-col gap-2 max-h-[60vh] overflow-y-auto no-scrollbar font-code font-bold uppercase text-xs">
+                
+                <button class="flex items-center gap-3 p-3 bg-themeCard border-[length:var(--border-width)] border-themeBorder shadow-theme hover:bg-themeBg transition-colors touch-target min-h-0 text-left w-full" onclick="document.getElementById('trackDetailsModal').classList.remove('open'); openArtist(state.currentSong ? state.currentSong.artists.split(',')[0].trim() : '');">
+                    <i class="ph ph-user text-lg"></i> View Artist
+                </button>
+
+                <button class="flex items-center gap-3 p-3 bg-themeCard border-[length:var(--border-width)] border-themeBorder shadow-theme hover:bg-themeBg transition-colors touch-target min-h-0 text-left w-full" onclick="document.getElementById('trackDetailsModal').classList.remove('open'); openPlaylistModal();">
+                    <i class="ph ph-list-plus text-lg"></i> Add to Playlist
+                </button>
+
+                <button id="downloadBtn" class="flex items-center gap-3 p-3 bg-themeCard border-[length:var(--border-width)] border-themeBorder shadow-theme hover:bg-themeBg transition-colors touch-target min-h-0 text-left w-full" onclick="downloadSong()">
+                    <i class="ph ph-download-simple text-lg"></i> Download
+                </button>
+                
+                <button class="flex items-center gap-3 p-3 bg-themeCard border-[length:var(--border-width)] border-themeBorder shadow-theme hover:bg-themeBg transition-colors touch-target min-h-0 text-left w-full" onclick="document.getElementById('trackDetailsModal').classList.remove('open'); shareCurrentSong();">
+                    <i class="ph ph-share-network text-lg"></i> Share
+                </button>
+                
+                <div class="mt-2 mb-1 border-t-2 border-dashed border-themeBorder"></div>
+                
+                <div class="p-2 text-themeMuted text-[10px]">SLEEP TIMER</div>
+                <div class="flex items-center gap-2 px-2 pb-2">
+                    <input type="range" id="sleepSlider" min="1" max="45" value="15" class="w-full cursor-pointer" oninput="document.getElementById('sleepVal').innerText=this.value+'M'">
+                    <span id="sleepVal" class="font-code text-xs">15M</span>
+                </div>
+                <div class="grid grid-cols-2 gap-2 px-2">
+                    <button class="bg-themeCard border-[length:var(--border-width)] border-themeBorder p-2 text-center hover:bg-themeBg touch-target min-h-0" onclick="setTimer(document.getElementById('sleepSlider').value)">START</button>
+                    <button class="bg-themeCard border-[length:var(--border-width)] border-themeBorder p-2 text-center hover:bg-themeBg touch-target min-h-0" onclick="setTimer('end')">AFTER SONG</button>
+                </div>
+                <div id="timerStatus" class="px-2 text-[10px] text-dominant font-bold mt-1 text-center"></div>
+                
+                <div class="mt-2 mb-1 border-t-2 border-dashed border-themeBorder"></div>
+                
+                <div class="p-2 text-themeMuted text-[10px]">TRACK CREDITS</div>
+                <div id="trackDetailsContent" class="flex flex-col gap-2">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="playlistContextMenu" class="modal-overlay fixed inset-0 z-[170] flex items-end sm:items-center justify-center p-4 pb-safe bg-themeBorder/80 theme-glass-blur" onclick="document.getElementById('playlistContextMenu').classList.remove('open')">
+        <div class="bg-cardCyan border-[length:var(--border-width)] border-themeBorder shadow-theme-xl w-full max-w-xs flex flex-col transform transition-transform relative" onclick="event.stopPropagation()">
+            <div class="p-4 border-b-[length:var(--border-width)] border-themeBorder">
+                <h3 id="contextMenuTitle" class="font-display font-black text-base uppercase text-themeText truncate">Playlist</h3>
+            </div>
+            <div class="p-4 flex flex-col gap-3 font-code font-bold uppercase text-xs">
+                <button class="brutal-btn bg-themeCard p-3 text-left touch-target min-h-0" onclick="handlePlaylistAction('play')"><i class="ph ph-play mr-2"></i> Play All</button>
+                <button class="brutal-btn bg-themeCard p-3 text-left touch-target min-h-0" onclick="handlePlaylistAction('rename')"><i class="ph ph-pencil-simple mr-2"></i> Rename</button>
+                <button class="brutal-btn bg-themeCard p-3 text-left touch-target min-h-0" onclick="handlePlaylistAction('duplicate')"><i class="ph ph-copy mr-2"></i> Duplicate</button>
+                <button class="brutal-btn bg-themeCard p-3 text-left touch-target min-h-0" onclick="handlePlaylistAction('share')"><i class="ph ph-share-network mr-2"></i> Share</button>
+                <button class="brutal-btn bg-cardPink text-themeText p-3 text-left touch-target min-h-0 mt-2" onclick="handlePlaylistAction('delete')"><i class="ph ph-trash mr-2"></i> Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="queueSheet" class="bottom-sheet fixed bottom-0 left-0 w-full h-[100vh] sm:h-[85vh] bg-themeCard border-t-[length:var(--border-width)] border-themeBorder z-[120] flex flex-col shadow-[0_-8px_0px_var(--shadow-color)] max-w-2xl mx-auto sm:border-l-[length:var(--border-width)] sm:border-r-[length:var(--border-width)]">
+        <div class="flex justify-between items-center px-4 sm:px-6 py-4 border-b-[length:var(--border-width)] border-themeBorder bg-cardYellow flex-shrink-0 relative z-10 w-full pt-safe">
+            <h3 class="font-display font-black text-xl uppercase text-[#000000]">Full Queue</h3>
+            <button onclick="closeAllSheets()" class="brutal-btn bg-[#ffffff] px-2 py-1 touch-target min-h-0 w-10 h-10 flex items-center justify-center text-[#000000] border-[#000000]"><i class="ph ph-arrow-down font-bold text-lg"></i></button>
+        </div>
+        <div id="queueList" class="flex-1 overflow-y-auto p-3 sm:p-4 space-y-2 sm:space-y-3 pb-32 relative z-10 bg-themeBg w-full">
+        </div>
+    </div>
+
+    <div id="playlistModal" class="modal-overlay fixed inset-0 z-[150] flex items-center justify-center p-4 pb-safe bg-themeBorder/80 theme-glass-blur" onclick="closeModals(event)">
+        <div class="bg-themeCard border-[length:var(--border-width)] border-themeBorder shadow-theme-xl w-full max-w-sm p-4 sm:p-6 flex flex-col gap-4 transform transition-transform relative" onclick="event.stopPropagation()">
+            <div class="cyber-badge absolute -top-4 -left-4 text-xs">SAVE</div>
+            
+            <div class="flex justify-between items-center border-b-[length:var(--border-width)] border-themeBorder pb-3">
+                <h3 class="font-display font-black text-lg sm:text-xl uppercase text-themeText">Playlists</h3>
+                <button onclick="document.getElementById('playlistModal').classList.remove('open')" class="brutal-btn bg-themeCard p-1 touch-target min-h-0 w-10 h-10 flex items-center justify-center"><i class="ph ph-x font-bold text-lg"></i></button>
+            </div>
+            
+            <div id="playlistListModal" class="max-h-48 overflow-y-auto space-y-2 pr-1">
+            </div>
+            
+            <div class="flex flex-col gap-2 mt-2 pt-3 border-t-[length:var(--border-width)] border-themeBorder">
+                <input type="text" id="newPlaylistInput" placeholder="NEW PLAYLIST..." aria-label="New Playlist Name" class="w-full bg-themeBg border-[length:var(--border-width)] border-themeBorder px-3 py-3 font-code font-bold uppercase text-themeText text-sm outline-none focus:shadow-theme transition-all touch-target min-h-0">
+                <button class="brutal-btn neo-solid-icon bg-themeText text-themeBg px-4 py-3 touch-target min-h-0 w-full mt-2" onclick="createNewPlaylist()">CREATE & ADD</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.changeTheme = function(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('gaana_theme', theme);
+            const pState = JSON.parse(localStorage.getItem('gaana_playback') || '{}');
+            pState.theme = theme;
+            localStorage.setItem('gaana_playback', JSON.stringify(pState));
+            setTimeout(() => {
+                const metaColor = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim();
+                document.getElementById('metaThemeColor').setAttribute('content', metaColor);
+            }, 50);
+        };
+        
+        window.toggleMotion = function(cb) {
+            if(cb.checked) {
+                document.documentElement.classList.add('reduce-motion');
+                localStorage.setItem('gaana_motion', 'reduce');
+            } else {
+                document.documentElement.classList.remove('reduce-motion');
+                localStorage.setItem('gaana_motion', 'normal');
+            }
+        };
+
+        const cursorBox = document.getElementById('cursor-box');
+        document.addEventListener('mousemove', (e) => {
+            if (window.matchMedia("(pointer: coarse)").matches) return;
+            if(!cursorBox.style.opacity || cursorBox.style.opacity == '0') cursorBox.style.opacity = 1;
+            cursorBox.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
+        });
+
+        function haptic() { if(navigator.vibrate) navigator.vibrate(15); }
+
+        const API_BASE = 'https://music-api.albatross0071.workers.dev/api/';
+        const BACKEND_BASE = 'https://gaana-suno-varna-machhar-aajayega.onrender.com/'; 
+        const CACHE_NAME = "royverse-v1";
+        
+        const audios = [new Audio(), new Audio()];
+        audios.forEach(a => { a.crossOrigin = "anonymous"; a.preload = "auto"; });
+        let activeAudioIdx = 0; let masterVolume = 1; let fadeTimer = null; let sleepTimer = null; let stopAfterCurrent = false;
+
+        function getActiveAudio() { return audios[activeAudioIdx]; }
+        function getInactiveAudio() { return audios[1 - activeAudioIdx]; }
+
+        const DB_NAME = 'GaanaDB'; let dbInstance = null;
+        const IDB = {
+            async open() {
+                if(dbInstance) return dbInstance;
+                return new Promise((resolve, reject) => {
+                    const req = indexedDB.open(DB_NAME, 1);
+                    req.onupgradeneeded = e => { if(!e.target.result.objectStoreNames.contains('data')) e.target.result.createObjectStore('data'); };
+                    req.onsuccess = e => { dbInstance = e.target.result; resolve(dbInstance); };
+                    req.onerror = () => reject('IDB Error');
+                });
+            },
+            async get(key) { const db = await this.open(); return new Promise(resolve => { const req = db.transaction('data', 'readonly').objectStore('data').get(key); req.onsuccess = () => resolve(req.result); }); },
+            async set(key, val) { const db = await this.open(); return new Promise(resolve => { const req = db.transaction('data', 'readwrite').objectStore('data').put(val, key); req.onsuccess = resolve; }); }
+        };
+
+        const state = {
+            currentSong: null, queue: [], playedSongs: new Set(), history: [],        
+            isPlaying: false, isShuffle: false, isRepeat: false, isScrubbing: false,
+            recentlyPlayed: [], favorites: [], playlists: { "BRUTAL": [], "CHILL": [] },
+            lyricsCache: [], activeLyricIdx: -1, tempSongToAdd: null, currentArtistSongs: [], crossfade: 0,
+            contextPlaylist: null
+        };
+        const cacheStore = new Map();
+
+        async function init() {
+            const pStateRaw = localStorage.getItem('gaana_playback');
+            if(pStateRaw) {
+                try {
+                    const pState = JSON.parse(pStateRaw);
+                    if(pState.theme && pState.theme !== 'amoled') document.getElementById('themeSelect').value = pState.theme;
+                } catch(e){}
+            }
+
+            if(localStorage.getItem('gaana_motion') === 'reduce') {
+                const mt = document.getElementById('motionToggle');
+                if(mt) mt.checked = true;
+            }
+
+            state.recentlyPlayed = (await IDB.get('recents')) || [];
+            state.favorites = (await IDB.get('favorites')) || [];
+            state.playlists = (await IDB.get('playlists')) || { "BRUTAL": [], "CHILL": [] };
+            
+            if (pStateRaw) {
+                try {
+                    const pState = JSON.parse(pStateRaw);
+                    state.currentSong = pState.currentSong;
+                    state.queue = pState.queue || [];
+                    state.isShuffle = !!pState.isShuffle;
+                    state.isRepeat = !!pState.isRepeat;
+                    state.crossfade = pState.crossfade || 0;
+                    masterVolume = pState.volume ?? 1;
+
+                    if (state.currentSong) {
+                        if (!state.isPlaying) document.getElementById('resumeSection').classList.remove('hidden-safely');
+                        document.getElementById('resumeTitle').textContent = state.currentSong.title;
+                        document.getElementById('resumeArtist').textContent = state.currentSong.artists;
+                        document.getElementById('resumeCover').src = state.currentSong.image;
+                        updateDominantColor(state.currentSong.image);
+                        updatePlayerUI();
+                    }
+                    if(state.isShuffle) {
+                        ['shuffleBtn', 'fsShuffleBtn'].forEach(id => { const el = document.getElementById(id); if (el) { el.classList.add('text-themeAccent3', 'bg-themeBorder'); } });
+                    }
+                    if(state.isRepeat) {
+                        ['repeatBtn', 'fsRepeatBtn'].forEach(id => { const el = document.getElementById(id); if (el) { el.classList.add('text-dominant', 'bg-themeBorder'); } });
+                    }
+                } catch(e) {}
+            } else {
+                state.crossfade = 0; 
+                masterVolume = 1;
+            }
+            
+            const vb = document.getElementById('volumeBar');
+            if(vb) { vb.value = masterVolume * 100; }
+            
+            if(state.crossfade > 0) {
+                document.getElementById('cfToggle').checked = true;
+                document.getElementById('cfSliderContainer').classList.remove('opacity-50', 'pointer-events-none');
+                document.getElementById('cfSlider').value = state.crossfade;
+                document.getElementById('cfProgressFill').style.width = `${(state.crossfade/10)*100}%`;
+                document.getElementById('cfValueDisplay').innerText = state.crossfade + 'S';
+            } else {
+                document.getElementById('cfToggle').checked = false;
+                document.getElementById('cfSliderContainer').classList.add('opacity-50', 'pointer-events-none');
+                document.getElementById('cfSlider').value = 0;
+                document.getElementById('cfProgressFill').style.width = `0%`;
+                document.getElementById('cfValueDisplay').innerText = '0S';
+            }
+
+            renderSections();
+            setupEventListeners();
+            setupGestures();
+            fetchTrending(); 
+            audios.forEach(a => a.volume = masterVolume);
+            if(!state.currentSong) document.documentElement.style.setProperty('--dominant', 'var(--accent1)');
+        }
+
+        function savePlaybackState() {
+            if (!state.currentSong) return;
+            const active = getActiveAudio();
+            const pState = {
+                currentSong: state.currentSong,
+                queue: state.queue,
+                currentTime: active.currentTime || 0,
+                duration: active.duration || 0,
+                isShuffle: state.isShuffle,
+                isRepeat: state.isRepeat,
+                crossfade: state.crossfade,
+                volume: masterVolume,
+                theme: document.documentElement.getAttribute('data-theme')
+            };
+            localStorage.setItem('gaana_playback', JSON.stringify(pState));
+            
+            const prog = document.getElementById('resumeProgress');
+            if (prog && active.duration) {
+                prog.style.width = `${(active.currentTime / active.duration) * 100}%`;
+            }
+        }
+
+        window.resumePlayback = async function() {
+            document.getElementById('resumeSection').classList.add('hidden-safely');
+            haptic();
+            if (state.currentSong) {
+                const persistedStateRaw = localStorage.getItem('gaana_playback');
+                let startTime = 0;
+                if (persistedStateRaw) { try { startTime = JSON.parse(persistedStateRaw).currentTime; } catch(e){} }
+                await playSong(state.currentSong, true, true); 
+                const active = getActiveAudio();
+                active.currentTime = startTime;
+            }
+        };
+
+        async function fetchWithCache(url) {
+            try {
+                const cache = await caches.open(CACHE_NAME);
+                const cachedRes = await cache.match(url);
+                if (cachedRes) {
+                    const ct = cachedRes.headers.get("content-type");
+                    return ct?.includes("json") ? await cachedRes.json() : await cachedRes.text();
+                }
+                const res = await fetch(url);
+                if (res.ok) cache.put(url, res.clone());
+                const ct = res.headers.get("content-type");
+                return ct?.includes("json") ? await res.json() : await res.text();
+            } catch (e) {
+                const res = await fetch(url);
+                const ct = res.headers.get("content-type");
+                return ct?.includes("json") ? await res.json() : await res.text();
+            }
+        }
+
+        function decodeHTMLEntities(text) { if (!text) return ''; const t = document.createElement('textarea'); t.innerHTML = text; return t.value; }
+        function formatTime(secs) { if (isNaN(secs) || !isFinite(secs)) return "0:00"; const m = Math.floor(secs / 60), s = Math.floor(secs % 60); return `${m}:${s < 10 ? '0' : ''}${s}`; }
+        function debounce(func, delay) { let timer; return (...args) => { clearTimeout(timer); timer = setTimeout(() => func(...args), delay); }; }
+        
+        function normalizeSong(raw) {
+            const getImg = (imgs) => {
+                const fallback = 'https://placehold.co/500x500/000/FFE600?text=BRUTAL&font=Oswald';
+                if(!imgs) return fallback;
+                if(Array.isArray(imgs)){ return imgs[2]?.url || imgs[1]?.url || imgs[0]?.url || imgs[0]?.link || fallback; }
+                return typeof imgs === 'string' ? imgs : fallback;
+            };
+            const getArtist = (song) => {
+                if (!song) return "Unknown Artist";
+                let a = song.primaryArtists || song.singers || song.artist || "Unknown Artist";
+                if (typeof a === 'string') return decodeHTMLEntities(a);
+                if (typeof a === 'object' && a !== null) {
+                    if (Array.isArray(a)) return a.map(x => x.name || x).join(', ');
+                    if (a.primary) return a.primary.map(x => x.name || x).join(', ');
+                    return a.name || "Unknown Artist";
+                }
+                return "Unknown Artist";
+            };
+            return {
+                id: raw.id, title: decodeHTMLEntities(raw.title || raw.name || "Unknown"),
+                artists: getArtist(raw),
+                album: decodeHTMLEntities(raw.album?.name || raw.album || "Unknown Album"),
+                year: raw.year || "Unknown", duration: raw.duration || 0, language: raw.language || "Unknown", image: getImg(raw.image), raw: raw 
+            };
+        }
+
+        function updateDominantColor(imgUrl) {
+            if (!imgUrl || typeof ColorThief === 'undefined') return;
+            const img = new Image(); img.crossOrigin = 'Anonymous'; img.src = imgUrl;
+            img.onload = function() {
+                try {
+                    const ct = new ColorThief(); const color = ct.getColor(img);
+                    document.documentElement.style.setProperty('--dominant', `rgb(${color[0]}, ${color[1]}, ${color[2]})`);
+                } catch(e) { document.documentElement.style.setProperty('--dominant', 'var(--accent1)'); }
+            };
+            img.onerror = function() { document.documentElement.style.setProperty('--dominant', 'var(--accent1)'); };
+        }
+
+        function getEmptyStateHTML(title, desc, icon, actionText, actionFn) {
+            return `
+                <div class="col-span-full w-full flex flex-col items-center justify-center p-8 sm:p-12 border-[length:var(--border-width)] border-themeBorder bg-themeCard shadow-theme text-center mt-2">
+                    <div class="w-16 h-16 border-[length:var(--border-width)] border-themeBorder bg-themeBg flex items-center justify-center mb-4 shadow-[2px_2px_0px_var(--shadow-color)] transform -rotate-3">
+                        <i class="ph ${icon} text-3xl text-themeBorder"></i>
+                    </div>
+                    <h3 class="font-display font-black text-lg uppercase text-themeText mb-1">${title}</h3>
+                    <p class="font-code font-bold text-[10px] text-themeMuted uppercase mb-4 max-w-[280px]">${desc}</p>
+                    ${actionText ? `<button class="brutal-btn neo-solid-icon bg-themeText text-themeBg px-6 py-3 font-display font-black uppercase text-[10px] touch-target" onclick="${actionFn}">${actionText}</button>` : ''}
+                </div>
+            `;
+        }
+
+        window.clearAppCache = async function() { haptic(); try { await caches.delete(CACHE_NAME); alert("CACHE CLEARED."); } catch(e) {} }
+
+        function renderSongCards(songs, container, showPlaylistBtn = false, layoutType = 'horizontal') {
+            const el = typeof container === 'string' ? document.getElementById(container) : container;
+            if (!el) return;
+            if (!songs || !songs.length) { 
+                let emptyHTML = getEmptyStateHTML('No Data', 'Nothing to display here.', 'ph-ghost', 'Go Home', 'goHome()');
+                if(container === 'searchResultsGrid') emptyHTML = getEmptyStateHTML('No Results', 'Try searching for something else.', 'ph-magnifying-glass', 'Clear Search', 'goHome()');
+                if(container === 'favoritesGrid') emptyHTML = getEmptyStateHTML('No Favorites', 'Like a song to see it here.', 'ph-heart', 'Browse', 'goHome()');
+                el.innerHTML = emptyHTML; return; 
+            }
+
+            const isResponsiveList = layoutType === 'compact-list';
+            const cardClass = isResponsiveList 
+                ? "mobile-search-row bg-themeBg border-[length:var(--border-width)] border-themeBorder p-2 transition-all hover:bg-themeCard active:scale-[0.98] w-full"
+                : "flex-shrink-0 w-36 sm:w-44 bg-themeCard border-[length:var(--border-width)] border-themeBorder shadow-theme p-2 flex flex-col transition-transform duration-200 snap-start hover:-translate-y-1 hover:-translate-x-1 hover:shadow-theme-lg";
+
+            el.innerHTML = songs.map((rawSong, i) => {
+                const s = normalizeSong(rawSong);
+                const sJson = encodeURIComponent(JSON.stringify(s));
+                const safeArtist = s.artists.split(',')[0].trim().replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                const isFav = state.favorites.some(fav => fav.id === s.id);
+                const heartClass = isFav ? "ph-heart text-accent3" : "ph-heart";
+                const heartWeight = isFav ? "fill" : "regular";
+                
+                if (isResponsiveList) {
+                    return `
+                    <div class="${cardClass}" onclick="playSongJson('${sJson}', true)">
+                        <div class="w-12 h-12 border-2 border-themeBorder bg-themeBg flex-shrink-0 relative overflow-hidden">
+                            <img src="${s.image}" class="w-full h-full object-cover" loading="lazy">
+                        </div>
+                        <div class="min-w-0 flex flex-col justify-center">
+                            <h4 class="font-display font-black text-xs uppercase truncate text-themeText mb-0.5">${s.title}</h4>
+                            <p class="font-code text-[9px] font-bold text-themeMuted uppercase truncate" onclick="event.stopPropagation(); openArtist('${safeArtist}')">${s.artists}</p>
+                        </div>
+                        <div class="flex items-center gap-1">
+                            <button class="p-2 text-themeText touch-target min-h-0 w-10 h-10" onclick="window.toggleFavoriteBySong(event, '${sJson}')"><i class="ph ${heartClass} text-lg font-bold" weight="${heartWeight}"></i></button>
+                            <button class="p-2 text-themeText touch-target min-h-0 w-10 h-10" onclick="event.stopPropagation(); window.tempMenuSong='${sJson}'; document.getElementById('trackDetailsModal').classList.add('open');"><i class="ph ph-dots-three-vertical text-lg font-bold"></i></button>
+                        </div>
+                    </div>`;
+                } else {
+                    return `
+                    <div class="${cardClass}">
+                        <div class="w-full aspect-square relative mb-2 border-2 sm:border-[length:var(--border-width)] border-themeBorder bg-themeBg overflow-hidden flex-shrink-0" onclick="playSongJson('${sJson}', true)">
+                            <img src="${s.image}" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" loading="lazy">
+                            <div class="absolute inset-0 bg-themeBorder/20 opacity-0 hover:opacity-100 transition-opacity hidden md:flex items-center justify-center">
+                                <div class="w-10 h-10 border-2 border-themeBorder bg-dominant flex items-center justify-center text-themeBorder shadow-[2px_2px_0px_var(--shadow-color)] transform translate-y-2 group-hover:translate-y-0 transition-transform"><i class="ph ph-play text-xl font-black ml-1"></i></div>
+                            </div>
+                        </div>
+                        <div class="flex-1 flex flex-col justify-start px-1 min-w-0">
+                            <h4 class="font-display font-black text-xs sm:text-sm uppercase truncate text-themeText mb-0.5 group-hover:underline decoration-2" title="${s.title}" onclick="playSongJson('${sJson}', true)">${s.title}</h4>
+                            <p class="font-code text-[9px] sm:text-[10px] font-bold text-themeMuted uppercase truncate border-l-2 border-themeBorder pl-1.5" onclick="openArtist('${safeArtist}')">${s.artists}</p>
+                        </div>
+                    </div>`;
+                }
+            }).join('');
+        }
+
+        window.toggleFavoriteBySong = function(e, songJson) {
+            e.stopPropagation(); haptic();
+            const song = JSON.parse(decodeURIComponent(songJson));
+            const idx = state.favorites.findIndex(s => s.id === song.id);
+            if (idx > -1) state.favorites.splice(idx, 1); else state.favorites.push(song);
+            IDB.set('favorites', state.favorites);
+            renderSections();
+            const btn = e.target.closest('button');
+            if (btn) {
+                const icon = btn.querySelector('i');
+                icon.classList.remove('animate-heart'); void icon.offsetWidth;
+                if (idx > -1) { icon.setAttribute('weight', 'regular'); icon.classList.remove('text-accent3'); } 
+                else { icon.setAttribute('weight', 'fill'); icon.classList.add('animate-heart', 'text-accent3'); }
+            }
+        }
+
+        function renderSections(limitRecents = true) {
+            if (state.recentlyPlayed.length) {
+                document.getElementById('recentSection').classList.remove('hidden-safely');
+                const recents = limitRecents ? state.recentlyPlayed.slice(0, 10) : state.recentlyPlayed;
+                renderSongCards(recents, 'recentGrid', false, 'horizontal');
+            } else { document.getElementById('recentSection').classList.add('hidden-safely'); }
+
+            if (state.favorites.length) {
+                document.getElementById('favoritesSection').classList.remove('hidden-safely');
+                renderSongCards(state.favorites, 'favoritesGrid', false, 'horizontal');
+            } else { document.getElementById('favoritesSection').classList.add('hidden-safely'); }
+
+            if (state.queue.length) {
+                document.getElementById('recommendedSection').classList.remove('hidden-safely');
+                renderSongCards(state.queue.slice(0,10), 'recommendedGrid', false, 'horizontal');
+            }
+            renderPlaylistsSection();
+        }
+
+        function renderPlaylistsSection() {
+            const keys = Object.keys(state.playlists);
+            const sec = document.getElementById('playlistsSection');
+            const grid = document.getElementById('playlistsGrid');
+            if(!grid || !sec) return;
+
+            if(keys.length) {
+                sec.classList.remove('hidden-safely');
+                grid.innerHTML = keys.map((name, i) => {
+                    const count = state.playlists[name].length;
+                    let coverHtml = '';
+                    if (count > 0 && state.playlists[name][0].image) {
+                        coverHtml = `<img src="${state.playlists[name][0].image}" class="w-full h-full object-cover" loading="lazy">`;
+                    } else { coverHtml = `<div class="w-full h-full flex items-center justify-center bg-themeCard"><i class="ph ph-vinyl-record text-4xl text-themeBorder"></i></div>`; }
+                    
+                    return `
+                        <div class="flex-shrink-0 w-36 sm:w-44 bg-themeBg border-[length:var(--border-width)] border-themeBorder shadow-theme p-2 group relative flex flex-col transition-all snap-start" 
+                             onclick="openPlaylistView('${name}')" 
+                             oncontextmenu="openPlaylistContext(event, '${name}')">
+                            <div class="w-full aspect-square relative mb-2 border-[length:var(--border-width)] border-themeBorder bg-themeBorder overflow-hidden">
+                                ${coverHtml}
+                                <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all z-10 bg-themeBorder/20 hidden md:flex">
+                                    <div class="w-10 h-10 border-2 border-themeBorder bg-dominant flex items-center justify-center text-themeBorder shadow-[2px_2px_0px_var(--shadow-color)]"><i class="ph ph-play text-xl font-black ml-1"></i></div>
+                                </div>
+                            </div>
+                            <div class="px-1 bg-themeCard border-2 border-themeBorder p-1 text-center shadow-[inset_1px_1px_0px_var(--shadow-color)]">
+                                <h4 class="font-display font-black text-xs sm:text-sm uppercase truncate text-themeText mb-0.5">${name}</h4>
+                                <p class="font-code text-[9px] sm:text-[10px] font-bold text-themeMuted uppercase">${count} TRACKS</p>
+                            </div>
+                        </div>`;
+                }).join('');
+                
+                setTimeout(() => {
+                    const items = grid.children;
+                    for(let i=0; i<items.length; i++) {
+                        let pressTimer;
+                        items[i].addEventListener('touchstart', (e) => { pressTimer = window.setTimeout(() => { openPlaylistContext(e, keys[i]); }, 600); }, {passive: true});
+                        items[i].addEventListener('touchend', () => { clearTimeout(pressTimer); }, {passive: true});
+                        items[i].addEventListener('touchmove', () => { clearTimeout(pressTimer); }, {passive: true});
+                    }
+                }, 100);
+
+            } else {
+                sec.classList.remove('hidden-safely');
+                grid.innerHTML = getEmptyStateHTML('No Playlists', 'Save collections to listen later.', 'ph-playlist', 'Create Playlist', 'openPlaylistModal()');
+            }
+        }
+
+        window.openPlaylistView = function(name) {
+            haptic();
+            state.contextPlaylist = name;
+            document.getElementById('heroSection').classList.add('hidden-safely');
+            document.getElementById('resumeSection').classList.add('hidden-safely');
+            Array.from(document.getElementById('dynamicSections').children).forEach(c => c.classList.add('hidden-safely'));
+            document.getElementById('playlistViewSection').classList.remove('hidden-safely');
+            document.getElementById('playlistViewTitle').textContent = name;
+            renderPlaylistViewSongs(name);
+        }
+
+        window.goBackFromPlaylist = function() {
+            haptic();
+            goHome();
+        }
+
+        window.playCurrentPlaylistView = function() {
+            if(!state.contextPlaylist) return;
+            playPlaylist(state.contextPlaylist);
+        }
+
+        function renderPlaylistViewSongs(name) {
+            const list = state.playlists[name];
+            const grid = document.getElementById('playlistViewGrid');
+            document.getElementById('playlistViewCount').textContent = list ? list.length : 0;
+            if(!list || !list.length) {
+                grid.innerHTML = getEmptyStateHTML('Empty Playlist', 'No songs added here yet.', 'ph-ghost');
+                return;
+            }
+            grid.innerHTML = list.map((rawSong, i) => {
+                const s = normalizeSong(rawSong);
+                const sJson = encodeURIComponent(JSON.stringify(s));
+                const safeArtist = s.artists.split(',')[0].trim().replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                return `
+                <div class="mobile-search-row bg-themeBg border-[length:var(--border-width)] border-themeBorder p-2 transition-all hover:bg-themeCard active:scale-[0.98] w-full" onclick="playSongJson('${sJson}', true)">
+                    <div class="w-12 h-12 border-2 border-themeBorder bg-themeBg flex-shrink-0 relative overflow-hidden">
+                        <img src="${s.image}" class="w-full h-full object-cover" loading="lazy">
+                    </div>
+                    <div class="min-w-0 flex flex-col justify-center">
+                        <h4 class="font-display font-black text-xs uppercase truncate text-themeText mb-0.5">${s.title}</h4>
+                        <p class="font-code text-[9px] font-bold text-themeMuted uppercase truncate" onclick="event.stopPropagation(); openArtist('${safeArtist}')">${s.artists}</p>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <button class="p-2 text-[#FF0000] touch-target min-h-0 w-10 h-10" onclick="event.stopPropagation(); removeFromPlaylist('${name}', '${s.id}')"><i class="ph ph-trash text-lg font-bold"></i></button>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        window.removeFromPlaylist = function(playlistName, songId) {
+            haptic();
+            state.playlists[playlistName] = state.playlists[playlistName].filter(s => s.id !== songId);
+            IDB.set('playlists', state.playlists);
+            renderPlaylistViewSongs(playlistName);
+            renderPlaylistsSection();
+        }
+
+        window.openPlaylistContext = function(e, name) {
+            e.preventDefault(); e.stopPropagation(); haptic();
+            state.contextPlaylist = name;
+            document.getElementById('contextMenuTitle').textContent = name;
+            document.getElementById('playlistContextMenu').classList.add('open');
+        }
+        
+        window.handlePlaylistAction = function(action) {
+            document.getElementById('playlistContextMenu').classList.remove('open');
+            if(!state.contextPlaylist) return;
+            const name = state.contextPlaylist;
+            if(action === 'play') { playPlaylist(name); }
+            if(action === 'rename') {
+                const newName = prompt("New playlist name:", name);
+                if(newName && newName !== name && !state.playlists[newName]) {
+                    state.playlists[newName] = state.playlists[name];
+                    delete state.playlists[name];
+                    IDB.set('playlists', state.playlists);
+                    renderPlaylistsSection();
+                }
+            }
+            if(action === 'duplicate') {
+                const newName = name + " (Copy)";
+                state.playlists[newName] = [...state.playlists[name]];
+                IDB.set('playlists', state.playlists);
+                renderPlaylistsSection();
+            }
+            if(action === 'delete') {
+                if(confirm(`Delete playlist ${name}?`)) {
+                    delete state.playlists[name];
+                    IDB.set('playlists', state.playlists);
+                    renderPlaylistsSection();
+                }
+            }
+            if(action === 'share') { alert(`Shared playlist: ${name}`); }
+        }
+
+        async function fetchTrending() {
+            try {
+                const res = await fetchWithCache(`${BACKEND_BASE}trending`);
+                if (res && res.songs && res.songs.length > 0) {
+                    document.getElementById('trendingSection').classList.remove('hidden-safely');
+                    renderSongCards(res.songs, 'trendingGrid', false, 'horizontal');
+                    const rGrid = document.getElementById('recentSearchesGrid');
+                    if(rGrid) {
+                        rGrid.innerHTML = res.songs.slice(0,4).map(s => {
+                           const n = normalizeSong(s);
+                           return `<button class="brutal-btn bg-themeBg text-themeText px-3 py-1 text-[10px] touch-target min-h-0" onclick="performFullSearch('${n.title}')">${n.title}</button>`;
+                        }).join('');
+                    }
+                }
+            } catch(e) {}
+        }
+
+        window.goHome = function() {
+            document.getElementById('searchBackBtn').classList.add('hidden-safely');
+            document.getElementById('brandContainer').classList.remove('hidden-safely');
+            document.getElementById('searchInput').blur();
+            document.getElementById('searchInput').value = '';
+            document.getElementById('searchViewSection').classList.add('hidden-safely');
+            document.getElementById('artistSection').classList.add('hidden-safely');
+            document.getElementById('playlistViewSection').classList.add('hidden-safely');
+            document.getElementById('heroSection').classList.remove('hidden-safely');
+            document.getElementById('errorState').classList.add('hidden-safely');
+            if (state.currentSong && !state.isPlaying) document.getElementById('resumeSection').classList.remove('hidden-safely');
+            else document.getElementById('resumeSection').classList.add('hidden-safely');
+            Array.from(document.getElementById('dynamicSections').children).forEach(c => {
+                if (c.id !== 'searchViewSection' && c.id !== 'artistSection' && c.id !== 'playlistViewSection') c.classList.remove('hidden-safely');
+            });
+            renderSections();
+        }
+
+        window.openSearch = function() {
+            document.getElementById('searchBackBtn').classList.remove('hidden-safely');
+            document.getElementById('brandContainer').classList.add('hidden-safely');
+            
+            document.getElementById('heroSection').classList.add('hidden-safely');
+            document.getElementById('resumeSection').classList.add('hidden-safely');
+            
+            Array.from(document.getElementById('dynamicSections').children).forEach(c => {
+                if(c.id !== 'searchViewSection') c.classList.add('hidden-safely');
+            });
+            document.getElementById('searchViewSection').classList.remove('hidden-safely');
+            
+            if(document.getElementById('searchInput').value.trim() !== '') {
+                document.getElementById('searchDefaultState').classList.add('hidden-safely');
+                document.getElementById('searchContentState').classList.remove('hidden-safely');
+            } else {
+                document.getElementById('searchDefaultState').classList.remove('hidden-safely');
+                document.getElementById('searchContentState').classList.add('hidden-safely');
+            }
+        }
+
+        window.closeSearch = function() {
+            goHome();
+        }
+
+        window.openArtist = async function(name) {
+            haptic(); if (!name || name.trim() === '' || name.toLowerCase().includes('unknown')) return;
+            document.getElementById('heroSection').classList.add('hidden-safely');
+            document.getElementById('resumeSection').classList.add('hidden-safely');
+            Array.from(document.getElementById('dynamicSections').children).forEach(c => c.classList.add('hidden-safely'));
+            document.getElementById('artistSection').classList.remove('hidden-safely');
+            document.getElementById('artistPageTitle').textContent = name;
+            
+            const grid = document.getElementById('artistSongsGrid');
+            grid.innerHTML = '<div class="col-span-full py-8 text-center w-full bg-themeCard border-[length:var(--border-width)] border-themeBorder shadow-theme"><i class="ph ph-spinner animate-spin text-3xl font-bold text-themeText"></i></div>';
+
+            try {
+                const res = await fetchWithCache(`${BACKEND_BASE}artist/${encodeURIComponent(name)}`);
+                if (res && res.songs && res.songs.length > 0) {
+                    state.currentArtistSongs = res.songs.map(normalizeSong); 
+                    document.getElementById('artistBannerImg').src = state.currentArtistSongs[0].image;
+                    document.getElementById('artistSongCount').textContent = state.currentArtistSongs.length;
+                    renderSongCards(res.songs, 'artistSongsGrid', true, 'compact-list');
+                } else {
+                    state.currentArtistSongs = [];
+                    grid.innerHTML = getEmptyStateHTML('Empty', 'Artist details not found.', 'ph-user');
+                }
+            } catch (e) { grid.innerHTML = getEmptyStateHTML('Error', 'Failed to fetch artist.', 'ph-warning-circle'); }
+        }
+
+        window.goBackFromArtist = function() {
+            haptic();
+            if (document.getElementById('searchInput').value.trim()) performFullSearch(document.getElementById('searchInput').value);
+            else goHome();
+        }
+
+        window.playAllArtistSongs = function() {
+            if(!state.currentArtistSongs || !state.currentArtistSongs.length) return;
+            haptic();
+            state.queue = [...state.currentArtistSongs];
+            IDB.set('queue', state.queue);
+            playNext(true); 
+        }
+
+        const searchInputEl = document.getElementById('searchInput');
+        
+        async function fetchSearchResults(query) {
+            const data = await fetchWithCache(`${BACKEND_BASE}search?q=${encodeURIComponent(query)}`);
+            let results = [];
+            if (data?.data) {
+                if (data.data.topQuery?.results) results.push(...data.data.topQuery.results);
+                if (data.data.songs?.results) results.push(...data.data.songs.results);
+                if (data.data.albums?.results) results.push(...data.data.albums.results);
+                if (Array.isArray(data.data)) results.push(...data.data);
+                if (results.length > 0) return results.filter((v,i,a) => a.findIndex(t => (t.id === v.id)) === i);
+            }
+            if (data?.songs?.results) return data.songs.results;
+            if (data?.results) return data.results;
+            if (Array.isArray(data)) return data;
+            return [];
+        }
+
+        const handleLiveSearch = debounce(async (query) => {
+            const clrBtn = document.getElementById('clearSearchBtn');
+            if (!query.trim()) { 
+                if(clrBtn) clrBtn.classList.add('hidden-safely');
+                document.getElementById('searchDefaultState').classList.remove('hidden-safely');
+                document.getElementById('searchContentState').classList.add('hidden-safely');
+                return; 
+            }
+            if(clrBtn) clrBtn.classList.remove('hidden-safely');
+            performFullSearch(query);
+        }, 800);
+
+        if(searchInputEl) {
+            searchInputEl.addEventListener('input', e => handleLiveSearch(e.target.value));
+            searchInputEl.addEventListener('keypress', e => {
+                if(e.key === 'Enter') { 
+                    performFullSearch(e.target.value); 
+                }
+            });
+        }
+        
+        window.clearSearch = function() {
+            if(searchInputEl) searchInputEl.value = '';
+            document.getElementById('clearSearchBtn').classList.add('hidden-safely');
+            document.getElementById('searchContentState').classList.add('hidden-safely');
+            document.getElementById('searchDefaultState').classList.remove('hidden-safely');
+            searchInputEl.focus();
+        }
+
+        window.performFullSearch = async function(query) {
+            if(searchInputEl) searchInputEl.value = query;
+            if (!query.trim()) { clearSearch(); return; }
+            
+            openSearch();
+            document.getElementById('clearSearchBtn').classList.remove('hidden-safely');
+            document.getElementById('searchDefaultState').classList.add('hidden-safely');
+            document.getElementById('searchContentState').classList.remove('hidden-safely');
+            document.getElementById('searchSpinner').classList.remove('hidden-safely');
+
+            try {
+                const results = await fetchSearchResults(query);
+                if (results && results.length > 0) {
+                    renderSongCards(results, 'searchResultsGrid', true, 'compact-list');
+                    results.slice(0, 3).forEach(s => preloadSong(encodeURIComponent(JSON.stringify(normalizeSong(s)))));
+                } else {
+                    document.getElementById('searchResultsGrid').innerHTML = getEmptyStateHTML('No Results', `We couldn't find "${query}"`, 'ph-magnifying-glass');
+                }
+            } catch (e) {
+                document.getElementById('searchResultsGrid').innerHTML = getEmptyStateHTML('System Error', `Could not fetch data.`, 'ph-warning-circle');
+            } finally {
+                document.getElementById('searchSpinner').classList.add('hidden-safely');
+            }
+        }
+
+        async function fetchSongStream(songId) {
+            try {
+                const data = await fetchWithCache(`${BACKEND_BASE}stream/${songId}`);
+                if (typeof data === 'string' && data.startsWith('http')) return data;
+                if (data?.stream) return data.stream;
+                
+                let s = Array.isArray(data?.data) ? data.data[0] : (data?.data || data);
+                if (!s?.downloadUrl && Array.isArray(data) && data[0]?.downloadUrl) s = data[0];
+                if (!s?.downloadUrl) return null;
+
+                const urls = s.downloadUrl;
+                if (Array.isArray(urls)) {
+                    return (urls.find(u => u.quality === '320kbps') || urls.find(u => u.quality === '160kbps') || urls[urls.length-1]).link || urls[0].url;
+                }
+                return typeof urls === 'string' ? urls : null;
+            } catch (error) { return null; }
+        }
+
+        window.preloadSong = async function(songJson) {
+            const song = JSON.parse(decodeURIComponent(songJson));
+            if (cacheStore.has(song.id)) return; 
+            const url = await fetchSongStream(song.id);
+            if (url) cacheStore.set(song.id, url);
+        };
+
+        window.downloadSong = async () => {
+            if(!state.currentSong) return;
+            const btn = document.getElementById('downloadBtn');
+            if(btn) btn.innerHTML = '<i class="ph ph-spinner animate-spin text-lg"></i> Downloading';
+            try {
+                const url = await fetchSongStream(state.currentSong.id);
+                if(!url) throw new Error();
+                const res = await fetch(url);
+                const blob = await res.blob();
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = `${state.currentSong.title}.mp3`;
+                a.click();
+                URL.revokeObjectURL(a.href);
+            } catch(e) {}
+            if(btn) btn.innerHTML = '<i class="ph ph-download-simple text-lg"></i> Download';
+            document.getElementById('trackDetailsModal').classList.remove('open');
+        };
+
+        async function buildSmartQueue(song) {
+            try {
+                let data = await fetchWithCache(`${BACKEND_BASE}queue/${song.id}`);
+                let results = [];
+                if (data && data.queue && Array.isArray(data.queue)) results = data.queue;
+                else if (data?.data && Array.isArray(data.data)) results = data.data; 
+                else if (Array.isArray(data)) results = data;
+                
+                const newSongs = results.map(normalizeSong).filter(s => !state.playedSongs.has(s.id) && s.id !== song.id);
+                if(state.isShuffle) newSongs.sort(() => Math.random() - 0.5);
+                
+                state.queue = [...state.queue, ...newSongs];
+                state.queue = state.queue.filter((v,i,a)=>a.findIndex(t=>(t.id === v.id))===i);
+                IDB.set('queue', state.queue); 
+                renderQueueUI(); renderUpNextPreview();
+            } catch(e) {}
+        }
+
+        window.playSongJson = (encoded, forceClearQueue = false) => {
+            if (forceClearQueue) { state.queue = []; IDB.set('queue', []); }
+            playSong(JSON.parse(decodeURIComponent(encoded)));
+        };
+
+        window.playPlaylist = function(name) {
+            const list = state.playlists[name];
+            if(!list || !list.length) return;
+            state.queue = [...list]; IDB.set('queue', state.queue); playNext(true); 
+        };
+
+        window.addToQueue = function(e, songJson) {
+            e.stopPropagation(); haptic();
+            state.queue.push(JSON.parse(decodeURIComponent(songJson)));
+            IDB.set('queue', state.queue);
+            renderQueueUI(); renderUpNextPreview();
+        };
+
+        window.playQueuedSong = function(index) {
+            const songToPlay = state.queue.splice(index, 1)[0];
+            IDB.set('queue', state.queue);
+            if(songToPlay) { playSong(songToPlay); renderQueueUI(); renderUpNextPreview(); }
+        };
+
+        window.removeQueuedSong = function(index) {
+            state.queue.splice(index, 1);
+            IDB.set('queue', state.queue);
+            renderQueueUI(); renderUpNextPreview();
+        };
+
+        async function playSong(song, isHistory = false, isResume = false) {
+            if (!song) return;
+            haptic();
+            
+            document.getElementById('resumeSection').classList.add('hidden-safely');
+
+            if (state.currentSong && !isHistory && !isResume) {
+                state.history = state.history.filter(s => s.id !== state.currentSong.id);
+                state.history.unshift(state.currentSong);
+                if(state.history.length > 30) state.history.pop(); 
+            }
+
+            state.currentSong = song;
+            state.playedSongs.add(song.id);
+            
+            updateDominantColor(song.image);
+            updatePlayerUI();
+            updateMediaSession();
+            
+            state.recentlyPlayed = state.recentlyPlayed.filter(s => s.id !== song.id);
+            state.recentlyPlayed.unshift(song);
+            if (state.recentlyPlayed.length > 50) state.recentlyPlayed.pop();
+            IDB.set('recents', state.recentlyPlayed);
+            
+            if (state.queue.length < 5) buildSmartQueue(song);
+            renderQueueUI(); renderUpNextPreview();
+
+            const ppIcon = document.getElementById('playPauseIcon');
+            const fsPpIcon = document.getElementById('fsPlayPauseIcon');
+            if(ppIcon) ppIcon.className = "ph ph-spinner animate-spin text-xl sm:text-3xl font-black text-themeBg ml-0 sm:ml-1";
+            if(fsPpIcon) fsPpIcon.className = "ph ph-spinner animate-spin text-3xl sm:text-5xl font-black text-themeBg ml-0 sm:ml-2";
+            
+            let audioUrl = cacheStore.get(song.id) || await fetchSongStream(song.id);
+            if(audioUrl && !cacheStore.has(song.id)) cacheStore.set(song.id, audioUrl);
+
+            if (audioUrl) {
+                const oldAudio = getActiveAudio();
+                activeAudioIdx = 1 - activeAudioIdx;
+                const newAudio = getActiveAudio();
+
+                if (fadeTimer) clearInterval(fadeTimer);
+
+                newAudio.src = audioUrl;
+                newAudio.volume = (state.crossfade === 0 || isResume) ? masterVolume : 0; 
+                newAudio.currentTime = 0;
+
+                try {
+                    await newAudio.play();
+                    state.isPlaying = true;
+                    updatePlayPauseButton();
+                    savePlaybackState();
+
+                    if (state.crossfade === 0 || isResume) {
+                        oldAudio.pause(); oldAudio.src = '';
+                    } else {
+                        const fadeDuration = state.crossfade * 1000; 
+                        const fadeInterval = 50; const steps = fadeDuration / fadeInterval; let step = 0;
+                        fadeTimer = setInterval(() => {
+                            step++; const frac = step / steps;
+                            newAudio.volume = Math.min(masterVolume, masterVolume * frac);
+                            if (!oldAudio.paused && oldAudio.src) oldAudio.volume = Math.max(0, masterVolume * (1 - frac));
+                            if (step >= steps) {
+                                clearInterval(fadeTimer); newAudio.volume = masterVolume;
+                                oldAudio.pause(); oldAudio.src = ''; 
+                            }
+                        }, fadeInterval);
+                    }
+                } catch (e) {
+                    state.isPlaying = false; updatePlayPauseButton(); newAudio.volume = masterVolume;
+                }
+            } else { updatePlayPauseButton(); }
+        }
+
+        window.togglePlay = function() {
+            haptic(); const active = getActiveAudio(); if (!active.src) return;
+            active.paused ? active.play() : active.pause();
+            state.isPlaying = !active.paused;
+            updatePlayPauseButton(); savePlaybackState();
+        }
+
+        window.playNext = async function(userTriggered = true) {
+            haptic();
+            if (stopAfterCurrent && !userTriggered) { stopAfterCurrent = false; return; }
+            if (state.queue.length === 0 && state.currentSong) await buildSmartQueue(state.currentSong);
+            
+            let nextSong = state.queue.shift();
+            if (nextSong) playSong(nextSong);
+            else if (!userTriggered) { state.isPlaying = false; updatePlayPauseButton(); }
+            
+            if(state.currentSong && state.queue.length < 5) await buildSmartQueue(state.currentSong);
+            renderQueueUI(); renderUpNextPreview(); IDB.set('queue', state.queue); savePlaybackState();
+        }
+
+        window.playPrevious = function() {
+            haptic(); const active = getActiveAudio();
+            if (active.currentTime > 4 || state.history.length === 0) { active.currentTime = 0; return; }
+            playSong(state.history.shift(), true); 
+        }
+
+        function updatePlayPauseButton() {
+            const cls = state.isPlaying ? "ph ph-pause" : "ph ph-play";
+            const ppIcon = document.getElementById('playPauseIcon');
+            const fsPpIcon = document.getElementById('fsPlayPauseIcon');
+            const fsCovBorder = document.getElementById('fsCoverBorder');
+            const heroDiscs = document.querySelectorAll('.hero-disc');
+            
+            if(ppIcon) ppIcon.className = `${cls} text-xl sm:text-3xl font-black text-themeBg ${state.isPlaying?'':'ml-1'}`;
+            if(fsPpIcon) fsPpIcon.className = `${cls} text-3xl sm:text-5xl font-black text-themeBg ${state.isPlaying?'':'ml-2'}`; 
+            
+            if(fsCovBorder) {
+                if(state.isPlaying) { fsCovBorder.classList.remove('border-transparent'); fsCovBorder.classList.add('border-dominant'); } 
+                else { fsCovBorder.classList.remove('border-dominant'); fsCovBorder.classList.add('border-transparent'); }
+            }
+            heroDiscs.forEach(d => { d.style.animationPlayState = state.isPlaying ? 'running' : 'paused'; });
+        }
+
+        function updatePlayerUI() {
+            if (!state.currentSong) return;
+            const s = state.currentSong;
+            
+            ['playerTitle', 'fsTitle'].forEach(id => { const el = document.getElementById(id); if(el) el.textContent = s.title; });
+            ['playerArtist', 'fsArtist'].forEach(id => { const el = document.getElementById(id); if(el) el.textContent = s.artists; });
+            ['playerCover', 'fsCover'].forEach(id => { const el = document.getElementById(id); if(el) el.src = s.image; });
+            
+            checkFavoriteStatus();
+            
+            if(!document.getElementById('fsContentLyrics').classList.contains('hidden-safely')) {
+                fetchAndShowLyrics();
+            }
+            
+            renderQueueUI(); renderUpNextPreview(); updateInfoModalCredits();
+        }
+
+        window.switchFsTab = function(tabName) {
+            haptic();
+            const btnAudio = document.getElementById('fsTabAudio');
+            const btnLyrics = document.getElementById('fsTabLyrics');
+            const contentAudio = document.getElementById('fsContentAudio');
+            const contentLyrics = document.getElementById('fsContentLyrics');
+
+            if(tabName === 'audio') {
+                btnAudio.className = "px-5 sm:px-6 py-2.5 bg-themeText text-themeBg transition-colors touch-target min-h-0";
+                btnLyrics.className = "px-5 sm:px-6 py-2.5 text-themeText hover:bg-themeMuted hover:text-themeBg transition-colors touch-target min-h-0";
+                contentLyrics.classList.add('hidden-safely');
+                contentAudio.classList.remove('hidden-safely');
+            } else {
+                btnLyrics.className = "px-5 sm:px-6 py-2.5 bg-themeText text-themeBg transition-colors touch-target min-h-0";
+                btnAudio.className = "px-5 sm:px-6 py-2.5 text-themeText hover:bg-themeMuted hover:text-themeBg transition-colors touch-target min-h-0";
+                contentAudio.classList.add('hidden-safely');
+                contentLyrics.classList.remove('hidden-safely');
+                fetchAndShowLyrics();
+            }
+        }
+
+        async function fetchAndShowLyrics() {
+            const lc = document.getElementById('fsContentLyrics');
+            if (!lc) return;
+            lc.innerHTML = '<div class="mt-10 flex h-full items-center justify-center"><i class="ph ph-spinner animate-spin text-4xl sm:text-5xl font-bold text-themeText"></i></div>';
+            state.lyricsCache = [];
+            if(!state.currentSong) return;
+
+            try {
+                const title = state.currentSong.title.split('(')[0].trim();
+                const artist = state.currentSong.artists.split(',')[0].trim();
+                const res = await fetchWithCache(`${BACKEND_BASE}lyrics?track=${encodeURIComponent(title)}&artist=${encodeURIComponent(artist)}`);
+                
+                let lyricsData = res;
+                if(Array.isArray(res)) lyricsData = res[0];
+
+                if (lyricsData?.syncedLyrics) {
+                    const lines = lyricsData.syncedLyrics.split('\n');
+                    state.lyricsCache = lines.map(l => {
+                        const m = l.match(/\[(\d+):(\d+\.\d+)\](.*)/);
+                        if(m) return { time: parseInt(m[1])*60 + parseFloat(m[2]), text: m[3].trim() };
+                        return null;
+                    }).filter(Boolean);
+                    
+                    lc.innerHTML = state.lyricsCache.map((l, i) => `<div id="lyric-${i}" class="lyric-line min-h-[2.5rem] sm:min-h-[3rem] w-full" onclick="seekTo(${l.time})">${l.text || '|||||'}</div>`).join('');
+                } else if (lyricsData?.plainLyrics) {
+                    lc.innerHTML = `<div class="font-code font-bold text-sm sm:text-base text-themeText text-left bg-themeCard border-[length:var(--border-width)] border-themeBorder p-4 sm:p-6 shadow-theme mx-auto max-w-lg mt-8">${lyricsData.plainLyrics.replace(/\n/g, '<br>')}</div>`;
+                } else {
+                    lc.innerHTML = '<div class="flex h-full items-center justify-center"><div class="font-display font-black text-lg sm:text-2xl uppercase text-themeText bg-themeCard border-[length:var(--border-width)] border-themeBorder p-3 sm:p-4 shadow-[4px_4px_0px_var(--shadow-color)] transform -rotate-2">NO LYRICS FOUND</div></div>';
+                }
+            } catch (e) {
+                lc.innerHTML = '<div class="flex h-full items-center justify-center"><div class="font-display font-black text-lg sm:text-2xl uppercase text-themeBg bg-themeText border-[length:var(--border-width)] border-themeBorder p-3 sm:p-4 shadow-[4px_4px_0px_var(--shadow-color)] transform 2">SYSTEM ERROR</div></div>';
+            }
+        }
+
+        window.seekTo = function(time) { const a = getActiveAudio(); if(a.duration) a.currentTime = time; }
+
+        function updateSyncedLyrics(time) {
+            if(!state.lyricsCache.length) return;
+            let activeIdx = -1;
+            for(let i=0; i<state.lyricsCache.length; i++) {
+                if(time >= state.lyricsCache[i].time) activeIdx = i; else break;
+            }
+            
+            if(activeIdx !== state.activeLyricIdx && activeIdx !== -1) {
+                if(state.activeLyricIdx !== -1) {
+                    const old = document.getElementById(`lyric-${state.activeLyricIdx}`);
+                    if(old) old.classList.remove('active');
+                }
+                const current = document.getElementById(`lyric-${activeIdx}`);
+                if(current) {
+                    current.classList.add('active');
+                    current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                state.activeLyricIdx = activeIdx;
+            }
+        }
+
+        window.toggleCrossfadeSwitch = function(cb) {
+            const container = document.getElementById('cfSliderContainer');
+            if(cb.checked) {
+                container.classList.remove('opacity-50', 'pointer-events-none');
+                state.crossfade = parseInt(document.getElementById('cfSlider').value) || 3;
+            } else {
+                container.classList.add('opacity-50', 'pointer-events-none');
+                state.crossfade = 0;
+            }
+            IDB.set('crossfade', state.crossfade); savePlaybackState();
+        }
+
+        window.setCrossfadeSlider = function(val) {
+            document.getElementById('cfValueDisplay').innerText = val + 'S';
+            document.getElementById('cfProgressFill').style.width = `${(val/10)*100}%`;
+            state.crossfade = parseInt(val);
+            IDB.set('crossfade', state.crossfade); savePlaybackState();
+        }
+
+        window.setTimer = function(val) {
+            if(sleepTimer) clearTimeout(sleepTimer); stopAfterCurrent = false;
+            const ts = document.getElementById('timerStatus'); if(!ts) return;
+            if(val === "0") { ts.innerText = ""; return; }
+            if(val === "end") { stopAfterCurrent = true; ts.innerText = "WILL STOP AFTER CURRENT SONG"; document.getElementById('trackDetailsModal').classList.remove('open'); } 
+            else {
+                const mins = parseInt(val); ts.innerText = `SLEEP IN ${mins} MINS`;
+                sleepTimer = setTimeout(() => { getActiveAudio().pause(); state.isPlaying = false; updatePlayPauseButton(); ts.innerText = ""; }, mins * 60000);
+                document.getElementById('trackDetailsModal').classList.remove('open');
+            }
+        }
+
+        function updateInfoModalCredits() {
+            if(!state.currentSong) return;
+            const container = document.getElementById('trackDetailsContent');
+            if(!container) return;
+            const s = state.currentSong;
+            
+            let html = `
+                <div class="flex items-center gap-3 bg-themeBg border-[length:var(--border-width)] border-themeBorder p-2">
+                    <img src="${s.image}" class="w-10 h-10 border-2 border-themeBorder object-cover flex-shrink-0">
+                    <div class="min-w-0 flex-1">
+                        <div class="truncate text-themeText font-black text-xs">${s.title}</div>
+                        <div class="truncate text-themeMuted text-[9px] mt-0.5">${s.artists}</div>
+                    </div>
+                </div>
+                <div class="bg-themeBg border-[length:var(--border-width)] border-themeBorder p-2 text-[9px] text-themeMuted space-y-1">
+                    <div class="flex justify-between"><span>ALBUM:</span> <span class="text-themeText">${s.album}</span></div>
+                    <div class="flex justify-between"><span>YEAR:</span> <span class="text-themeText">${s.year}</span></div>
+                    <div class="flex justify-between"><span>DURATION:</span> <span class="text-themeText">${formatTime(s.duration)}</span></div>
+                    <div class="flex justify-between"><span>LANGUAGE:</span> <span class="text-themeText">${s.language}</span></div>
+                </div>
+            `;
+            container.innerHTML = html;
+        }
+
+        window.shareCurrentSong = async function() {
+            if(!state.currentSong) return;
+            const text = `Listen to ${state.currentSong.title} by ${state.currentSong.artists}`;
+            if (navigator.share) {
+                try { await navigator.share({ title: state.currentSong.title, text: text, url: window.location.href }); } catch(e) { }
+            } else {
+                navigator.clipboard.writeText(text).then(() => { alert("Song info copied to clipboard!"); });
+            }
+        }
+
+        window.toggleFullscreen = () => { if(!state.currentSong) return; const fs = document.getElementById('fullscreenPlayer'); if(fs) fs.classList.toggle('translate-y-full'); }
+        window.openInfoModal = () => { haptic(); const md = document.getElementById('infoModal'); if(md) md.classList.add('open'); }
+        window.openTrackDetailsModal = () => { haptic(); const md = document.getElementById('trackDetailsModal'); if(md) md.classList.add('open'); }
+        window.closeModals = (e) => { 
+            ['infoModal', 'playlistModal', 'trackDetailsModal', 'playlistContextMenu'].forEach(id => {
+                const el = document.getElementById(id); if(el) el.classList.remove('open');
+            });
+        }
+
+        window.openPlaylistModal = function(e, songJson) {
+            if(e) e.stopPropagation(); haptic();
+            state.tempSongToAdd = songJson ? JSON.parse(decodeURIComponent(songJson)) : state.currentSong;
+            let tempSong = state.tempSongToAdd;
+            
+            if(window.tempMenuSong && !songJson) {
+                tempSong = JSON.parse(decodeURIComponent(window.tempMenuSong));
+                window.tempMenuSong = null;
+            }
+            state.tempSongToAdd = tempSong;
+
+            const pList = document.getElementById('playlistListModal');
+            if(pList) {
+                if(!state.tempSongToAdd) {
+                    pList.innerHTML = getEmptyStateHTML('No Track', 'Select a track first!', 'ph-music-notes-simple');
+                } else {
+                    const keys = Object.keys(state.playlists);
+                    if (keys.length === 0) {
+                        pList.innerHTML = `<div class="text-center font-code font-bold uppercase text-themeMuted py-3 text-xs border-[length:var(--border-width)] border-dashed border-themeMuted">Create a playlist below</div>`;
+                    } else {
+                        pList.innerHTML = keys.map(name => `
+                            <div class="flex justify-between items-center p-3 bg-themeBg border-[length:var(--border-width)] border-themeBorder hover:bg-dominant cursor-none transition-colors shadow-theme touch-target h-12 text-themeText hover:text-themeBorder" onclick="addToPlaylist('${name}')" role="button">
+                                <span class="font-display font-black text-[10px] sm:text-xs uppercase">${name}</span>
+                                <i class="ph ph-plus font-bold text-lg border-l-2 border-current pl-2"></i>
+                            </div>
+                        `).join('');
+                    }
+                }
+            }
+            document.getElementById('playlistModal').classList.add('open');
+        }
+        
+        window.createNewPlaylist = function() {
+            const input = document.getElementById('newPlaylistInput'); if(!input) return;
+            const name = input.value.trim();
+            if(name && !state.playlists[name]) {
+                state.playlists[name] = []; 
+                if (state.tempSongToAdd) addToPlaylist(name);
+                else { IDB.set('playlists', state.playlists); renderPlaylistsSection(); }
+                input.value = ''; document.getElementById('playlistModal').classList.remove('open');
+            }
+        }
+
+        window.addToPlaylist = function(name) {
+            if(!state.tempSongToAdd) return; const s = state.tempSongToAdd;
+            if(!state.playlists[name].find(x => x.id === s.id)) {
+                state.playlists[name].push(s); IDB.set('playlists', state.playlists); renderPlaylistsSection();
+            }
+            document.getElementById('playlistModal').classList.remove('open');
+        }
+        
+        window.toggleLyricsSheet = () => { switchFsTab('lyrics'); }
+
+        window.toggleQueueSheet = () => {
+            haptic(); const sheet = document.getElementById('queueSheet');
+            if(!sheet) return;
+            if(sheet.classList.contains('open')) closeAllSheets();
+            else { closeAllSheets(); sheet.classList.add('open'); renderQueueUI(); }
+        }
+
+        window.closeAllSheets = () => { document.querySelectorAll('.bottom-sheet').forEach(s => s.classList.remove('open')); }
+
+        function setupGestures() {
+            let mStartX, mStartY;
+            const mini = document.querySelector('footer');
+            if(mini) {
+                mini.addEventListener('touchstart', e => { mStartX = e.touches[0].clientX; mStartY = e.touches[0].clientY; }, {passive:true});
+                mini.addEventListener('touchend', e => {
+                    if(!state.currentSong) return;
+                    let dy = mStartY - e.changedTouches[0].clientY;
+                    if(dy > 30) toggleFullscreen(); 
+                }, {passive:true});
+            }
+
+            const fs = document.getElementById('fullscreenPlayer');
+            const fsCov = document.getElementById('fsCover');
+            if(!fs || !fsCov) return;
+            let startX = 0, startY = 0;
+            fs.addEventListener('touchstart', e => { startX = e.touches[0].clientX; startY = e.touches[0].clientY; }, {passive: true});
+            fs.addEventListener('touchend', e => {
+                const dy = e.changedTouches[0].clientY - startY;
+                if(dy > 80) { if (!fs.classList.contains('translate-y-full')) toggleFullscreen(); }
+            }, {passive: true});
+
+            let artStartX;
+            fsCov.parentElement.addEventListener('touchstart', e => { e.stopPropagation(); artStartX = e.touches[0].clientX; }, {passive: true});
+            fsCov.parentElement.addEventListener('touchend', e => {
+                e.stopPropagation();
+                const dx = artStartX - e.changedTouches[0].clientX;
+                if(dx > 50) playNext(true);
+                if(dx < -50) playPrevious();
+            }, {passive: true});
+        }
+
+        window.toggleFavoriteCurrent = function() {
+            haptic(); if (!state.currentSong) return;
+            const idx = state.favorites.findIndex(s => s.id === state.currentSong.id);
+            if (idx > -1) state.favorites.splice(idx, 1); else state.favorites.push(state.currentSong);
+            IDB.set('favorites', state.favorites); checkFavoriteStatus(); renderSections();
+        }
+
+        function checkFavoriteStatus() {
+            if (!state.currentSong) return;
+            const isFav = state.favorites.some(s => s.id === state.currentSong.id);
+            ['likeIcon', 'fsLikeIcon'].forEach(id => {
+                const el = document.getElementById(id);
+                if(el) { 
+                    el.classList.remove('animate-heart'); void el.offsetWidth; 
+                    if(isFav) { el.setAttribute('weight', 'fill'); el.classList.add('animate-heart', 'text-accent3'); } 
+                    else { el.setAttribute('weight', 'regular'); el.classList.remove('text-accent3'); }
+                }
+            });
+        }
+
+        function renderUpNextPreview() {
+            const el = document.getElementById('fsUpNextPreview');
+            if(!el) return;
+            if(state.queue.length > 0) {
+                const s = state.queue[0];
+                document.getElementById('fsUpNextCount').textContent = state.queue.length;
+                document.getElementById('fsUpNextTitle').textContent = s.title;
+                const artistEl = document.getElementById('fsUpNextArtist');
+                if(artistEl) artistEl.textContent = s.artists;
+                el.classList.remove('hidden-safely');
+            } else { el.classList.add('hidden-safely'); }
+        }
+
+        function renderQueueUI() {
+            const list = document.getElementById('queueList');
+            if(!list) return;
+            let html = '';
+            
+            if (state.currentSong) {
+                html += `
+                <div class="text-[10px] font-bold bg-[#ffffff] text-[#000000] px-1.5 py-0.5 uppercase flex-shrink-0 w-max border-[length:var(--border-width)] border-themeBorder mb-2">NOW PLAYING</div>
+                <div class="flex items-center gap-2 sm:gap-3 p-2 bg-themeBg border-[length:var(--border-width)] border-themeBorder mb-4 sm:mb-6 shadow-theme">
+                    <div class="w-10 h-10 border-[length:var(--border-width)] border-themeBorder bg-themeBg flex-shrink-0">
+                        <img src="${state.currentSong.image}" class="w-full h-full object-cover">
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <div class="font-display font-black text-[10px] sm:text-sm uppercase text-themeText truncate">${state.currentSong.title}</div>
+                        <div class="font-code font-bold text-[9px] sm:text-[10px] text-themeMuted uppercase truncate mt-0.5">${state.currentSong.artists}</div>
+                    </div>
+                    <div class="px-1 sm:px-2"><div class="w-3 h-3 sm:w-4 sm:h-4 border-2 border-themeBorder bg-dominant animate-pulse shadow-[2px_2px_0px_var(--shadow-color)]"></div></div>
+                </div>`;
+            }
+
+            if(state.queue.length) {
+                html += '<div class="text-[10px] font-bold bg-[#ffffff] text-[#000000] px-1.5 py-0.5 uppercase flex-shrink-0 w-max border-[length:var(--border-width)] border-themeBorder mb-2">UP NEXT</div>';
+                html += '<div id="sortableQueue" class="space-y-2 sm:space-y-3">';
+                state.queue.slice(0, 50).forEach((s, i) => {
+                    html += `<div class="flex items-center gap-2 sm:gap-3 p-2 bg-themeBg border-[length:var(--border-width)] border-themeBorder cursor-none sortable-item transition-transform hover:-translate-y-1 hover:shadow-theme hover:bg-themeCard" data-index="${i}">
+                        <div class="drag-handle p-1 sm:p-2 cursor-none border-r-[length:var(--border-width)] border-themeBorder -ml-2 touch-none bg-themeCard touch-target min-h-0 text-themeText flex-shrink-0 flex items-center justify-center"><i class="ph ph-dots-six-vertical text-lg font-bold"></i></div>
+                        <div class="w-8 h-8 border-2 border-themeBorder bg-themeBg flex-shrink-0">
+                            <img src="${s.image}" class="w-full h-full object-cover">
+                        </div>
+                        <div class="min-w-0 flex-1" onclick="playQueuedSong(${i})" role="button">
+                            <div class="font-display font-black text-[9px] sm:text-xs uppercase text-themeText truncate">${s.title}</div>
+                            <div class="font-code font-bold text-[8px] sm:text-[10px] text-themeMuted uppercase truncate mt-0.5">${s.artists}</div>
+                        </div>
+                        <button class="brutal-btn bg-[#FF0000] text-[#FFFFFF] px-2 py-1 touch-target min-h-0 w-8 h-8 flex justify-center items-center flex-shrink-0 border-[length:var(--border-width)] border-themeBorder" onclick="event.stopPropagation(); removeQueuedSong(${i});" aria-label="Remove from queue"><i class="ph ph-minus font-bold text-sm text-[#FFFFFF]"></i></button>
+                    </div>`;
+                });
+                html += '</div>';
+            } else { html += getEmptyStateHTML('Empty Queue', 'Add songs to play next.', 'ph-list-dashes'); }
+            list.innerHTML = html;
+
+            const sortableContainer = document.getElementById('sortableQueue');
+            if (sortableContainer && window.Sortable) {
+                new Sortable(sortableContainer, { handle: '.drag-handle', animation: 200, ghostClass: 'sortable-ghost',
+                    onEnd: function (evt) {
+                        const movedItem = state.queue.splice(evt.oldIndex, 1)[0];
+                        state.queue.splice(evt.newIndex, 0, movedItem);
+                        IDB.set('queue', state.queue); setTimeout(renderQueueUI, 50); 
+                    }
+                });
+            }
+        }
+
+        window.toggleShuffle = function() {
+            haptic();
+            state.isShuffle = !state.isShuffle;
+            ['shuffleBtn', 'fsShuffleBtn'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) { el.classList.toggle('text-themeAccent3', state.isShuffle); el.classList.toggle('bg-themeBorder', state.isShuffle); }
+            });
+            if (state.isShuffle) { state.queue.sort(() => Math.random() - 0.5); }
+            IDB.set('queue', state.queue);
+            renderQueueUI(); renderUpNextPreview();
+            savePlaybackState();
+        }
+        
+        window.toggleRepeat = function() { haptic(); state.isRepeat = !state.isRepeat; ['repeatBtn', 'fsRepeatBtn'].forEach(id => { const el = document.getElementById(id); if (el) { el.classList.toggle('text-dominant', state.isRepeat); el.classList.toggle('bg-themeBorder', state.isRepeat); } }); savePlaybackState(); }
+
+        function setupEventListeners() {
+            audios.forEach(a => {
+                a.addEventListener('timeupdate', e => {
+                    if (e.target !== getActiveAudio()) return; 
+                    if (state.isScrubbing || isNaN(e.target.duration)) return;
+                    
+                    const pct = (e.target.currentTime / e.target.duration) * 100;
+                    ['progressBar', 'fsProgressBar'].forEach(id => { const el = document.getElementById(id); if (el) el.value = pct; });
+                    
+                    const pFill = document.getElementById('progressFill'); if (pFill) pFill.style.width = `${pct}%`;
+                    const fsPFill = document.getElementById('fsProgressFill'); if (fsPFill) fsPFill.style.width = `${pct}%`;
+                    
+                    const fsKnob = document.getElementById('fsProgressKnob');
+                    if (fsKnob) fsKnob.style.left = `${pct}%`;
+                    
+                    const tf = formatTime(e.target.currentTime);
+                    ['currentTime', 'fsCurrentTime'].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = tf; });
+                    
+                    updateSyncedLyrics(e.target.currentTime);
+                    if(Math.floor(e.target.currentTime) % 5 === 0) savePlaybackState();
+                });
+
+                a.addEventListener('loadedmetadata', e => {
+                    if (e.target !== getActiveAudio()) return;
+                    const dur = formatTime(e.target.duration);
+                    ['totalTime', 'fsTotalTime'].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = dur; });
+                });
+
+                a.addEventListener('ended', e => {
+                    if (e.target !== getActiveAudio()) return;
+                    if (state.isRepeat) { e.target.currentTime = 0; e.target.play(); } else { playNext(false); }
+                });
+            });
+
+            const handleScrubStart = () => { state.isScrubbing = true; };
+            const handleScrubEnd = () => { state.isScrubbing = false; savePlaybackState(); };
+            const scrub = e => {
+                const pct = e.target.value;
+                ['progressBar', 'fsProgressBar'].forEach(id => { const el = document.getElementById(id); if (el) el.value = pct; });
+                const pFill = document.getElementById('progressFill'); if (pFill) pFill.style.width = `${pct}%`;
+                const fsPFill = document.getElementById('fsProgressFill'); if (fsPFill) fsPFill.style.width = `${pct}%`;
+                const fsKnob = document.getElementById('fsProgressKnob'); if (fsKnob) fsKnob.style.left = `${pct}%`;
+                
+                const active = getActiveAudio();
+                if (active.duration) {
+                    active.currentTime = (pct / 100) * active.duration;
+                    const tf = formatTime(active.currentTime);
+                    ['currentTime', 'fsCurrentTime'].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = tf; });
+                }
+            };
+
+            ['progressBar', 'fsProgressBar'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.addEventListener('touchstart', handleScrubStart, {passive: true});
+                    el.addEventListener('touchend', handleScrubEnd, {passive: true});
+                    el.addEventListener('touchcancel', handleScrubEnd, {passive: true});
+                    el.addEventListener('input', scrub);
+                }
+            });
+            ['mouseup', 'touchend'].forEach(evt => document.addEventListener(evt, () => { if(state.isScrubbing){ state.isScrubbing = false; savePlaybackState();} }, {passive: true}));
+
+            const vb = document.getElementById('volumeBar');
+            if (vb) { vb.addEventListener('input', e => { masterVolume = e.target.value / 100; IDB.set('volume', masterVolume); getActiveAudio().volume = masterVolume; savePlaybackState(); }); }
+        }
+
+        function updateMediaSession() {
+            if ('mediaSession' in navigator && state.currentSong) {
+                navigator.mediaSession.metadata = new MediaMetadata({
+                    title: state.currentSong.title, 
+                    artist: state.currentSong.artists, 
+                    album: state.currentSong.album,
+                    artwork: [
+                        { src: state.currentSong.image, sizes: '96x96', type: 'image/png' },
+                        { src: state.currentSong.image, sizes: '256x256', type: 'image/png' },
+                        { src: state.currentSong.image, sizes: '512x512', type: 'image/png' }
+                    ]
+                });
+                navigator.mediaSession.setActionHandler('play', togglePlay);
+                navigator.mediaSession.setActionHandler('pause', togglePlay);
+                navigator.mediaSession.setActionHandler('previoustrack', playPrevious);
+                navigator.mediaSession.setActionHandler('nexttrack', () => playNext(true));
+                try {
+                    navigator.mediaSession.setActionHandler('seekto', (details) => {
+                        if (details.fastSeek && ('fastSeek' in getActiveAudio())) getActiveAudio().fastSeek(details.seekTime);
+                        else getActiveAudio().currentTime = details.seekTime;
+                    });
+                } catch(e) {}
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

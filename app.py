@@ -27,7 +27,8 @@ search_cache = {}
 song_cache = {}
 lyrics_cache = {}
 recommend_cache = {}
-CACHE_TIME = 600  # 10 mins
+trending_cache = {}
+CACHE_TIME = 1800  # 30 mins
 
 TRENDING_MAP = {
     "english": ["The Weeknd", "Imagine Dragons", "Taylor Swift", "OneRepublic", "Ed Sheeran"],
@@ -52,61 +53,105 @@ def set_cache(cache, key, data):
     }
 
 def search_songs(query):
+    if not query: return []
     try:
         r = session.get(f"{BASE_API}/search", params={"query": query}, timeout=15)
         return r.json().get("data", {}).get("songs", {}).get("results", [])
     except:
         return []
 
-def extract_stream_url(song_id):
-    """Helper to fetch just the highest quality stream URL"""
+def fetch_single_song_raw(song_id):
     cached = get_cache(song_cache, song_id)
-    if cached:
-        song_data = cached
-    else:
+    if cached: return cached
+
+    try:
         r = session.get(f"{BASE_API}/songs/{song_id}", timeout=15)
         r.raise_for_status()
-        song_data = r.json()
-        set_cache(song_cache, song_id, song_data)
+        data = r.json()
+        set_cache(song_cache, song_id, data)
+        return data
+    except:
+        return None
 
-    urls = song_data["data"][0]["downloadUrl"]
-    quality_order = ["320kbps", "160kbps", "96kbps", "48kbps", "12kbps"]
+def extract_stream_url(song_id):
+    song_data = fetch_single_song_raw(song_id)
+    if not song_data or "data" not in song_data or not song_data["data"]:
+        return None
+
+    urls = song_data["data"][0].get("downloadUrl", [])
+    if not urls: return None
     
+    quality_order = ["320kbps", "160kbps", "96kbps", "48kbps", "12kbps"]
     for quality in quality_order:
-        match = next((x for x in urls if x["quality"] == quality), None)
+        match = next((x for x in urls if x.get("quality") == quality), None)
         if match:
-            return match["url"]
-    return None
+            return match.get("url")
+    return urls[0].get("url")
 
 def generate_recommendations(song_id):
-    """Helper to generate recommendations independent of the Flask route"""
     cached = get_cache(recommend_cache, song_id)
     if cached: return cached
 
-    r = session.get(f"{BASE_API}/songs/{song_id}", timeout=15)
-    current_song = r.json()["data"][0]
+    song_data = fetch_single_song_raw(song_id)
+    if not song_data or "data" not in song_data or not song_data["data"]:
+        return []
+        
+    current_song = song_data["data"][0]
 
-    artist = current_song["artists"]["primary"][0]["name"]
-    album = current_song["album"]["name"]
-    language = current_song.get("language", "").lower()
+    song_name = current_song.get("name", "")
+    artist = current_song.get("primaryArtists", "")
+    album = current_song.get("album", {})
+    album_name = album.get("name", "") if isinstance(album, dict) else ""
+    language = current_song.get("language", "")
+    language = language.lower() if language else ""
 
     recommendations = []
-    recommendations.extend(search_songs(album)[:12])
-    recommendations.extend(search_songs(artist)[:9])
     
+    # Issue 3 Fix: Wrap upstream calls in granular try blocks to prevent cascade failures
+    # 40% Album
+    if album_name:
+        try: recommendations.extend(search_songs(album_name)[:12])
+        except: pass
+    # 30% Artist
+    if artist:
+        try: recommendations.extend(search_songs(artist)[:9])
+        except: pass
+    
+    # De-duplication queries
+    if artist and song_name:
+        try: recommendations.extend(search_songs(f"{artist} {song_name}")[:8])
+        except: pass
+    if song_name:
+        try: recommendations.extend(search_songs(song_name)[:8])
+        except: pass
+    
+    # 20% Language/Genre & 10% Trending Mix
     if language in TRENDING_MAP:
-        trending_artists = random.sample(TRENDING_MAP[language], 2)
-        for ta in trending_artists:
-            recommendations.extend(search_songs(ta)[:3])
-    else:
-        recommendations.extend(search_songs(language)[:6])
+        try:
+            trending_artists = random.sample(TRENDING_MAP[language], 2)
+            for ta in trending_artists:
+                recommendations.extend(search_songs(ta)[:3])
+        except: pass
+    elif language:
+        try: recommendations.extend(search_songs(language)[:6])
+        except: pass
     
-    seen = set()
+    seen_ids = set()
+    seen_titles = set()
     final = []
+    
     for song in recommendations:
-        if song["id"] == song_id or song["id"] in seen:
+        s_id = song.get("id")
+        s_title = song.get("name", "").lower().strip()
+        
+        if not s_id or s_id == song_id or s_id in seen_ids:
             continue
-        seen.add(song["id"])
+            
+        if s_title in seen_titles and song_name.lower().strip() in s_title:
+            continue
+            
+        seen_ids.add(s_id)
+        seen_titles.add(s_title)
         final.append(song)
 
     result = final[:30]
@@ -117,23 +162,25 @@ def generate_recommendations(song_id):
 # --- Base Routes ---
 @app.route("/")
 def home():
-    return jsonify({"status": "online", "name": "Royverse Music API"})
+    return jsonify({"status": "online", "name": "Royverse Music API Hardened"})
 
 @app.route("/health")
 def health():
     return jsonify({"status": "ok", "timestamp": int(time.time())})
 
+# Issue 1 Fix: Restored /stats route for active debugging
 @app.route("/stats")
 def stats():
     return jsonify({
         "search_cache": len(search_cache),
         "song_cache": len(song_cache),
         "lyrics_cache": len(lyrics_cache),
-        "recommend_cache": len(recommend_cache)
+        "recommend_cache": len(recommend_cache),
+        "trending_cache": len(trending_cache)
     })
 
 
-# --- Search & Song Info Routes ---
+# --- Search & Content Routes ---
 @app.route("/search")
 def search():
     query = request.args.get("q")
@@ -150,88 +197,6 @@ def search():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route("/song/<song_id>")
-def song(song_id):
-    cached = get_cache(song_cache, song_id)
-    if cached: return jsonify(cached)
-
-    try:
-        r = session.get(f"{BASE_API}/songs/{song_id}", timeout=15)
-        data = r.json()
-        set_cache(song_cache, song_id, data)
-        return jsonify(data)
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-@app.route("/stream/<song_id>")
-def stream(song_id):
-    try:
-        stream_url = extract_stream_url(song_id)
-        
-        cached_song = get_cache(song_cache, song_id)
-        title = cached_song["data"][0]["name"] if cached_song else "Unknown"
-
-        return jsonify({
-            "id": song_id,
-            "title": title,
-            "stream": stream_url
-        })
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-# --- Enhanced & Preload Features ---
-@app.route("/recommend/<song_id>")
-def recommend(song_id):
-    try:
-        data = generate_recommendations(song_id)
-        return jsonify({"success": True, "data": data})
-    except Exception as e:
-        return jsonify({"success": False, "error": str(e)}), 500
-
-@app.route("/next/<song_id>")
-def get_next(song_id):
-    try:
-        cached = get_cache(song_cache, song_id)
-        if cached:
-            current_song = cached["data"][0]
-        else:
-            # Fixed Syntax Error Here
-            r_current = session.get(f"{BASE_API}/songs/{song_id}", timeout=15)
-            current_song = r_current.json()["data"][0]
-
-        queue = generate_recommendations(song_id).copy()
-        next_song = queue.pop(0) if queue else None
-
-        return jsonify({
-            "current": current_song,
-            "next": next_song,
-            "queue": queue
-        })
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-@app.route("/preload/<song_id>")
-def preload(song_id):
-    try:
-        current_stream = extract_stream_url(song_id)
-
-        queue = generate_recommendations(song_id).copy()
-        next_song = queue.pop(0) if queue else None
-
-        next_stream = None
-        if next_song:
-            next_stream = extract_stream_url(next_song["id"])
-
-        return jsonify({
-            "stream": current_stream,
-            "next_stream": next_stream,
-            "queue": queue
-        })
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
 @app.route("/suggest")
 def suggest():
     query = request.args.get("q")
@@ -241,15 +206,169 @@ def suggest():
         results = search_songs(query)
         seen = set()
         suggestions = []
+        
         for song in results:
             title = song.get("name", "").replace("&quot;", '"').replace("&amp;", "&")
-            if title.lower() not in seen:
+            if title and title.lower() not in seen:
                 seen.add(title.lower())
                 suggestions.append(title)
+                
+            artist = song.get("primaryArtists", "")
+            if isinstance(artist, str) and artist:
+                first_artist = artist.split(",")[0].strip().replace("&quot;", '"').replace("&amp;", "&")
+                if first_artist and first_artist.lower() not in seen:
+                    seen.add(first_artist.lower())
+                    suggestions.append(first_artist)
+            
+            album = song.get("album", {})
+            album_name = album.get("name", "") if isinstance(album, dict) else ""
+            album_name = album_name.replace("&quot;", '"').replace("&amp;", "&")
+            if album_name and album_name.lower() not in seen:
+                seen.add(album_name.lower())
+                suggestions.append(album_name)
                 
         return jsonify(suggestions[:8])
     except:
         return jsonify([])
+
+@app.route("/artist/<name>")
+def artist_songs(name):
+    if not name: return jsonify({"artist": "", "songs": []})
+    try:
+        raw_results = search_songs(name)
+        artist_songs_filtered = []
+        
+        for song in raw_results:
+            artists_string = str(song.get("primaryArtists", "")).lower()
+            if name.lower() in artists_string:
+                artist_songs_filtered.append(song)
+                
+        return jsonify({
+            "artist": name,
+            "songs": artist_songs_filtered[:50]
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/trending")
+def trending():
+    cached = get_cache(trending_cache, "global_trending")
+    if cached: return jsonify(cached)
+
+    try:
+        queries = ["The Weeknd", "Imagine Dragons", "Taylor Swift", "Arijit Singh"]
+        results = []
+        for q in queries:
+            songs = search_songs(q)
+            results.extend(songs[:5])
+            
+        set_cache(trending_cache, "global_trending", {"songs": results})
+        return jsonify({"songs": results})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# --- Playback & Queue Management ---
+@app.route("/song/<song_id>")
+def song(song_id):
+    data = fetch_single_song_raw(song_id)
+    if data:
+        return jsonify(data)
+    return jsonify({"error": "Song not found"}), 404
+
+@app.route("/stream/<song_id>")
+def stream(song_id):
+    try:
+        stream_url = extract_stream_url(song_id)
+        
+        # Issue 2 Fix: Handle missing streaming links gracefully with an explicit 404
+        if not stream_url:
+            return jsonify({"error": "Stream unavailable"}), 404
+            
+        cached_song = get_cache(song_cache, song_id)
+        title = "Unknown"
+        if cached_song and "data" in cached_song and cached_song["data"]:
+            title = cached_song["data"][0].get("name", "Unknown")
+
+        return jsonify({
+            "id": song_id,
+            "title": title,
+            "stream": stream_url
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/queue/<song_id>")
+def get_queue(song_id):
+    try:
+        song_data = fetch_single_song_raw(song_id)
+        current_song = song_data["data"][0] if (song_data and "data" in song_data) else None
+        queue_pool = generate_recommendations(song_id).copy()
+
+        return jsonify({
+            "current": current_song,
+            "queue": queue_pool
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# --- Data Infrastructure & Bulk Lookups ---
+@app.route("/songs/bulk")
+def bulk_songs():
+    raw_ids = request.args.get("ids")
+    if not raw_ids: return jsonify([])
+
+    id_list = [i.strip() for i in raw_ids.split(",") if i.strip()]
+    results = []
+
+    try:
+        r = session.get(f"{BASE_API}/songs/{','.join(id_list)}", timeout=12)
+        response_json = r.json()
+        
+        if response_json.get("success") and isinstance(response_json.get("data"), list):
+            songs_data = response_json["data"]
+        else:
+            raise ValueError("Fallback triggered")
+            
+    except Exception:
+        songs_data = []
+        for song_id in id_list:
+            single_res = fetch_single_song_raw(song_id)
+            if single_res and "data" in single_res and single_res["data"]:
+                songs_data.append(single_res["data"][0])
+
+    for song in songs_data:
+        results.append({
+            "id": song.get("id"),
+            "title": song.get("name"),
+            "artist": song.get("primaryArtists", "Unknown"),
+            "image": song.get("image")[-1]["url"] if (song.get("image") and isinstance(song["image"], list)) else None
+        })
+        
+    return jsonify(results)
+
+@app.route("/recommendations/bulk")
+def bulk_recommendations():
+    ids = request.args.get("ids")
+    if not ids: return jsonify({"recommendations": []})
+
+    try:
+        id_list = ids.split(",")
+        all_recs = []
+        seen = set()
+        
+        for song_id in id_list[:3]:
+            recs = generate_recommendations(song_id)
+            for r in recs:
+                r_id = r.get("id")
+                if r_id and r_id not in seen:
+                    seen.add(r_id)
+                    all_recs.append(r)
+                    
+        return jsonify({"recommendations": all_recs[:50]})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route("/lyrics")
 def lyrics():
@@ -275,28 +394,6 @@ def lyrics():
         return jsonify(data)
     except Exception as e:
         return jsonify({"success": False, "error": str(e)})
-
-@app.route("/songs/bulk")
-def bulk_songs():
-    ids = request.args.get("ids")
-    if not ids: return jsonify([])
-
-    try:
-        r = session.get(f"{BASE_API}/songs/{ids}", timeout=15)
-        data = r.json()
-        
-        results = []
-        for song in data.get("data", []):
-            results.append({
-                "id": song["id"],
-                "title": song["name"],
-                "artist": song["artists"]["primary"][0]["name"] if song["artists"]["primary"] else "Unknown",
-                "image": song["image"][-1]["url"] if song.get("image") else None
-            })
-            
-        return jsonify(results)
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
 
 
 if __name__ == "__main__":

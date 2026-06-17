@@ -8,7 +8,7 @@ import random
 
 app = Flask(__name__)
 CORS(app)
-Compress(app)  # Response Compression Enabled
+Compress(app)  
 
 BASE_API = "https://music-api.albatross0071.workers.dev/api"
 

@@ -26,7 +26,7 @@ session.mount("http://", adapter)
 search_cache = {}
 song_cache = {}
 lyrics_cache = {}
-recommend_cache = {}  # Recommendation Caching Enabled
+recommend_cache = {}
 CACHE_TIME = 600  # 10 mins
 
 TRENDING_MAP = {
@@ -168,7 +168,6 @@ def stream(song_id):
     try:
         stream_url = extract_stream_url(song_id)
         
-        # We fetch from cache to get the title quickly since extract_stream_url caches it
         cached_song = get_cache(song_cache, song_id)
         title = cached_song["data"][0]["name"] if cached_song else "Unknown"
 
@@ -193,9 +192,112 @@ def recommend(song_id):
 @app.route("/next/<song_id>")
 def get_next(song_id):
     try:
-        # Fetch current song directly from API/Cache
         cached = get_cache(song_cache, song_id)
         if cached:
             current_song = cached["data"][0]
         else:
-            r_current = session.get(f"{BASE_API}/
+            # Fixed Syntax Error Here
+            r_current = session.get(f"{BASE_API}/songs/{song_id}", timeout=15)
+            current_song = r_current.json()["data"][0]
+
+        queue = generate_recommendations(song_id).copy()
+        next_song = queue.pop(0) if queue else None
+
+        return jsonify({
+            "current": current_song,
+            "next": next_song,
+            "queue": queue
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/preload/<song_id>")
+def preload(song_id):
+    try:
+        current_stream = extract_stream_url(song_id)
+
+        queue = generate_recommendations(song_id).copy()
+        next_song = queue.pop(0) if queue else None
+
+        next_stream = None
+        if next_song:
+            next_stream = extract_stream_url(next_song["id"])
+
+        return jsonify({
+            "stream": current_stream,
+            "next_stream": next_stream,
+            "queue": queue
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/suggest")
+def suggest():
+    query = request.args.get("q")
+    if not query: return jsonify([])
+
+    try:
+        results = search_songs(query)
+        seen = set()
+        suggestions = []
+        for song in results:
+            title = song.get("name", "").replace("&quot;", '"').replace("&amp;", "&")
+            if title.lower() not in seen:
+                seen.add(title.lower())
+                suggestions.append(title)
+                
+        return jsonify(suggestions[:8])
+    except:
+        return jsonify([])
+
+@app.route("/lyrics")
+def lyrics():
+    track = request.args.get("track")
+    artist = request.args.get("artist")
+    if not track: return jsonify({"success": False})
+
+    cache_key = f"{track}_{artist}".lower()
+    cached = get_cache(lyrics_cache, cache_key)
+    if cached: return jsonify(cached)
+
+    try:
+        r = session.get(
+            "https://lrclib.net/api/get",
+            params={"track_name": track, "artist_name": artist},
+            timeout=10
+        )
+        if r.status_code == 404:
+            return jsonify({"success": False, "error": "Lyrics not found"})
+            
+        data = r.json()
+        set_cache(lyrics_cache, cache_key, data)
+        return jsonify(data)
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)})
+
+@app.route("/songs/bulk")
+def bulk_songs():
+    ids = request.args.get("ids")
+    if not ids: return jsonify([])
+
+    try:
+        r = session.get(f"{BASE_API}/songs/{ids}", timeout=15)
+        data = r.json()
+        
+        results = []
+        for song in data.get("data", []):
+            results.append({
+                "id": song["id"],
+                "title": song["name"],
+                "artist": song["artists"]["primary"][0]["name"] if song["artists"]["primary"] else "Unknown",
+                "image": song["image"][-1]["url"] if song.get("image") else None
+            })
+            
+        return jsonify(results)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)

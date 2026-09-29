@@ -1,32 +1,3 @@
-<!--
-
-==============================================================================
-
-███╗   ███╗ █████╗  ██████╗██╗  ██╗ █████╗ ██████╗
-████╗ ████║██╔══██╗██╔════╝██║  ██║██╔══██╗██╔══██╗
-██╔████╔██║███████║██║     ███████║███████║██████╔╝
-██║╚██╔╝██║██╔══██║██║     ██╔══██║██╔══██║██╔══██╗
-██║ ╚═╝ ██║██║  ██║╚██████╗██║  ██║██║  ██║██║  ██║
-╚═╝     ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝
-
-                         MACHHAR.EXE
-
-                       FORGOTTEN ARCHIVE
-
-
-
-==============================================================================
-
-COPYRIGHT © 2026 Ashutosh Roy
-All Rights Reserved
-
-Version      : v2.2 (Optimized)
-Status       : Ultra-Performant
-Developer    : Ashutosh Roy
-
-==============================================================================
-
--->
 <!DOCTYPE html>
 <html lang="en" data-theme="neo">
 <head>
@@ -44,7 +15,7 @@ Developer    : Ashutosh Roy
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=JetBrains+Mono:wght@700;800;900&family=Syncopate:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=JetBrains+Mono:wght@500;700;800;900&family=Syncopate:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/color-thief/2.3.0/color-thief.umd.js"></script>
@@ -53,7 +24,7 @@ Developer    : Ashutosh Roy
         (function() {
             const savedTheme = localStorage.getItem('gaana_theme') || 'neo';
             if (savedTheme === 'amoled') localStorage.setItem('gaana_theme', 'neo');
-            document.documentElement.setAttribute('data-theme', localStorage.getItem('gaana_theme') || 'neo');
+            document.documentElement.setAttribute('data-theme', savedTheme);
             if(localStorage.getItem('gaana_motion') === 'reduce') {
                 document.documentElement.classList.add('reduce-motion');
             }
@@ -117,38 +88,47 @@ Developer    : Ashutosh Roy
             --dominant: #FFE600;
             --icon-bg: var(--text);
             --icon-fg: var(--bg);
+            --border-radius: 0px;
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* Real Apple Liquid Glass Theme */
+        /* 
+           APPLE LIQUID GLASS THEME (Minimal, Modern, Smooth)
+           Replaces the old, jagged Glass Dark theme with a refined iOS aesthetic 
+        */
         [data-theme="glass"] {
             --bg: #000000;
             --text: #FFFFFF;
-            --card: rgba(30, 30, 35, 0.65);
+            --card: rgba(30, 30, 35, 0.45);
             --card-yellow: rgba(255, 255, 255, 0.05);
             --card-cyan: rgba(255, 255, 255, 0.05);
             --card-pink: rgba(255, 255, 255, 0.05);
             --card-purple: rgba(255, 255, 255, 0.05);
             --card-orange: rgba(255, 255, 255, 0.05);
-            --border: rgba(255, 255, 255, 0.1);
+            --border: rgba(255, 255, 255, 0.15);
             --accent1: #FA243C; /* Apple Music Red */
             --accent2: #B026FF;
             --accent3: #FF2E93;
             --muted: rgba(235, 235, 245, 0.6);
-            --shadow-color: transparent;
+            --shadow-color: rgba(0, 0, 0, 0.3);
             --border-width: 0.5px;
-            --shadow-offset: 0px; 
+            --shadow-offset: 10px; 
             --icon-bg: transparent;
             --icon-fg: var(--text);
+            --border-radius: 20px;
         }
 
         [data-theme="glass"] body {
             background-color: #000000;
-            background-image: radial-gradient(circle at 10% 20%, rgba(250, 36, 60, 0.15) 0%, transparent 40%),
-                              radial-gradient(circle at 90% 80%, rgba(30, 100, 255, 0.15) 0%, transparent 40%);
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(var(--dominant-rgb, 250, 36, 60), 0.15), transparent 50%),
+                radial-gradient(circle at 85% 30%, rgba(var(--dominant-rgb, 30, 100, 255), 0.15), transparent 50%);
             background-attachment: fixed;
+            background-size: cover;
+            transition: background-image 1s ease;
         }
 
+        /* Smooth frosted glass for components */
         [data-theme="glass"] .brutal-btn,
         [data-theme="glass"] .bg-themeCard,
         [data-theme="glass"] .bg-cardYellow,
@@ -164,13 +144,28 @@ Developer    : Ashutosh Roy
             backdrop-filter: blur(40px) saturate(200%) !important;
             -webkit-backdrop-filter: blur(40px) saturate(200%) !important;
             border: 0.5px solid var(--border) !important;
-            border-radius: 18px !important;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important;
+            border-radius: var(--border-radius) !important;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2) !important;
+        }
+
+        [data-theme="glass"] header {
+            background: rgba(10, 10, 10, 0.65) !important;
+            backdrop-filter: blur(40px) saturate(200%) !important;
+            -webkit-backdrop-filter: blur(40px) saturate(200%) !important;
+            border-bottom: 0.5px solid var(--border) !important;
+        }
+
+        [data-theme="glass"] footer {
+            background: rgba(15, 15, 18, 0.75) !important;
+            backdrop-filter: blur(40px) saturate(200%) !important;
+            -webkit-backdrop-filter: blur(40px) saturate(200%) !important;
+            border-top: 0.5px solid var(--border) !important;
         }
 
         [data-theme="glass"] .brutal-btn {
             background: rgba(255, 255, 255, 0.08) !important;
             color: #ffffff !important;
+            border-radius: 999px !important; /* Pill buttons for modern look */
         }
 
         [data-theme="glass"] .brutal-btn:hover {
@@ -183,6 +178,7 @@ Developer    : Ashutosh Roy
             color: #000000 !important;
             border: none !important;
             box-shadow: 0 4px 15px rgba(255,255,255,0.2) !important;
+            border-radius: 999px !important;
         }
         
         [data-theme="glass"] #playPauseIcon,
@@ -190,24 +186,25 @@ Developer    : Ashutosh Roy
             color: #000000 !important;
         }
 
-        [data-theme="glass"] .progress-bar-track { background: rgba(255,255,255,0.2) !important; border: none; opacity: 1; }
-        [data-theme="glass"] .progress-bar-fill { background: #FFFFFF !important; border: none; }
+        [data-theme="glass"] .progress-bar-track { background: rgba(255,255,255,0.15) !important; border: none; opacity: 1; border-radius: 4px; }
+        [data-theme="glass"] .progress-bar-fill { background: #FFFFFF !important; border: none; border-radius: 4px; }
+        [data-theme="glass"] img { border-radius: 8px; border: none !important; }
 
         @media (max-width: 768px) {
             :root { --border-width: 2px; --shadow-offset: 2px; }
             [data-theme="glass"] { --border-width: 0.5px; --shadow-offset: 0px; }
             .scanlines, .noise { display: none !important; }
             
+            /* Performance fallback for glass on mobile */
             [data-theme="glass"] .theme-glass-blur,
             [data-theme="glass"] .modal-overlay,
             [data-theme="glass"] .bottom-sheet {
-                backdrop-filter: none !important;
-                -webkit-backdrop-filter: none !important;
-                background: rgba(20, 20, 25, 0.98) !important;
+                backdrop-filter: blur(20px) !important;
+                -webkit-backdrop-filter: blur(20px) !important;
             }
             #fullscreenPlayer > div.blur-\[100px\] {
-                filter: none !important;
-                opacity: 0.15;
+                filter: blur(60px) !important;
+                opacity: 0.2;
             }
         }
 
@@ -233,10 +230,6 @@ Developer    : Ashutosh Roy
         .pt-safe { padding-top: env(safe-area-inset-top, 0px); }
         footer { box-sizing: border-box; border-bottom: none !important; }
 
-        [data-theme="glass"] .theme-glass-blur { backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); }
-        [data-theme="glass"] .noise { display: none !important; }
-        [data-theme="glass"] .neo-solid-icon { background-color: transparent !important; color: var(--text) !important; border-color: var(--border) !important;}
-        
         .theme-highlight-text { color: var(--accent1); }
         .theme-highlight-bg { background-color: var(--accent1); }
         
@@ -251,7 +244,7 @@ Developer    : Ashutosh Roy
         .cursor-dot { width: 16px; height: 16px; background: var(--accent1); border: 2px solid var(--border); box-shadow: 2px 2px 0px rgba(0,0,0,0.5); border-radius: 50%; }
         @media (pointer: coarse) { #cursor-box { display: none !important; } }
 
-        .brutal-btn { border: var(--border-width) solid var(--border); box-shadow: var(--shadow-offset) var(--shadow-offset) 0px var(--shadow-color); transition: transform 0.1s, box-shadow 0.1s; font-family: 'JetBrains Mono', monospace; font-weight: 900; text-transform: uppercase; will-change: transform;}
+        .brutal-btn { border: var(--border-width) solid var(--border); box-shadow: var(--shadow-offset) var(--shadow-offset) 0px var(--shadow-color); transition: transform 0.1s, box-shadow 0.1s; font-family: 'Inter', sans-serif; font-weight: 700; text-transform: uppercase; will-change: transform;}
         @media (hover: hover) { .brutal-btn:hover { transform: translate(-1px, -1px); box-shadow: calc(var(--shadow-offset) + 1px) calc(var(--shadow-offset) + 1px) 0px var(--shadow-color); } }
         .brutal-btn:active { transform: translate(var(--shadow-offset), var(--shadow-offset)); box-shadow: 0px 0px 0px var(--shadow-color); }
 
@@ -259,9 +252,7 @@ Developer    : Ashutosh Roy
 
         input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; height: 24px; border: none; cursor: none; touch-action: none; position: relative;}
         
-        #progressBar, #fsProgressBar {
-            opacity: 0 !important;
-        }
+        #progressBar, #fsProgressBar { opacity: 0 !important; }
 
         #volumeBar, #sleepSlider {
             -webkit-appearance: none;
@@ -291,13 +282,12 @@ Developer    : Ashutosh Roy
         }
 
         .progress-bar-track { position: absolute; top: 50%; left: 0; right: 0; transform: translateY(-50%); height: 8px; border: var(--border-width) solid var(--border); background: var(--card); pointer-events: none; opacity: 0.5;}
-        [data-theme="glass"] .progress-bar-track { background: rgba(255,255,255,0.1); border: none; opacity: 1; }
         .progress-bar-fill { position: absolute; top: 0; left: 0; height: 100%; background: var(--accent1); pointer-events: none; border-right: var(--border-width) solid var(--border); transition: width 0.1s linear; }
-        [data-theme="glass"] .progress-bar-fill { border: none; background: #ffffff; }
 
         .lyric-line { transition: all 0.2s ease; opacity: 0.3; transform: scale(0.95); cursor: none; font-family: 'Inter', sans-serif; font-weight: 700;}
         .lyric-line:hover { opacity: 0.8; }
         .lyric-line.active { opacity: 1; transform: scale(1.05); color: var(--text); font-weight: 900; background: var(--accent1); display: inline-block; padding: 4px 12px; border: var(--border-width) solid var(--border); box-shadow: var(--shadow-offset) var(--shadow-offset) 0px var(--shadow-color); transform: rotate(-1deg);}
+        [data-theme="glass"] .lyric-line.active { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); box-shadow: none; border-radius: 12px; transform: none; }
 
         @keyframes heartBurst { 0% { transform: scale(1); } 40% { transform: scale(1.35); color: var(--accent3); } 70% { transform: scale(0.9); } 100% { transform: scale(1); color: var(--accent3); } }
         .animate-heart { animation: heartBurst 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; color: var(--accent3) !important; }
@@ -328,9 +318,7 @@ Developer    : Ashutosh Roy
             border: 2px solid #000000 !important;
             opacity: 1 !important;
         }
-        [data-theme="glass"] #fsProgressKnob {
-            border: none !important;
-        }
+        [data-theme="glass"] #fsProgressKnob { border: none !important; }
 
         .toggle-checkbox { opacity: 0; position: absolute; z-index: -1; }
         .toggle-label { position: relative; background: #FFFFFF; transition: background 0.2s; border: 2px solid var(--border); border-radius: 999px; display: block; width: 48px; height: 28px; cursor: pointer; }
@@ -341,6 +329,12 @@ Developer    : Ashutosh Roy
         [data-theme="glass"] .toggle-label::after { background: #FFFFFF; border-color: transparent; }
 
         .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; white-space: normal; }
+
+        /* Additional alignment and sizing fixes */
+        .card-image-wrapper { width: 100%; aspect-ratio: 1 / 1; border: var(--border-width) solid var(--border); background-color: var(--bg); overflow: hidden; position: relative; }
+        [data-theme="glass"] .card-image-wrapper { border: none; border-radius: 12px; }
+        .mobile-search-img { width: 48px; height: 48px; border: 2px solid var(--border); background-color: var(--bg); flex-shrink: 0; overflow: hidden; }
+        [data-theme="glass"] .mobile-search-img { border: none; border-radius: 8px; }
 
     </style>
 </head>
@@ -366,15 +360,15 @@ Developer    : Ashutosh Roy
 
             <div class="flex-1 w-full order-last sm:order-none mt-2 sm:mt-0 relative group z-50 transition-all duration-300" id="searchContainer">
                 <i class="ph ph-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 font-bold text-lg text-themeText z-10"></i>
-                <input type="text" id="searchInput" placeholder="SEARCH AUDIO..." aria-label="Search" class="w-full bg-themeCard border-[length:var(--border-width)] border-themeBorder py-3 pl-12 pr-10 text-themeText font-code font-bold uppercase placeholder-themeMuted focus:outline-none focus:shadow-theme transition-all shadow-theme touch-target min-h-0" onfocus="openSearch()">
-                <button id="clearSearchBtn" class="absolute right-2 top-1/2 -translate-y-1/2 hidden-safely brutal-btn bg-themeCard p-1 touch-target min-h-[36px] min-w-[36px] flex items-center justify-center" onclick="clearSearch()"><i class="ph ph-x font-bold"></i></button>
+                <input type="text" id="searchInput" placeholder="SEARCH AUDIO..." aria-label="Search" class="w-full bg-themeCard border-[length:var(--border-width)] border-themeBorder py-3 pl-12 pr-10 text-themeText font-code font-bold uppercase placeholder-themeMuted focus:outline-none focus:shadow-theme transition-all shadow-theme touch-target min-h-0 rounded-full sm:rounded-none" onfocus="openSearch()">
+                <button id="clearSearchBtn" class="absolute right-2 top-1/2 -translate-y-1/2 hidden-safely brutal-btn bg-themeCard p-1 touch-target min-h-[36px] min-w-[36px] flex items-center justify-center rounded-full" onclick="clearSearch()"><i class="ph ph-x font-bold"></i></button>
                 <div id="searchSpinner" class="absolute right-4 top-1/2 -translate-y-1/2 hidden-safely pointer-events-none">
                     <i class="ph ph-spinner animate-spin text-themeText text-xl font-bold"></i>
                 </div>
             </div>
             
             <div class="flex items-center justify-end gap-2 flex-shrink-0 order-2 sm:order-none ml-auto" id="settingsContainer">
-                <button class="brutal-btn bg-themeCard text-themeText p-2 flex items-center justify-center touch-target min-h-[44px] min-w-[44px]" onclick="openInfoModal()" aria-label="Settings">
+                <button class="brutal-btn bg-themeCard text-themeText p-2 flex items-center justify-center touch-target min-h-[44px] min-w-[44px] rounded-full sm:rounded-none" onclick="openInfoModal()" aria-label="Settings">
                     <i class="ph ph-gear text-xl font-bold"></i>
                 </button>
             </div>
@@ -382,7 +376,7 @@ Developer    : Ashutosh Roy
     </header>
 
     <main id="mainContent" class="flex-1 overflow-y-auto pt-[115px] sm:pt-24 pb-32 sm:pb-36 bg-themeBg relative z-10 w-full">
-        <div class="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 flex flex-col gap-10 sm:gap-14">
+        <div class="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 flex flex-col gap-8 sm:gap-14">
             
             <div id="heroSection" class="relative bg-themeCard border-[length:var(--border-width)] border-themeBorder shadow-theme-lg p-5 sm:p-10 overflow-hidden flex flex-row items-center justify-between gap-6 w-full fade-in">
                 <div class="relative z-10 w-full flex-1 pr-2 sm:pr-4">
@@ -401,7 +395,7 @@ Developer    : Ashutosh Roy
                 </div>
             </div>
 
-            <section id="radioSection" class="w-full mt-[-10px] sm:mt-[-20px] fade-in hidden-safely" style="display:block;">
+            <section id="radioSection" class="w-full fade-in hidden-safely" style="display:block;">
                 <div class="relative bg-themeCard border-[length:var(--border-width)] border-themeBorder shadow-theme p-4 sm:p-6 overflow-hidden flex items-center justify-between gap-4 w-full cursor-pointer touch-target group hover:-translate-y-1 transition-transform" onclick="startRadioMode()">
                     <div class="relative z-10 w-full flex-1">
                         <h3 class="font-display text-xl sm:text-2xl font-black mb-1 uppercase text-themeText flex items-center gap-2"><i class="ph ph-radio text-themeAccent3"></i> Endless Radio</h3>
@@ -413,9 +407,9 @@ Developer    : Ashutosh Roy
 
             <section id="resumeSection" class="hidden-safely w-full fade-in">
                 <h3 class="font-display text-lg sm:text-xl font-black mb-3 uppercase text-themeMuted">Continue Listening</h3>
-                <div class="relative bg-cardOrange border-[length:var(--border-width)] border-themeBorder shadow-theme p-3 flex items-center justify-between gap-4 cursor-pointer touch-target w-full sm:max-w-md transition-transform active:translate-y-1 overflow-hidden" onclick="resumePlayback()" role="button">
+                <div class="relative bg-cardOrange border-[length:var(--border-width)] border-themeBorder shadow-theme p-3 flex items-center justify-between gap-4 cursor-pointer touch-target w-full sm:max-w-md transition-transform active:translate-y-1 overflow-hidden rounded-xl sm:rounded-none" onclick="resumePlayback()" role="button">
                     <div class="flex items-center gap-3 min-w-0 flex-1">
-                        <div class="w-14 h-14 border-[length:var(--border-width)] border-themeBorder relative overflow-hidden bg-themeBg flex-shrink-0">
+                        <div class="w-14 h-14 border-[length:var(--border-width)] border-themeBorder relative overflow-hidden bg-themeBg flex-shrink-0 rounded-md sm:rounded-none">
                             <img id="resumeCover" src="" class="w-full h-full object-cover" loading="lazy" decoding="async">
                         </div>
                         <div class="min-w-0 flex-1">
@@ -439,12 +433,12 @@ Developer    : Ashutosh Roy
             <div id="dynamicSections" class="flex flex-col gap-10 sm:gap-14 w-full">
                 
                 <section id="trendingSection" class="hidden-safely w-full bg-cardYellow p-4 sm:p-6 border-[length:var(--border-width)] border-themeBorder shadow-theme">
-                    <h3 class="font-display text-xl sm:text-2xl font-black mb-4 uppercase flex items-center gap-2 text-themeText"><span class="bg-themeText text-themeBg px-2 py-0.5 border-2 border-themeBorder">1</span> Trending</h3>
+                    <h3 class="font-display text-xl sm:text-2xl font-black mb-4 uppercase flex items-center gap-2 text-themeText"><span class="bg-themeText text-themeBg px-2 py-0.5 border-2 border-themeBorder rounded-md sm:rounded-none">1</span> Trending</h3>
                     <div id="trendingGrid" class="flex overflow-x-auto pb-4 gap-4 snap-x no-scrollbar pt-1 -mx-2 px-2"></div>
                 </section>
 
                 <section id="recommendedSection" class="hidden-safely w-full">
-                    <h3 class="font-display text-xl sm:text-2xl font-black mb-4 uppercase flex items-center gap-2 text-themeText">Recommended</h3>
+                    <h3 class="font-display text-xl sm:text-2xl font-black mb-4 uppercase flex items-center gap-2 text-themeText pl-2">Recommended</h3>
                     <div id="recommendedGrid" class="flex overflow-x-auto pb-4 gap-4 snap-x no-scrollbar pt-1 -mx-2 px-2"></div>
                 </section>
 
@@ -463,15 +457,15 @@ Developer    : Ashutosh Roy
                 <section id="playlistsSection" class="hidden-safely w-full bg-cardCyan p-4 sm:p-6 border-[length:var(--border-width)] border-themeBorder shadow-theme">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="font-display text-xl sm:text-2xl font-black uppercase text-themeText">Your Collections</h3>
-                        <button onclick="openPlaylistModal()" class="brutal-btn bg-themeCard text-themeText p-2 touch-target w-10 h-10 min-h-0 flex items-center justify-center"><i class="ph ph-plus font-bold"></i></button>
+                        <button onclick="openPlaylistModal()" class="brutal-btn bg-themeCard text-themeText p-2 touch-target w-10 h-10 min-h-0 flex items-center justify-center rounded-full"><i class="ph ph-plus font-bold"></i></button>
                     </div>
                     <div id="playlistsGrid" class="flex overflow-x-auto pb-4 gap-4 snap-x no-scrollbar pt-1 -mx-2 px-2"></div>
                 </section>
 
                 <section id="artistSection" class="hidden-safely fade-in w-full">
                     <div class="flex flex-col sm:flex-row items-center sm:items-start gap-4 mb-6 p-4 bg-themeCard border-[length:var(--border-width)] border-themeBorder shadow-theme w-full relative">
-                        <button onclick="goBackFromArtist()" class="absolute top-4 right-4 brutal-btn bg-themeCard text-themeText p-2 touch-target w-10 h-10 min-h-0 flex justify-center items-center" aria-label="Go Back"><i class="ph ph-arrow-left text-lg font-bold"></i></button>
-                        <div class="w-24 h-24 sm:w-32 sm:h-32 border-[length:var(--border-width)] border-themeBorder bg-themeBg overflow-hidden shadow-theme flex-shrink-0">
+                        <button onclick="goBackFromArtist()" class="absolute top-4 right-4 brutal-btn bg-themeCard text-themeText p-2 touch-target w-10 h-10 min-h-0 flex justify-center items-center rounded-full" aria-label="Go Back"><i class="ph ph-arrow-left text-lg font-bold"></i></button>
+                        <div class="w-24 h-24 sm:w-32 sm:h-32 border-[length:var(--border-width)] border-themeBorder bg-themeBg overflow-hidden shadow-theme flex-shrink-0 rounded-xl sm:rounded-none">
                             <img id="artistBannerImg" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><rect width='100' height='100' fill='%23666'/></svg>" class="w-full h-full object-cover aspect-square" loading="lazy" decoding="async">
                         </div>
                         <div class="flex-1 min-w-0 text-center sm:text-left flex flex-col justify-center h-full w-full pr-12">
@@ -489,8 +483,8 @@ Developer    : Ashutosh Roy
 
                 <section id="playlistViewSection" class="hidden-safely fade-in w-full">
                     <div class="flex flex-col sm:flex-row items-center sm:items-start gap-4 mb-6 p-4 bg-themeCard border-[length:var(--border-width)] border-themeBorder shadow-theme w-full relative">
-                        <button onclick="goBackFromPlaylist()" class="absolute top-4 right-4 brutal-btn bg-themeCard text-themeText p-2 touch-target w-10 h-10 min-h-0 flex justify-center items-center"><i class="ph ph-arrow-left text-lg font-bold"></i></button>
-                        <div class="w-24 h-24 sm:w-32 sm:h-32 border-[length:var(--border-width)] border-themeBorder bg-themeBg overflow-hidden shadow-theme flex-shrink-0 flex items-center justify-center">
+                        <button onclick="goBackFromPlaylist()" class="absolute top-4 right-4 brutal-btn bg-themeCard text-themeText p-2 touch-target w-10 h-10 min-h-0 flex justify-center items-center rounded-full"><i class="ph ph-arrow-left text-lg font-bold"></i></button>
+                        <div class="w-24 h-24 sm:w-32 sm:h-32 border-[length:var(--border-width)] border-themeBorder bg-themeBg overflow-hidden shadow-theme flex-shrink-0 flex items-center justify-center rounded-xl sm:rounded-none">
                             <i class="ph ph-list-numbers text-4xl text-themeMuted"></i>
                         </div>
                         <div class="flex-1 min-w-0 text-center sm:text-left flex flex-col justify-center h-full w-full pr-12">
@@ -507,24 +501,24 @@ Developer    : Ashutosh Roy
                 </section>
 
                 <section id="searchViewSection" class="hidden-safely w-full fade-in">
-                    <div id="searchDefaultState" class="w-full flex flex-col gap-6">
+                    <div id="searchDefaultState" class="w-full flex flex-col gap-8 bg-themeCard p-6 border-[length:var(--border-width)] border-themeBorder shadow-theme rounded-2xl sm:rounded-none">
                         <div class="overflow-visible">
-                            <h3 class="font-display text-sm sm:text-base font-black mb-3 uppercase text-themeMuted flex items-center gap-2"><i class="ph ph-clock-counter-clockwise"></i> Recent Searches</h3>
+                            <h3 class="font-code text-xs font-bold mb-4 uppercase text-themeMuted flex items-center gap-2 tracking-widest"><i class="ph ph-clock-counter-clockwise text-lg"></i> Recent Searches</h3>
                             <div id="recentSearchesGrid" class="flex flex-wrap gap-2"></div>
                         </div>
                         <div class="overflow-visible">
-                            <h3 class="font-display text-sm sm:text-base font-black mb-3 uppercase text-themeMuted flex items-center gap-2"><i class="ph ph-fire"></i> Popular</h3>
+                            <h3 class="font-code text-xs font-bold mb-4 uppercase text-themeMuted flex items-center gap-2 tracking-widest"><i class="ph ph-fire text-lg"></i> Popular</h3>
                             <div class="flex flex-wrap gap-3">
-                                <button class="brutal-btn bg-cardYellow text-themeText px-4 py-2.5 text-xs touch-target min-h-0 h-auto whitespace-normal text-left" onclick="performFullSearch('Bollywood')">Bollywood</button>
-                                <button class="brutal-btn bg-cardCyan text-themeText px-4 py-2.5 text-xs touch-target min-h-0 h-auto whitespace-normal text-left" onclick="performFullSearch('Hip Hop')">Hip Hop</button>
-                                <button class="brutal-btn bg-cardPink text-themeText px-4 py-2.5 text-xs touch-target min-h-0 h-auto whitespace-normal text-left" onclick="performFullSearch('Lo-Fi')">Lo-Fi</button>
-                                <button class="brutal-btn bg-themeCard text-themeText px-4 py-2.5 text-xs touch-target min-h-0 h-auto whitespace-normal text-left" onclick="performFullSearch('Arijit Singh')">Arijit Singh</button>
-                                <button class="brutal-btn bg-themeCard text-themeText px-4 py-2.5 text-xs touch-target min-h-0 h-auto whitespace-normal text-left" onclick="performFullSearch('The Weeknd')">The Weeknd</button>
+                                <button class="brutal-btn bg-themeBg text-themeText px-4 py-2.5 text-xs touch-target min-h-0 h-auto whitespace-normal text-left font-bold" onclick="performFullSearch('Bollywood')">Bollywood</button>
+                                <button class="brutal-btn bg-themeBg text-themeText px-4 py-2.5 text-xs touch-target min-h-0 h-auto whitespace-normal text-left font-bold" onclick="performFullSearch('Hip Hop')">Hip Hop</button>
+                                <button class="brutal-btn bg-themeBg text-themeText px-4 py-2.5 text-xs touch-target min-h-0 h-auto whitespace-normal text-left font-bold" onclick="performFullSearch('Lo-Fi')">Lo-Fi</button>
+                                <button class="brutal-btn bg-themeBg text-themeText px-4 py-2.5 text-xs touch-target min-h-0 h-auto whitespace-normal text-left font-bold" onclick="performFullSearch('Arijit Singh')">Arijit Singh</button>
+                                <button class="brutal-btn bg-themeBg text-themeText px-4 py-2.5 text-xs touch-target min-h-0 h-auto whitespace-normal text-left font-bold" onclick="performFullSearch('The Weeknd')">The Weeknd</button>
                             </div>
                         </div>
                     </div>
                     <div id="searchContentState" class="hidden-safely w-full">
-                        <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center justify-between mb-4 px-2">
                             <h3 class="font-display text-xl sm:text-2xl font-black uppercase text-themeText">Results</h3>
                         </div>
                         <div id="searchResultsGrid" class="responsive-card-list"></div>
@@ -536,7 +530,7 @@ Developer    : Ashutosh Roy
 
     <footer class="fixed bottom-0 w-full bg-themeCard backdrop-blur-md z-40 pb-safe shadow-[0_-4px_10px_rgba(0,0,0,0.1)]">
         <div class="absolute top-0 left-0 w-full h-[6px] bg-themeBg border-t-[length:var(--border-width)] border-b-[length:var(--border-width)] border-themeBorder overflow-hidden" id="miniScrubberContainer">
-            <div id="progressFill" class="h-full bg-dominant w-0 border-r-[length:var(--border-width)] border-themeBorder transition-none pointer-events-none"></div>
+            <div id="progressFill" class="h-full bg-dominant w-0 border-r-[length:var(--border-width)] border-themeBorder pointer-events-none transition-none"></div>
             <input type="range" id="progressBar" min="0" max="100" value="0" step="0.1" class="absolute inset-0 opacity-0 z-10 w-full h-full cursor-none touch-target min-h-[30px] -mt-[12px]">
         </div>
 
@@ -544,7 +538,7 @@ Developer    : Ashutosh Roy
             <div class="flex items-center justify-between gap-3 h-14 sm:h-16">
                 
                 <div class="flex items-center gap-3 w-auto flex-1 min-w-0 cursor-pointer group touch-target justify-start" onclick="toggleFullscreen()" role="button">
-                    <div class="w-12 h-12 sm:w-14 sm:h-14 border-2 sm:border-[length:var(--border-width)] border-themeBorder bg-themeBg flex-shrink-0 relative shadow-[2px_2px_0px_var(--shadow-color)] overflow-hidden">
+                    <div class="w-12 h-12 sm:w-14 sm:h-14 border-2 sm:border-[length:var(--border-width)] border-themeBorder bg-themeBg flex-shrink-0 relative shadow-[2px_2px_0px_var(--shadow-color)] overflow-hidden rounded-md sm:rounded-none">
                         <img id="playerCover" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><rect width='100' height='100' fill='%23666'/></svg>" class="w-full h-full object-cover aspect-square transition-transform group-hover:scale-105" alt="Cover" loading="lazy" decoding="async">
                     </div>
                     <div class="min-w-0 flex-1 pr-2">
@@ -554,33 +548,35 @@ Developer    : Ashutosh Roy
                 </div>
 
                 <div class="flex items-center gap-2 sm:gap-4 flex-shrink-0">
-                    <button class="brutal-btn bg-themeCard p-2 hidden sm:flex touch-target min-h-0 w-10 h-10 items-center justify-center" onclick="playPrevious()" aria-label="Previous">
+                    <button class="brutal-btn bg-themeCard p-2 hidden sm:flex touch-target min-h-0 w-10 h-10 items-center justify-center rounded-full" onclick="playPrevious()" aria-label="Previous">
                         <i class="ph ph-skip-back text-lg font-bold"></i>
                     </button>
                     
-                    <button class="brutal-btn neo-solid-icon bg-themeText text-themeBg w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center shadow-[2px_2px_0px_var(--shadow-color)] touch-target transition-transform active:scale-95" onclick="togglePlay()" id="playPauseBtn" aria-label="Play/Pause">
+                    <button class="brutal-btn neo-solid-icon bg-themeText text-themeBg w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center shadow-[2px_2px_0px_var(--shadow-color)] touch-target transition-transform active:scale-95 rounded-full" onclick="togglePlay()" id="playPauseBtn" aria-label="Play/Pause">
                         <i id="playPauseIcon" class="ph ph-play text-2xl sm:text-3xl font-black ml-1"></i>
                     </button>
                     
-                    <button class="brutal-btn bg-themeCard p-2 flex touch-target min-h-0 w-10 h-10 items-center justify-center sm:hidden" onclick="playNext(true)" aria-label="Next">
+                    <!-- Mobile specific next button -->
+                    <button class="brutal-btn bg-themeCard p-2 flex touch-target min-h-0 w-10 h-10 items-center justify-center sm:hidden rounded-full" onclick="playNext(true)" aria-label="Next">
                         <i class="ph ph-skip-forward text-lg font-bold"></i>
                     </button>
 
-                    <button class="brutal-btn bg-themeCard p-2 hidden sm:flex touch-target min-h-0 w-10 h-10 items-center justify-center" onclick="playNext(true)" aria-label="Next">
+                    <!-- Desktop specific next button -->
+                    <button class="brutal-btn bg-themeCard p-2 hidden sm:flex touch-target min-h-0 w-10 h-10 items-center justify-center rounded-full" onclick="playNext(true)" aria-label="Next">
                         <i class="ph ph-skip-forward text-lg font-bold"></i>
                     </button>
                 </div>
 
                 <div class="items-center justify-end gap-3 w-1/3 text-themeText hidden md:flex">
-                    <button class="brutal-btn bg-themeCard px-3 py-2 touch-target min-h-0 h-10 flex items-center justify-center" onclick="toggleFavoriteCurrent()">
+                    <button class="brutal-btn bg-themeCard px-3 py-2 touch-target min-h-0 h-10 flex items-center justify-center rounded-full" onclick="toggleFavoriteCurrent()">
                         <i id="likeIcon" class="ph ph-heart text-lg font-bold"></i>
                     </button>
-                    <button class="brutal-btn bg-themeCard px-3 py-2 touch-target min-h-0 h-10" onclick="toggleQueueSheet()" title="Queue">
+                    <button class="brutal-btn bg-themeCard px-3 py-2 touch-target min-h-0 h-10 rounded-full" onclick="toggleQueueSheet()" title="Queue">
                         <i class="ph ph-list-dashes text-lg font-bold"></i>
                     </button>
-                    <div class="flex items-center gap-2 w-28 bg-themeBg border-[length:var(--border-width)] border-themeBorder p-1 h-10 shadow-[inset_2px_2px_0px_rgba(0,0,0,0.1)]">
-                        <i class="ph ph-speaker-high text-sm font-bold ml-1 text-themeMuted"></i>
-                        <input type="range" id="volumeBar" min="0" max="100" value="100" class="w-full cursor-pointer" aria-label="Volume">
+                    <div class="flex items-center gap-2 w-28 bg-themeBg border-[length:var(--border-width)] border-themeBorder p-1 h-10 shadow-[inset_2px_2px_0px_rgba(0,0,0,0.1)] rounded-full">
+                        <i class="ph ph-speaker-high text-sm font-bold ml-2 text-themeMuted"></i>
+                        <input type="range" id="volumeBar" min="0" max="100" value="100" class="w-full cursor-pointer pr-2" aria-label="Volume">
                     </div>
                 </div>
             </div>
@@ -613,14 +609,14 @@ Developer    : Ashutosh Roy
             <div class="flex-1 flex flex-col items-center justify-center w-full px-6 sm:px-12 relative overflow-hidden my-2 sm:my-4" id="fsSwipeArea">
                 
                 <div id="fsContentAudio" class="w-full flex flex-col items-center justify-center h-full transition-opacity duration-300">
-                    <div class="w-full max-w-[70vw] sm:max-w-[45vw] md:max-w-[380px] aspect-square border-4 sm:border-8 border-themeBorder bg-themeBg shadow-theme-xl relative overflow-hidden flex items-center justify-center">
+                    <div class="w-full max-w-[70vw] sm:max-w-[45vw] md:max-w-[380px] aspect-square border-4 sm:border-8 border-themeBorder bg-themeBg shadow-theme-xl relative overflow-hidden flex items-center justify-center rounded-[24px] sm:rounded-none">
                         <img id="fsCover" src="" class="w-full h-full object-cover aspect-square transition-all duration-300 pointer-events-none" alt="Cover Art" decoding="async">
-                        <div class="absolute inset-0 border-4 sm:border-8 border-transparent pointer-events-none transition-colors" id="fsCoverBorder"></div>
+                        <div class="absolute inset-0 border-4 sm:border-8 border-transparent pointer-events-none transition-colors rounded-[20px] sm:rounded-none" id="fsCoverBorder"></div>
                         <div class="absolute bottom-3 right-3 bg-themeText text-themeBg font-code font-black text-[10px] px-2 py-1 shadow-[2px_2px_0px_var(--dominant)] transform rotate-2">PLAYING</div>
                     </div>
                 </div>
 
-                <div id="fsContentLyrics" class="w-full h-full absolute inset-0 px-4 sm:px-12 py-4 flex flex-col items-center text-center overflow-y-auto hidden-safely font-display text-xl sm:text-3xl font-bold leading-relaxed space-y-8 scroll-smooth no-scrollbar">
+                <div id="fsContentLyrics" class="w-full h-full absolute inset-0 px-4 sm:px-12 py-4 flex flex-col items-center text-center overflow-y-auto hidden-safely font-display text-xl sm:text-3xl font-bold leading-relaxed space-y-8 no-scrollbar">
                 </div>
             </div>
             
@@ -689,23 +685,23 @@ Developer    : Ashutosh Roy
     </div>
 
     <div id="infoModal" class="modal-overlay fixed inset-0 z-[150] flex items-center justify-center p-4 pb-safe bg-themeBorder/80 theme-glass-blur" onclick="closeModals(event)">
-        <div class="bg-themeBg border-[length:var(--border-width)] border-themeBorder shadow-theme-xl w-full max-w-md flex flex-col transform transition-transform h-[85vh] sm:h-auto sm:max-h-[90vh]" onclick="event.stopPropagation()">
+        <div class="bg-themeBg border-[length:var(--border-width)] border-themeBorder shadow-theme-xl w-full max-w-md flex flex-col transform transition-transform h-[85vh] sm:h-auto sm:max-h-[90vh] rounded-2xl sm:rounded-none overflow-hidden" onclick="event.stopPropagation()">
             
             <div class="bg-themeCard border-b-[length:var(--border-width)] border-themeBorder p-4 flex justify-between items-center sticky top-0 z-20">
                 <h3 class="font-display font-black uppercase text-xl text-themeText">Settings</h3>
-                <button class="brutal-btn bg-themeCard p-2 touch-target min-h-0 w-10 h-10 flex items-center justify-center" onclick="document.getElementById('infoModal').classList.remove('open')">
+                <button class="brutal-btn bg-themeCard p-2 touch-target min-h-0 w-10 h-10 flex items-center justify-center rounded-full" onclick="document.getElementById('infoModal').classList.remove('open')">
                     <i class="ph ph-x font-bold text-lg"></i>
                 </button>
             </div>
 
             <div class="p-4 sm:p-6 flex flex-col gap-6 overflow-y-auto no-scrollbar">
                 
-                <div class="border-[length:var(--border-width)] border-themeBorder p-4 bg-themeCard shadow-theme relative">
+                <div class="border-[length:var(--border-width)] border-themeBorder p-4 bg-themeCard shadow-theme relative rounded-xl sm:rounded-none">
                     <h4 class="font-display font-black uppercase text-sm mb-3">Appearance</h4>
                     <div class="flex flex-col gap-4 font-code text-[10px] font-bold uppercase">
                         <div class="flex justify-between items-center">
                             <span>Theme</span>
-                            <select id="themeSelect" onchange="changeTheme(this.value)" class="bg-themeBg border-2 border-themeBorder p-2 text-themeText outline-none touch-target min-h-0 cursor-pointer shadow-[2px_2px_0px_var(--shadow-color)] appearance-none rounded-none w-32">
+                            <select id="themeSelect" onchange="changeTheme(this.value)" class="bg-themeBg border-2 border-themeBorder p-2 text-themeText outline-none touch-target min-h-0 cursor-pointer shadow-[2px_2px_0px_var(--shadow-color)] appearance-none w-32 font-bold rounded-lg sm:rounded-none">
                                 <option value="neo" class="bg-themeCard text-themeText font-bold">Neo Brutal</option>
                                 <option value="glass" class="bg-themeCard text-themeText font-bold">Liquid Glass</option>
                             </select>
@@ -720,7 +716,7 @@ Developer    : Ashutosh Roy
                     </div>
                 </div>
 
-                <div class="border-[length:var(--border-width)] border-themeBorder p-4 bg-themeCard shadow-theme relative">
+                <div class="border-[length:var(--border-width)] border-themeBorder p-4 bg-themeCard shadow-theme relative rounded-xl sm:rounded-none">
                     <h4 class="font-display font-black uppercase text-sm mb-3">Playback</h4>
                     <div class="flex justify-between items-center mb-2">
                         <div class="font-code font-bold uppercase text-[10px]">Crossfade</div>
@@ -731,86 +727,48 @@ Developer    : Ashutosh Roy
                     </div>
                     <div id="cfSliderContainer" class="opacity-50 pointer-events-none transition-opacity mt-2 flex items-center gap-3 mb-6">
                         <span class="font-code text-[10px] font-bold">0S</span>
-                        <div class="flex-1 relative h-4 border-2 border-themeBorder bg-themeBg">
+                        <div class="flex-1 relative h-4 border-2 border-themeBorder bg-themeBg rounded-full">
                             <input type="range" id="cfSlider" min="1" max="10" value="0" step="1" class="absolute inset-0 w-full h-full opacity-0 z-10 cursor-none touch-target min-h-0 -mt-2" oninput="setCrossfadeSlider(this.value)">
-                            <div id="cfProgressFill" class="h-full bg-themeText w-[0%] pointer-events-none"></div>
+                            <div id="cfProgressFill" class="h-full bg-themeText w-[0%] pointer-events-none rounded-full"></div>
                         </div>
-                        <span id="cfValueDisplay" class="font-code text-[10px] font-bold bg-themeText text-themeBg px-2 py-0.5">0S</span>
+                        <span id="cfValueDisplay" class="font-code text-[10px] font-bold bg-themeText text-themeBg px-2 py-0.5 rounded-full">0S</span>
                     </div>
                 </div>
 
-                <div class="border-[length:var(--border-width)] border-themeBorder p-4 bg-themeCard shadow-theme relative">
+                <div class="border-[length:var(--border-width)] border-themeBorder p-4 bg-themeCard shadow-theme relative rounded-xl sm:rounded-none">
                     <h4 class="font-display font-black uppercase text-sm mb-3">App Storage</h4>
                     <button class="brutal-btn bg-themeBg w-full py-3 flex justify-center items-center gap-2 touch-target text-xs min-h-0 font-code font-bold" onclick="clearAppCache()">
                         <i class="ph ph-trash text-lg"></i> CLEAR CACHE
                     </button>
                 </div>
-
-                <div class="border-[length:var(--border-width)] border-themeBorder p-4 bg-cardYellow shadow-theme relative text-themeText">
-                    <div class="cyber-badge absolute -top-3 -right-3 text-[10px]">DEV</div>
-                    <h4 class="font-display font-black uppercase text-sm mb-3">About Developer</h4>
-                    <div class="flex items-center gap-3 mb-3">
-                        <div class="w-12 h-12 border-2 border-themeBorder bg-themeBg flex items-center justify-center overflow-hidden flex-shrink-0 shadow-[2px_2px_0px_var(--shadow-color)]">
-                            <img src="https://raw.githubusercontent.com/royverse69/ask-me-/main/machhar.jpeg" class="w-full h-full object-cover" alt="Machhar Kumar" loading="lazy" decoding="async">
-                        </div>
-                        <div>
-                            <a href="https://royverse69.github.io/ask-me-/" target="_blank" rel="noopener noreferrer" class="font-black font-display text-sm uppercase text-themeText" style="animation: linkBounce 1.5s infinite ease-in-out; display: inline-block;">Machhar Kumar</a>
-                            <div class="font-code text-[9px] font-bold uppercase bg-themeCard px-1 border-2 border-themeBorder mt-0.5 inline-block">Founder</div>
-                        </div>
-                    </div>
-                    <div class="flex gap-2 font-code text-[10px] font-bold uppercase">
-                        <a href="#" class="underline">Website</a> | <a href="#" class="underline">GitHub</a>
-                    </div>
-                    <div class="mt-4 pt-3 border-t-2 border-dashed border-themeBorder font-code text-[9px] font-bold uppercase text-themeMuted">
-                        Gaana Suno v4.2 Stable
-                    </div>
-                </div>
-
             </div>
         </div>
     </div>
 
     <div id="trackDetailsModal" class="modal-overlay fixed inset-0 z-[160] flex items-end sm:items-center justify-center p-4 pb-safe bg-themeBorder/80 theme-glass-blur" onclick="document.getElementById('trackDetailsModal').classList.remove('open')">
-        <div class="bg-themeCard border-[length:var(--border-width)] border-themeBorder shadow-theme-xl w-full max-w-sm flex flex-col transform transition-transform relative" onclick="event.stopPropagation()">
+        <div class="bg-themeCard border-[length:var(--border-width)] border-themeBorder shadow-theme-xl w-full max-w-sm flex flex-col transform transition-transform relative rounded-t-2xl sm:rounded-none" onclick="event.stopPropagation()">
             <div class="flex justify-between items-center border-b-[length:var(--border-width)] border-themeBorder p-4 bg-themeBg">
                 <h3 class="font-display font-black text-lg uppercase text-themeText">Options</h3>
-                <button onclick="document.getElementById('trackDetailsModal').classList.remove('open')" class="brutal-btn bg-themeCard p-2 touch-target min-h-0 w-10 h-10 flex items-center justify-center"><i class="ph ph-x font-bold text-lg"></i></button>
+                <button onclick="document.getElementById('trackDetailsModal').classList.remove('open')" class="brutal-btn bg-themeCard p-2 touch-target min-h-0 w-10 h-10 flex items-center justify-center rounded-full"><i class="ph ph-x font-bold text-lg"></i></button>
             </div>
             
             <div class="p-4 flex flex-col gap-2 max-h-[60vh] overflow-y-auto no-scrollbar font-code font-bold uppercase text-xs">
                 
-                <button class="flex items-center gap-3 p-3 bg-themeCard border-[length:var(--border-width)] border-themeBorder shadow-theme hover:bg-themeBg transition-colors touch-target min-h-[44px] text-left w-full" onclick="document.getElementById('trackDetailsModal').classList.remove('open'); window.addToQueueFromMenu();">
+                <button class="flex items-center gap-3 p-3 bg-themeCard border-[length:var(--border-width)] border-themeBorder shadow-theme hover:bg-themeBg transition-colors touch-target min-h-[44px] text-left w-full rounded-xl sm:rounded-none" onclick="document.getElementById('trackDetailsModal').classList.remove('open'); window.addToQueueFromMenu();">
                     <i class="ph ph-queue text-lg"></i> Add to Queue
                 </button>
 
-                <button class="flex items-center gap-3 p-3 bg-themeCard border-[length:var(--border-width)] border-themeBorder shadow-theme hover:bg-themeBg transition-colors touch-target min-h-[44px] text-left w-full" onclick="document.getElementById('trackDetailsModal').classList.remove('open'); openArtist(state.currentSong ? state.currentSong.artists.split(',')[0].trim() : '');">
+                <button class="flex items-center gap-3 p-3 bg-themeCard border-[length:var(--border-width)] border-themeBorder shadow-theme hover:bg-themeBg transition-colors touch-target min-h-[44px] text-left w-full rounded-xl sm:rounded-none" onclick="document.getElementById('trackDetailsModal').classList.remove('open'); openArtist(state.currentSong ? state.currentSong.artists.split(',')[0].trim() : '');">
                     <i class="ph ph-user text-lg"></i> View Artist
                 </button>
 
-                <button class="flex items-center gap-3 p-3 bg-themeCard border-[length:var(--border-width)] border-themeBorder shadow-theme hover:bg-themeBg transition-colors touch-target min-h-0 text-left w-full" onclick="document.getElementById('trackDetailsModal').classList.remove('open'); openPlaylistModal();">
+                <button class="flex items-center gap-3 p-3 bg-themeCard border-[length:var(--border-width)] border-themeBorder shadow-theme hover:bg-themeBg transition-colors touch-target min-h-0 text-left w-full rounded-xl sm:rounded-none" onclick="document.getElementById('trackDetailsModal').classList.remove('open'); openPlaylistModal();">
                     <i class="ph ph-list-plus text-lg"></i> Add to Playlist
                 </button>
 
-                <button id="downloadBtn" class="flex items-center gap-3 p-3 bg-themeCard border-[length:var(--border-width)] border-themeBorder shadow-theme hover:bg-themeBg transition-colors touch-target min-h-0 text-left w-full" onclick="downloadSong()">
+                <button id="downloadBtn" class="flex items-center gap-3 p-3 bg-themeCard border-[length:var(--border-width)] border-themeBorder shadow-theme hover:bg-themeBg transition-colors touch-target min-h-0 text-left w-full rounded-xl sm:rounded-none" onclick="downloadSong()">
                     <i class="ph ph-download-simple text-lg"></i> Download
                 </button>
-                
-                <button class="flex items-center gap-3 p-3 bg-themeCard border-[length:var(--border-width)] border-themeBorder shadow-theme hover:bg-themeBg transition-colors touch-target min-h-0 text-left w-full" onclick="document.getElementById('trackDetailsModal').classList.remove('open'); shareCurrentSong();">
-                    <i class="ph ph-share-network text-lg"></i> Share
-                </button>
-                
-                <div class="mt-2 mb-1 border-t-2 border-dashed border-themeBorder"></div>
-                
-                <div class="p-2 text-themeMuted text-[10px]">SLEEP TIMER</div>
-                <div class="flex items-center gap-2 px-2 pb-2">
-                    <input type="range" id="sleepSlider" min="1" max="45" value="15" class="w-full cursor-pointer" oninput="document.getElementById('sleepVal').innerText=this.value+'M'">
-                    <span id="sleepVal" class="font-code text-xs">15M</span>
-                </div>
-                <div class="grid grid-cols-2 gap-2 px-2">
-                    <button class="bg-themeCard border-[length:var(--border-width)] border-themeBorder p-2 text-center hover:bg-themeBg touch-target min-h-0" onclick="setTimer(document.getElementById('sleepSlider').value)">START</button>
-                    <button class="bg-themeCard border-[length:var(--border-width)] border-themeBorder p-2 text-center hover:bg-themeBg touch-target min-h-0" onclick="setTimer('end')">AFTER SONG</button>
-                </div>
-                <div id="timerStatus" class="px-2 text-[10px] text-dominant font-bold mt-1 text-center"></div>
                 
                 <div class="mt-2 mb-1 border-t-2 border-dashed border-themeBorder"></div>
                 
@@ -822,43 +780,36 @@ Developer    : Ashutosh Roy
     </div>
 
     <div id="playlistContextMenu" class="modal-overlay fixed inset-0 z-[170] flex items-end sm:items-center justify-center p-4 pb-safe bg-themeBorder/80 theme-glass-blur" onclick="document.getElementById('playlistContextMenu').classList.remove('open')">
-        <div class="bg-cardCyan border-[length:var(--border-width)] border-themeBorder shadow-theme-xl w-full max-w-xs flex flex-col transform transition-transform relative" onclick="event.stopPropagation()">
+        <div class="bg-cardCyan border-[length:var(--border-width)] border-themeBorder shadow-theme-xl w-full max-w-xs flex flex-col transform transition-transform relative rounded-t-2xl sm:rounded-none" onclick="event.stopPropagation()">
             <div class="p-4 border-b-[length:var(--border-width)] border-themeBorder">
                 <h3 id="contextMenuTitle" class="font-display font-black text-base uppercase text-themeText truncate">Playlist</h3>
             </div>
             <div class="p-4 flex flex-col gap-3 font-code font-bold uppercase text-xs">
                 <button class="brutal-btn bg-themeCard p-3 text-left touch-target min-h-0" onclick="handlePlaylistAction('play')"><i class="ph ph-play mr-2"></i> Play All</button>
                 <button class="brutal-btn bg-themeCard p-3 text-left touch-target min-h-0" onclick="handlePlaylistAction('rename')"><i class="ph ph-pencil-simple mr-2"></i> Rename</button>
-                <button class="brutal-btn bg-themeCard p-3 text-left touch-target min-h-0" onclick="handlePlaylistAction('duplicate')"><i class="ph ph-copy mr-2"></i> Duplicate</button>
-                <button class="brutal-btn bg-themeCard p-3 text-left touch-target min-h-0" onclick="handlePlaylistAction('share')"><i class="ph ph-share-network mr-2"></i> Share</button>
                 <button class="brutal-btn bg-cardPink text-themeText p-3 text-left touch-target min-h-0 mt-2" onclick="handlePlaylistAction('delete')"><i class="ph ph-trash mr-2"></i> Delete</button>
             </div>
         </div>
     </div>
 
-    <div id="queueSheet" class="bottom-sheet fixed bottom-0 left-0 w-full h-[100vh] sm:h-[85vh] bg-themeCard border-t-[length:var(--border-width)] border-themeBorder z-[120] flex flex-col shadow-[0_-8px_0px_var(--shadow-color)] max-w-2xl mx-auto sm:border-l-[length:var(--border-width)] sm:border-r-[length:var(--border-width)]">
+    <div id="queueSheet" class="bottom-sheet fixed bottom-0 left-0 w-full h-[100vh] sm:h-[85vh] bg-themeCard border-t-[length:var(--border-width)] border-themeBorder z-[120] flex flex-col shadow-[0_-8px_0px_var(--shadow-color)] max-w-2xl mx-auto sm:border-l-[length:var(--border-width)] sm:border-r-[length:var(--border-width)] rounded-t-3xl sm:rounded-none">
         <div class="flex justify-between items-center px-4 sm:px-6 py-4 border-b-[length:var(--border-width)] border-themeBorder bg-cardYellow flex-shrink-0 relative z-10 w-full pt-safe">
             <h3 class="font-display font-black text-xl uppercase text-[#000000]">Full Queue</h3>
-            <button onclick="closeAllSheets()" class="brutal-btn bg-[#ffffff] px-2 py-1 touch-target min-h-0 w-10 h-10 flex items-center justify-center text-[#000000] border-[#000000]"><i class="ph ph-arrow-down font-bold text-lg"></i></button>
+            <button onclick="closeAllSheets()" class="brutal-btn bg-[#ffffff] px-2 py-1 touch-target min-h-0 w-10 h-10 flex items-center justify-center text-[#000000] border-[#000000] rounded-full"><i class="ph ph-arrow-down font-bold text-lg"></i></button>
         </div>
         <div id="queueList" class="flex-1 overflow-y-auto p-3 sm:p-4 space-y-2 sm:space-y-3 pb-32 relative z-10 bg-themeBg w-full">
         </div>
     </div>
 
     <div id="playlistModal" class="modal-overlay fixed inset-0 z-[150] flex items-center justify-center p-4 pb-safe bg-themeBorder/80 theme-glass-blur" onclick="closeModals(event)">
-        <div class="bg-themeCard border-[length:var(--border-width)] border-themeBorder shadow-theme-xl w-full max-w-sm p-4 sm:p-6 flex flex-col gap-4 transform transition-transform relative" onclick="event.stopPropagation()">
-            <div class="cyber-badge absolute -top-4 -left-4 text-xs">SAVE</div>
-            
+        <div class="bg-themeCard border-[length:var(--border-width)] border-themeBorder shadow-theme-xl w-full max-w-sm p-4 sm:p-6 flex flex-col gap-4 transform transition-transform relative rounded-2xl sm:rounded-none" onclick="event.stopPropagation()">
             <div class="flex justify-between items-center border-b-[length:var(--border-width)] border-themeBorder pb-3">
                 <h3 class="font-display font-black text-lg sm:text-xl uppercase text-themeText">Playlists</h3>
-                <button onclick="document.getElementById('playlistModal').classList.remove('open')" class="brutal-btn bg-themeCard p-1 touch-target min-h-0 w-10 h-10 flex items-center justify-center"><i class="ph ph-x font-bold text-lg"></i></button>
+                <button onclick="document.getElementById('playlistModal').classList.remove('open')" class="brutal-btn bg-themeCard p-1 touch-target min-h-0 w-10 h-10 flex items-center justify-center rounded-full"><i class="ph ph-x font-bold text-lg"></i></button>
             </div>
-            
-            <div id="playlistListModal" class="max-h-48 overflow-y-auto space-y-2 pr-1">
-            </div>
-            
+            <div id="playlistListModal" class="max-h-48 overflow-y-auto space-y-2 pr-1"></div>
             <div class="flex flex-col gap-2 mt-2 pt-3 border-t-[length:var(--border-width)] border-themeBorder">
-                <input type="text" id="newPlaylistInput" placeholder="NEW PLAYLIST..." aria-label="New Playlist Name" class="w-full bg-themeBg border-[length:var(--border-width)] border-themeBorder px-3 py-3 font-code font-bold uppercase text-themeText text-sm outline-none focus:shadow-theme transition-all touch-target min-h-0">
+                <input type="text" id="newPlaylistInput" placeholder="NEW PLAYLIST..." aria-label="New Playlist Name" class="w-full bg-themeBg border-[length:var(--border-width)] border-themeBorder px-3 py-3 font-code font-bold uppercase text-themeText text-sm outline-none focus:shadow-theme transition-all touch-target min-h-0 rounded-lg sm:rounded-none">
                 <button class="brutal-btn neo-solid-icon bg-themeText text-themeBg px-4 py-3 touch-target min-h-0 w-full mt-2" onclick="createNewPlaylist()">CREATE & ADD</button>
             </div>
         </div>
@@ -896,13 +847,15 @@ Developer    : Ashutosh Roy
 
         function haptic() { if(navigator.vibrate) navigator.vibrate(15); }
 
-        const API_BASE = 'https://music-api.albatross0071.workers.dev/api/';
         const BACKEND_BASE = 'https://gaana-suno-varna-machhar-aajayega.onrender.com/'; 
-        const CACHE_NAME = "royverse-v2";
+        const CACHE_NAME = "royverse-v3-optimized";
         
         const audios = [new Audio(), new Audio()];
+        // IMPORTANT: Preload and anonymous cross-origin enable chunked streaming playback native to the browser.
         audios.forEach(a => { a.crossOrigin = "anonymous"; a.preload = "auto"; });
+        
         let activeAudioIdx = 0; let masterVolume = 1; let fadeTimer = null; let sleepTimer = null; let stopAfterCurrent = false;
+        let uiFrame = null; let lastUIUpdate = 0; let lastSavedSecond = -1; let lyricIndex = 0;
 
         function getActiveAudio() { return audios[activeAudioIdx]; }
         function getInactiveAudio() { return audios[1 - activeAudioIdx]; }
@@ -929,7 +882,9 @@ Developer    : Ashutosh Roy
             lyricsCache: [], activeLyricIdx: -1, tempSongToAdd: null, currentArtistSongs: [], crossfade: 0,
             contextPlaylist: null
         };
+        
         const cacheStore = new Map();
+        const dominantColorCache = new Map();
         let recentSearches = JSON.parse(localStorage.getItem('gaana_recent_searches') || '[]');
 
         function renderRecentSearches() {
@@ -941,7 +896,7 @@ Developer    : Ashutosh Roy
                 }
                 rGrid.innerHTML = recentSearches.map(q => {
                     const safeQ = q.replace(/'/g, "\\'");
-                    return `<button class="brutal-btn bg-themeBg text-themeText px-4 py-2.5 text-[10px] sm:text-xs touch-target min-h-0 h-auto whitespace-normal text-left leading-tight" onclick="performFullSearch('${safeQ}')">${q}</button>`;
+                    return `<button class="brutal-btn bg-themeBg text-themeText px-4 py-2.5 text-[10px] sm:text-xs touch-target min-h-0 h-auto whitespace-normal text-left leading-tight rounded-full sm:rounded-none font-bold" onclick="performFullSearch('${safeQ}')">${q}</button>`;
                 }).join('');
             }
         }
@@ -1102,43 +1057,65 @@ Developer    : Ashutosh Roy
         function debounce(func, delay) { let timer; return (...args) => { clearTimeout(timer); timer = setTimeout(() => func(...args), delay); }; }
         
         function normalizeSong(raw) {
+            // Safe Image Extraction
             const getImg = (imgs) => {
-                const fallback = 'https://placehold.co/500x500/000/FFE600?text=BRUTAL&font=Oswald';
+                const fallback = 'https://placehold.co/500x500/000/FFE600?text=AUDIO&font=Inter';
                 if(!imgs) return fallback;
                 if(Array.isArray(imgs)){ return imgs[2]?.url || imgs[1]?.url || imgs[0]?.url || imgs[0]?.link || fallback; }
                 return typeof imgs === 'string' ? imgs : fallback;
             };
+            
+            // Robust Artist Extraction to fix "Unknown Artist"
             const getArtist = (song) => {
                 if (!song) return "Unknown Artist";
-                let a = song.subtitle || song.primaryArtists || song.singers || song.artist || song.more_info?.singers || song.more_info?.artistMap?.primary_artists?.map(x=>x.name).join(', ');
+                
+                let a = song.subtitle || song.primaryArtists || song.singers || song.artist || song.more_info?.singers || song.more_info?.artistMap?.primary_artists;
+                
+                if (!a && song.more_info?.artistMap?.artists) {
+                    a = song.more_info.artistMap.artists.filter(x => x.role === 'singer' || x.role === 'primary_artists').map(x => x.name).join(', ');
+                }
+                
                 if (!a) return "Unknown Artist";
+                
                 if (typeof a === 'string') return decodeHTMLEntities(a);
                 if (typeof a === 'object' && a !== null) {
-                    if (Array.isArray(a)) return a.map(x => x.name || x).join(', ') || "Unknown Artist";
-                    if (a.primary) return a.primary.map(x => x.name || x).join(', ') || "Unknown Artist";
+                    if (Array.isArray(a)) return a.map(x => typeof x === 'string' ? x : x.name).join(', ') || "Unknown Artist";
+                    if (a.primary) return a.primary.map(x => typeof x === 'string' ? x : x.name).join(', ') || "Unknown Artist";
                     return a.name || "Unknown Artist";
                 }
                 return "Unknown Artist";
             };
+            
+            // Safe extraction for Album & Year
+            let albumStr = "Unknown Album";
+            if (raw.album) {
+                if (typeof raw.album === 'string') albumStr = raw.album;
+                else if (raw.album.name) albumStr = raw.album.name;
+                else if (raw.album.title) albumStr = raw.album.title;
+            } else if (raw.more_info?.album) {
+                albumStr = raw.more_info.album;
+            }
+            
+            let yearStr = raw.year || raw.more_info?.year || "Unknown";
+
             const dur = parseInt(raw.duration) || parseInt(raw.more_info?.duration) || 0;
-            const yr = raw.year || raw.more_info?.year || "Unknown";
             return {
                 id: raw.id, title: decodeHTMLEntities(raw.title || raw.name || "Unknown"),
                 artists: getArtist(raw),
-                album: decodeHTMLEntities(raw.album?.name || raw.album || "Unknown Album"),
-                year: yr, duration: dur, language: raw.language || "Unknown", image: getImg(raw.image), raw: raw 
+                album: decodeHTMLEntities(albumStr),
+                year: yearStr, duration: dur, language: raw.language || "Unknown", image: getImg(raw.image), raw: raw 
             };
         }
 
         function updateDominantColor(imgUrl) {
             if (!imgUrl || typeof ColorThief === 'undefined' || window.innerWidth < 768) {
-                // Prevent heavy image processing on mobile
                 document.documentElement.style.setProperty('--dominant', 'var(--accent1)');
                 return;
             }
             if (dominantColorCache.has(imgUrl)) {
                 const color = dominantColorCache.get(imgUrl);
                 document.documentElement.style.setProperty('--dominant', `rgb(${color[0]}, ${color[1]}, ${color[2]})`);
+                document.documentElement.style.setProperty('--dominant-rgb', `${color[0]}, ${color[1]}, ${color[2]}`);
                 return;
             }
 
@@ -1148,6 +1125,7 @@ Developer    : Ashutosh Roy
                     const ct = new ColorThief(); const color = ct.getColor(img);
                     dominantColorCache.set(imgUrl, color);
                     document.documentElement.style.setProperty('--dominant', `rgb(${color[0]}, ${color[1]}, ${color[2]})`);
+                    document.documentElement.style.setProperty('--dominant-rgb', `${color[0]}, ${color[1]}, ${color[2]}`);
                 } catch(e) { document.documentElement.style.setProperty('--dominant', 'var(--accent1)'); }
             };
             img.onerror = function() { document.documentElement.style.setProperty('--dominant', 'var(--accent1)'); };
@@ -1155,18 +1133,16 @@ Developer    : Ashutosh Roy
 
         function getEmptyStateHTML(title, desc, icon, actionText, actionFn) {
             return `
-                <div class="col-span-full w-full flex flex-col items-center justify-center p-8 sm:p-12 border-[length:var(--border-width)] border-themeBorder bg-themeCard shadow-theme text-center mt-2">
-                    <div class="w-16 h-16 border-[length:var(--border-width)] border-themeBorder bg-themeBg flex items-center justify-center mb-4 shadow-[2px_2px_0px_var(--shadow-color)] transform -rotate-3">
+                <div class="col-span-full w-full flex flex-col items-center justify-center p-8 sm:p-12 border-[length:var(--border-width)] border-themeBorder bg-themeCard shadow-theme text-center mt-2 rounded-2xl sm:rounded-none">
+                    <div class="w-16 h-16 border-[length:var(--border-width)] border-themeBorder bg-themeBg flex items-center justify-center mb-4 shadow-[2px_2px_0px_var(--shadow-color)] transform -rotate-3 rounded-xl sm:rounded-none">
                         <i class="ph ${icon} text-3xl text-themeBorder"></i>
                     </div>
                     <h3 class="font-display font-black text-lg uppercase text-themeText mb-1">${title}</h3>
                     <p class="font-code font-bold text-[10px] text-themeMuted uppercase mb-4 max-w-[280px]">${desc}</p>
-                    ${actionText ? `<button class="brutal-btn neo-solid-icon bg-themeText text-themeBg px-6 py-3 font-display font-black uppercase text-[10px] touch-target" onclick="${actionFn}">${actionText}</button>` : ''}
+                    ${actionText ? `<button class="brutal-btn neo-solid-icon bg-themeText text-themeBg px-6 py-3 font-display font-black uppercase text-[10px] touch-target rounded-full" onclick="${actionFn}">${actionText}</button>` : ''}
                 </div>
             `;
         }
-
-        window.clearAppCache = async function() { haptic(); try { await caches.delete(CACHE_NAME); alert("CACHE CLEARED."); } catch(e) {} }
 
         function renderSongCards(songs, container, showPlaylistBtn = false, layoutType = 'horizontal') {
             const el = typeof container === 'string' ? document.getElementById(container) : container;
@@ -1180,44 +1156,44 @@ Developer    : Ashutosh Roy
 
             const isResponsiveList = layoutType === 'compact-list';
             const cardClass = isResponsiveList 
-                ? "mobile-search-row bg-themeBg border-[length:var(--border-width)] border-themeBorder p-2 transition-all hover:bg-themeCard active:scale-[0.98] w-full"
-                : "flex-shrink-0 w-36 sm:w-44 bg-themeCard border-[length:var(--border-width)] border-themeBorder shadow-theme p-2 flex flex-col transition-transform duration-200 snap-start hover:-translate-y-1 hover:-translate-x-1 hover:shadow-theme-lg";
+                ? "mobile-search-row bg-themeBg border-[length:var(--border-width)] border-themeBorder p-2 transition-all hover:bg-themeCard active:scale-[0.98] w-full rounded-xl sm:rounded-none cursor-pointer shadow-[2px_2px_0px_rgba(0,0,0,0.05)]"
+                : "flex-shrink-0 w-36 sm:w-44 bg-themeCard border-[length:var(--border-width)] border-themeBorder shadow-theme p-2 flex flex-col transition-transform duration-200 snap-start hover:-translate-y-1 hover:-translate-x-1 hover:shadow-theme-lg rounded-xl sm:rounded-none cursor-pointer";
 
             el.innerHTML = songs.map((rawSong, i) => {
                 const s = normalizeSong(rawSong);
                 const sJson = encodeURIComponent(JSON.stringify(s));
                 const safeArtist = s.artists.split(',')[0].trim().replace(/'/g, "\\'").replace(/"/g, '&quot;');
                 const isFav = state.favorites.some(fav => fav.id === s.id);
-                const heartClass = isFav ? "ph-heart text-accent3" : "ph-heart";
+                const heartClass = isFav ? "ph-heart text-accent3 animate-heart" : "ph-heart";
                 const heartWeight = isFav ? "fill" : "regular";
                 
                 if (isResponsiveList) {
                     return `
                     <div class="${cardClass}" onclick="playSongJson('${sJson}', true)">
-                        <div class="w-12 h-12 border-2 border-themeBorder bg-themeBg flex-shrink-0 relative overflow-hidden">
-                            <img src="${s.image}" class="w-full h-full object-cover" loading="lazy">
+                        <div class="mobile-search-img border-2 border-themeBorder bg-themeBg flex-shrink-0 relative overflow-hidden rounded-md sm:rounded-none shadow-[2px_2px_0px_rgba(0,0,0,0.1)]">
+                            <img src="${s.image}" class="w-full h-full object-cover" loading="lazy" decoding="async">
                         </div>
                         <div class="min-w-0 flex flex-col justify-center flex-1 pr-2">
                             <h4 class="font-display font-black text-xs uppercase truncate text-themeText mb-1 leading-none">${s.title}</h4>
-                            <p class="font-code text-[10px] font-bold text-themeMuted uppercase truncate" onclick="event.stopPropagation(); openArtist('${safeArtist}')">${s.artists}</p>
+                            <p class="font-code text-[10px] font-bold text-themeMuted uppercase truncate hover:text-dominant" onclick="event.stopPropagation(); openArtist('${safeArtist}')">${s.artists}</p>
                         </div>
                         <div class="flex items-center gap-1 flex-shrink-0">
-                            <button class="p-2 text-themeText touch-target min-h-[44px] min-w-[44px] flex items-center justify-center" onclick="window.toggleFavoriteBySong(event, '${sJson}')"><i class="ph ${heartClass} text-xl font-bold" weight="${heartWeight}"></i></button>
-                            <button class="p-2 text-themeText touch-target min-h-[44px] min-w-[44px] flex items-center justify-center" onclick="event.stopPropagation(); window.tempMenuSong='${sJson}'; document.getElementById('trackDetailsModal').classList.add('open');"><i class="ph ph-dots-three-vertical text-xl font-bold"></i></button>
+                            <button class="p-2 text-themeText touch-target min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full hover:bg-themeBorder hover:text-themeBg transition-colors" onclick="window.toggleFavoriteBySong(event, '${sJson}')"><i class="ph ${heartClass} text-xl font-bold" weight="${heartWeight}"></i></button>
+                            <button class="p-2 text-themeText touch-target min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full hover:bg-themeBorder hover:text-themeBg transition-colors" onclick="event.stopPropagation(); window.tempMenuSong='${sJson}'; document.getElementById('trackDetailsModal').classList.add('open');"><i class="ph ph-dots-three-vertical text-xl font-bold"></i></button>
                         </div>
                     </div>`;
                 } else {
                     return `
                     <div class="${cardClass}">
-                        <div class="w-full aspect-square relative mb-2 border-2 sm:border-[length:var(--border-width)] border-themeBorder bg-themeBg overflow-hidden flex-shrink-0" onclick="playSongJson('${sJson}', true)">
+                        <div class="card-image-wrapper border-2 sm:border-[length:var(--border-width)] border-themeBorder bg-themeBg overflow-hidden flex-shrink-0 rounded-lg sm:rounded-none mb-2" onclick="playSongJson('${sJson}', true)">
                             <img src="${s.image}" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" loading="lazy" decoding="async">
                             <div class="absolute inset-0 bg-themeBorder/20 opacity-0 hover:opacity-100 transition-opacity hidden md:flex items-center justify-center">
-                                <div class="w-10 h-10 border-2 border-themeBorder bg-dominant flex items-center justify-center text-themeBorder shadow-[2px_2px_0px_var(--shadow-color)] transform translate-y-2 group-hover:translate-y-0 transition-transform"><i class="ph ph-play text-xl font-black ml-1"></i></div>
+                                <div class="w-10 h-10 border-2 border-themeBorder bg-dominant flex items-center justify-center text-themeBorder shadow-[2px_2px_0px_var(--shadow-color)] transform translate-y-2 group-hover:translate-y-0 transition-transform rounded-full"><i class="ph ph-play text-xl font-black ml-1"></i></div>
                             </div>
                         </div>
                         <div class="flex-1 flex flex-col justify-start px-1 min-w-0">
                             <h4 class="font-display font-black text-xs sm:text-sm uppercase truncate text-themeText mb-0.5 group-hover:underline decoration-2" title="${s.title}" onclick="playSongJson('${sJson}', true)">${s.title}</h4>
-                            <p class="font-code text-[9px] sm:text-[10px] font-bold text-themeMuted uppercase truncate border-l-2 border-themeBorder pl-1.5" onclick="openArtist('${safeArtist}')">${s.artists}</p>
+                            <p class="font-code text-[9px] sm:text-[10px] font-bold text-themeMuted uppercase truncate border-l-2 border-themeBorder pl-1.5 hover:text-dominant" onclick="openArtist('${safeArtist}')">${s.artists}</p>
                         </div>
                     </div>`;
                 }
@@ -1275,32 +1251,21 @@ Developer    : Ashutosh Roy
                     } else { coverHtml = `<div class="w-full h-full flex items-center justify-center bg-themeCard"><i class="ph ph-vinyl-record text-4xl text-themeBorder"></i></div>`; }
                     
                     return `
-                        <div class="flex-shrink-0 w-36 sm:w-44 bg-themeBg border-[length:var(--border-width)] border-themeBorder shadow-theme p-2 group relative flex flex-col transition-all snap-start" 
+                        <div class="flex-shrink-0 w-36 sm:w-44 bg-themeBg border-[length:var(--border-width)] border-themeBorder shadow-theme p-2 group relative flex flex-col transition-all snap-start rounded-xl sm:rounded-none cursor-pointer" 
                              onclick="openPlaylistView('${name}')" 
                              oncontextmenu="openPlaylistContext(event, '${name}')">
-                            <div class="w-full aspect-square relative mb-2 border-[length:var(--border-width)] border-themeBorder bg-themeBorder overflow-hidden">
+                            <div class="card-image-wrapper border-[length:var(--border-width)] border-themeBorder bg-themeBorder overflow-hidden rounded-lg sm:rounded-none mb-2">
                                 ${coverHtml}
                                 <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all z-10 bg-themeBorder/20 hidden md:flex">
-                                    <div class="w-10 h-10 border-2 border-themeBorder bg-dominant flex items-center justify-center text-themeBorder shadow-[2px_2px_0px_var(--shadow-color)]"><i class="ph ph-play text-xl font-black ml-1"></i></div>
+                                    <div class="w-10 h-10 border-2 border-themeBorder bg-dominant flex items-center justify-center text-themeBorder shadow-[2px_2px_0px_var(--shadow-color)] rounded-full"><i class="ph ph-play text-xl font-black ml-1"></i></div>
                                 </div>
                             </div>
-                            <div class="px-1 bg-themeCard border-2 border-themeBorder p-1 text-center shadow-[inset_1px_1px_0px_var(--shadow-color)]">
+                            <div class="px-1 bg-themeCard border-2 border-themeBorder p-1 text-center shadow-[inset_1px_1px_0px_var(--shadow-color)] rounded-md sm:rounded-none">
                                 <h4 class="font-display font-black text-xs sm:text-sm uppercase truncate text-themeText mb-0.5">${name}</h4>
                                 <p class="font-code text-[9px] sm:text-[10px] font-bold text-themeMuted uppercase">${count} TRACKS</p>
                             </div>
                         </div>`;
                 }).join('');
-                
-                setTimeout(() => {
-                    const items = grid.children;
-                    for(let i=0; i<items.length; i++) {
-                        let pressTimer;
-                        items[i].addEventListener('touchstart', (e) => { pressTimer = window.setTimeout(() => { openPlaylistContext(e, keys[i]); }, 600); }, {passive: true});
-                        items[i].addEventListener('touchend', () => { clearTimeout(pressTimer); }, {passive: true});
-                        items[i].addEventListener('touchmove', () => { clearTimeout(pressTimer); }, {passive: true});
-                    }
-                }, 100);
-
             } else {
                 sec.classList.remove('hidden-safely');
                 grid.innerHTML = getEmptyStateHTML('No Playlists', 'Save collections to listen later.', 'ph-playlist', 'Create Playlist', 'openPlaylistModal()');
@@ -1318,15 +1283,8 @@ Developer    : Ashutosh Roy
             renderPlaylistViewSongs(name);
         }
 
-        window.goBackFromPlaylist = function() {
-            haptic();
-            goHome();
-        }
-
-        window.playCurrentPlaylistView = function() {
-            if(!state.contextPlaylist) return;
-            playPlaylist(state.contextPlaylist);
-        }
+        window.goBackFromPlaylist = function() { haptic(); goHome(); }
+        window.playCurrentPlaylistView = function() { if(state.contextPlaylist) playPlaylist(state.contextPlaylist); }
 
         function renderPlaylistViewSongs(name) {
             const list = state.playlists[name];
@@ -1341,16 +1299,16 @@ Developer    : Ashutosh Roy
                 const sJson = encodeURIComponent(JSON.stringify(s));
                 const safeArtist = s.artists.split(',')[0].trim().replace(/'/g, "\\'").replace(/"/g, '&quot;');
                 return `
-                <div class="mobile-search-row bg-themeBg border-[length:var(--border-width)] border-themeBorder p-2 transition-all hover:bg-themeCard active:scale-[0.98] w-full" onclick="playSongJson('${sJson}', true)">
-                    <div class="w-12 h-12 border-2 border-themeBorder bg-themeBg flex-shrink-0 relative overflow-hidden">
+                <div class="mobile-search-row bg-themeBg border-[length:var(--border-width)] border-themeBorder p-2 transition-all hover:bg-themeCard active:scale-[0.98] w-full rounded-xl sm:rounded-none shadow-[2px_2px_0px_rgba(0,0,0,0.05)] cursor-pointer" onclick="playSongJson('${sJson}', true)">
+                    <div class="mobile-search-img border-2 border-themeBorder bg-themeBg flex-shrink-0 relative overflow-hidden rounded-md sm:rounded-none">
                         <img src="${s.image}" class="w-full h-full object-cover" loading="lazy" decoding="async">
                     </div>
-                    <div class="min-w-0 flex flex-col justify-center">
+                    <div class="min-w-0 flex flex-col justify-center flex-1">
                         <h4 class="font-display font-black text-xs uppercase truncate text-themeText mb-0.5">${s.title}</h4>
-                        <p class="font-code text-[9px] font-bold text-themeMuted uppercase truncate" onclick="event.stopPropagation(); openArtist('${safeArtist}')">${s.artists}</p>
+                        <p class="font-code text-[9px] font-bold text-themeMuted uppercase truncate hover:text-dominant" onclick="event.stopPropagation(); openArtist('${safeArtist}')">${s.artists}</p>
                     </div>
-                    <div class="flex items-center gap-1">
-                        <button class="p-2 text-[#FF0000] touch-target min-h-0 w-10 h-10" onclick="event.stopPropagation(); removeFromPlaylist('${name}', '${s.id}')"><i class="ph ph-trash text-lg font-bold"></i></button>
+                    <div class="flex items-center gap-1 flex-shrink-0">
+                        <button class="p-2 text-[#FF0000] touch-target min-h-0 w-10 h-10 rounded-full hover:bg-themeBorder transition-colors" onclick="event.stopPropagation(); removeFromPlaylist('${name}', '${s.id}')"><i class="ph ph-trash text-lg font-bold"></i></button>
                     </div>
                 </div>`;
             }).join('');
@@ -1398,7 +1356,6 @@ Developer    : Ashutosh Roy
                     renderPlaylistsSection();
                 }
             }
-            if(action === 'share') { alert(`Shared playlist: ${name}`); }
         }
 
         async function fetchTrending() {
@@ -1450,9 +1407,7 @@ Developer    : Ashutosh Roy
             }
         }
 
-        window.closeSearch = function() {
-            goHome();
-        }
+        window.closeSearch = function() { goHome(); }
 
         window.openArtist = async function(name) {
             haptic(); if (!name || name.trim() === '' || name.toLowerCase().includes('unknown')) return;
@@ -1463,7 +1418,7 @@ Developer    : Ashutosh Roy
             document.getElementById('artistPageTitle').textContent = name;
             
             const grid = document.getElementById('artistSongsGrid');
-            grid.innerHTML = '<div class="col-span-full py-8 text-center w-full bg-themeCard border-[length:var(--border-width)] border-themeBorder shadow-theme"><i class="ph ph-spinner animate-spin text-3xl font-bold text-themeText"></i></div>';
+            grid.innerHTML = '<div class="col-span-full py-8 text-center w-full bg-themeCard border-[length:var(--border-width)] border-themeBorder shadow-theme rounded-2xl sm:rounded-none"><i class="ph ph-spinner animate-spin text-3xl font-bold text-themeText"></i></div>';
 
             try {
                 const res = await fetchWithCache(`${BACKEND_BASE}artist/${encodeURIComponent(name)}`);
@@ -1525,11 +1480,7 @@ Developer    : Ashutosh Roy
 
         if(searchInputEl) {
             searchInputEl.addEventListener('input', e => handleLiveSearch(e.target.value));
-            searchInputEl.addEventListener('keypress', e => {
-                if(e.key === 'Enter') { 
-                    performFullSearch(e.target.value); 
-                }
-            });
+            searchInputEl.addEventListener('keypress', e => { if(e.key === 'Enter') performFullSearch(e.target.value); });
         }
         
         window.clearSearch = function() {
@@ -1567,6 +1518,7 @@ Developer    : Ashutosh Roy
             }
         }
 
+        // The fetchSongStream guarantees a raw URL string is returned which the HTML5 audio element uses to natively chunk and stream
         async function fetchSongStream(songId) {
             try {
                 const data = await fetchWithCache(`${BACKEND_BASE}stream/${songId}`);
@@ -1579,6 +1531,7 @@ Developer    : Ashutosh Roy
 
                 const urls = s.downloadUrl;
                 if (Array.isArray(urls)) {
+                    // Try to get 320kbps for best quality, fall back to 160kbps, then whatever is last
                     return (urls.find(u => u.quality === '320kbps') || urls.find(u => u.quality === '160kbps') || urls[urls.length-1]).link || urls[0].url;
                 }
                 return typeof urls === 'string' ? urls : null;
@@ -1598,9 +1551,7 @@ Developer    : Ashutosh Roy
                     const firstSong = normalizeSong(mixed[0]);
                     await playSong(firstSong);
                 }
-            } catch(e) {
-                alert("Radio failed to start. Check connection.");
-            }
+            } catch(e) { alert("Radio failed to start. Check connection."); }
             if(btn) btn.className = "ph ph-play text-xl font-black ml-1";
         }
 
@@ -1630,6 +1581,7 @@ Developer    : Ashutosh Roy
             document.getElementById('trackDetailsModal').classList.remove('open');
         };
 
+        // Cache the next 3 songs robustly
         async function preloadNextSongs() {
             if (!state.queue || state.queue.length === 0) return;
             const nextSongs = state.queue.slice(0, 3);
@@ -1642,6 +1594,7 @@ Developer    : Ashutosh Roy
             }
         }
 
+        // Improved Recommendation Algorithm to prevent duplicates
         async function buildSmartQueue(song) {
             try {
                 let data = await fetchWithCache(`${BACKEND_BASE}queue/${song.id}`);
@@ -1657,6 +1610,7 @@ Developer    : Ashutosh Roy
                     if(searchData && searchData.length) results = [...results, ...searchData];
                 }
                 
+                // Normalize titles to catch exact matches and "Lofi/Remix" duplicates
                 const normalizeTitleStrict = t => t.toLowerCase().replace(/[^a-z0-9]/g, '').replace(/slowed|reverb|lofi|remix|version|acoustic|unplugged/g, '');
                 
                 const currentTitles = new Set([
@@ -1676,6 +1630,7 @@ Developer    : Ashutosh Roy
                 if(state.isShuffle) newSongs.sort(() => Math.random() - 0.5);
                 
                 state.queue = [...state.queue, ...newSongs];
+                // Ensure unique IDs
                 state.queue = state.queue.filter((v,i,a)=>a.findIndex(t=>(t.id === v.id))===i);
                 IDB.set('queue', state.queue); 
                 renderQueueUI(); renderUpNextPreview(); preloadNextSongs();
@@ -1697,13 +1652,13 @@ Developer    : Ashutosh Roy
             e.stopPropagation(); haptic();
             state.queue.push(JSON.parse(decodeURIComponent(songJson)));
             IDB.set('queue', state.queue);
-            renderQueueUI(); renderUpNextPreview();
+            renderQueueUI(); renderUpNextPreview(); preloadNextSongs();
         };
 
         window.playQueuedSong = function(index) {
             const songToPlay = state.queue.splice(index, 1)[0];
             IDB.set('queue', state.queue);
-            if(songToPlay) { playSong(songToPlay); renderQueueUI(); renderUpNextPreview(); }
+            if(songToPlay) { playSong(songToPlay); renderQueueUI(); renderUpNextPreview(); preloadNextSongs(); }
         };
 
         window.removeQueuedSong = function(index) {
@@ -1711,6 +1666,52 @@ Developer    : Ashutosh Roy
             IDB.set('queue', state.queue);
             renderQueueUI(); renderUpNextPreview();
         };
+
+        function startPlayerUI() {
+            if (uiFrame) return;
+
+            const update = (now) => {
+                const audio = getActiveAudio();
+
+                if (!audio.paused && audio.duration) {
+                    if (now - lastUIUpdate >= 33) { // ~30FPS cap
+                        lastUIUpdate = now;
+
+                        const pct = (audio.currentTime / audio.duration) * 100;
+                        const progress = `${pct}%`;
+
+                        const pFill = document.getElementById('progressFill');
+                        const fsPFill = document.getElementById('fsProgressFill');
+                        const knob = document.getElementById('fsProgressKnob');
+                        const pBar = document.getElementById('progressBar');
+                        const fsPBar = document.getElementById('fsProgressBar');
+
+                        if (pFill) pFill.style.width = progress;
+                        if (fsPFill) fsPFill.style.width = progress;
+                        if (knob) knob.style.left = progress;
+                        if (pBar && !state.isScrubbing) pBar.value = pct;
+                        if (fsPBar && !state.isScrubbing) fsPBar.value = pct;
+
+                        const time = formatTime(audio.currentTime);
+                        const cTimeEl = document.getElementById('currentTime');
+                        const fsCTimeEl = document.getElementById('fsCurrentTime');
+                        
+                        if (cTimeEl) cTimeEl.textContent = time;
+                        if (fsCTimeEl) fsCTimeEl.textContent = time;
+
+                        updateSyncedLyrics(audio.currentTime);
+                    }
+                }
+
+                if (!audio.paused || fadeTimer) {
+                    uiFrame = requestAnimationFrame(update);
+                } else {
+                    uiFrame = null;
+                }
+            };
+
+            uiFrame = requestAnimationFrame(update);
+        }
 
         async function playSong(song, isHistory = false, isResume = false) {
             if (!song) return;
@@ -1745,6 +1746,7 @@ Developer    : Ashutosh Roy
             if(ppIcon) ppIcon.className = "ph ph-spinner animate-spin text-xl sm:text-3xl font-black text-themeBg ml-0 sm:ml-1";
             if(fsPpIcon) fsPpIcon.className = "ph ph-spinner animate-spin text-3xl sm:text-5xl font-black text-themeBg ml-0 sm:ml-2";
             
+            // Check cache. If found, stream immediately. If not, fetch.
             let audioUrl = cacheStore.get(song.id) || await fetchSongStream(song.id);
             if(audioUrl && !cacheStore.has(song.id)) cacheStore.set(song.id, audioUrl);
 
@@ -1755,6 +1757,7 @@ Developer    : Ashutosh Roy
 
                 if (fadeTimer) clearInterval(fadeTimer);
 
+                // By assigning the src here, the browser natively handles byte-range requests for fragments, skipping the wait.
                 newAudio.src = audioUrl;
                 newAudio.volume = (state.crossfade === 0 || isResume) ? masterVolume : 0; 
                 newAudio.currentTime = 0;
@@ -1778,7 +1781,7 @@ Developer    : Ashutosh Roy
                             newAudio.volume = Math.min(masterVolume, masterVolume * frac);
                             if (!oldAudio.paused && oldAudio.src) oldAudio.volume = Math.max(0, masterVolume * (1 - frac));
                             if (step >= steps) {
-                                clearInterval(fadeTimer); newAudio.volume = masterVolume;
+                                clearInterval(fadeTimer); newAudio.volume = masterVolume; fadeTimer = null;
                                 oldAudio.pause(); oldAudio.src = ''; 
                             }
                         }, fadeInterval);
@@ -1900,12 +1903,12 @@ Developer    : Ashutosh Roy
                     lyricIndex = 0; // Reset pointer for new song
                     lc.innerHTML = state.lyricsCache.map((l, i) => `<div id="lyric-${i}" class="lyric-line min-h-[2.5rem] sm:min-h-[3rem] w-full" onclick="seekTo(${l.time})">${l.text || '|||||'}</div>`).join('');
                 } else if (lyricsData?.plainLyrics) {
-                    lc.innerHTML = `<div class="font-code font-bold text-sm sm:text-base text-themeText text-left bg-themeCard border-[length:var(--border-width)] border-themeBorder p-4 sm:p-6 shadow-theme mx-auto max-w-lg mt-8">${lyricsData.plainLyrics.replace(/\n/g, '<br>')}</div>`;
+                    lc.innerHTML = `<div class="font-code font-bold text-sm sm:text-base text-themeText text-left bg-themeCard border-[length:var(--border-width)] border-themeBorder p-4 sm:p-6 shadow-theme mx-auto max-w-lg mt-8 rounded-xl sm:rounded-none">${lyricsData.plainLyrics.replace(/\n/g, '<br>')}</div>`;
                 } else {
-                    lc.innerHTML = '<div class="flex h-full items-center justify-center"><div class="font-display font-black text-lg sm:text-2xl uppercase text-themeText bg-themeCard border-[length:var(--border-width)] border-themeBorder p-3 sm:p-4 shadow-[4px_4px_0px_var(--shadow-color)] transform -rotate-2">NO LYRICS FOUND</div></div>';
+                    lc.innerHTML = '<div class="flex h-full items-center justify-center"><div class="font-display font-black text-lg sm:text-2xl uppercase text-themeText bg-themeCard border-[length:var(--border-width)] border-themeBorder p-3 sm:p-4 shadow-[4px_4px_0px_var(--shadow-color)] transform -rotate-2 rounded-xl sm:rounded-none">NO LYRICS FOUND</div></div>';
                 }
             } catch (e) {
-                lc.innerHTML = '<div class="flex h-full items-center justify-center"><div class="font-display font-black text-lg sm:text-2xl uppercase text-themeBg bg-themeText border-[length:var(--border-width)] border-themeBorder p-3 sm:p-4 shadow-[4px_4px_0px_var(--shadow-color)] transform 2">SYSTEM ERROR</div></div>';
+                lc.innerHTML = '<div class="flex h-full items-center justify-center"><div class="font-display font-black text-lg sm:text-2xl uppercase text-themeBg bg-themeText border-[length:var(--border-width)] border-themeBorder p-3 sm:p-4 shadow-[4px_4px_0px_var(--shadow-color)] transform 2 rounded-xl sm:rounded-none">SYSTEM ERROR</div></div>';
             }
         }
 
@@ -1920,10 +1923,7 @@ Developer    : Ashutosh Roy
                 lyricIndex = 0;
             }
 
-            while (
-                lyricIndex + 1 < lyrics.length &&
-                time >= lyrics[lyricIndex + 1].time
-            ) {
+            while (lyricIndex + 1 < lyrics.length && time >= lyrics[lyricIndex + 1].time) {
                 lyricIndex++;
             }
 
@@ -1936,7 +1936,7 @@ Developer    : Ashutosh Roy
             const current = document.getElementById(`lyric-${lyricIndex}`);
             if(current) {
                 current.classList.add('active');
-                current.scrollIntoView({ behavior: 'auto', block: 'center' }); // Removed smooth scroll for mobile perf
+                current.scrollIntoView({ behavior: 'auto', block: 'center' }); // Optimized scroll
             }
             state.activeLyricIdx = lyricIndex;
         }
@@ -1980,14 +1980,14 @@ Developer    : Ashutosh Roy
             const actualDuration = getActiveAudio().duration || s.duration;
             
             let html = `
-                <div class="flex items-center gap-3 bg-themeBg border-[length:var(--border-width)] border-themeBorder p-2">
-                    <img src="${s.image}" class="w-10 h-10 border-2 border-themeBorder object-cover flex-shrink-0">
+                <div class="flex items-center gap-3 bg-themeBg border-[length:var(--border-width)] border-themeBorder p-2 rounded-lg sm:rounded-none">
+                    <img src="${s.image}" class="w-10 h-10 border-2 border-themeBorder object-cover flex-shrink-0 rounded-md sm:rounded-none">
                     <div class="min-w-0 flex-1">
                         <div class="truncate text-themeText font-black text-xs">${s.title}</div>
                         <div class="truncate text-themeMuted text-[9px] mt-0.5">${s.artists}</div>
                     </div>
                 </div>
-                <div class="bg-themeBg border-[length:var(--border-width)] border-themeBorder p-2 text-[9px] text-themeMuted space-y-1 mt-2 shadow-[inset_2px_2px_0px_var(--shadow-color)]">
+                <div class="bg-themeBg border-[length:var(--border-width)] border-themeBorder p-2 text-[9px] text-themeMuted space-y-1 mt-2 shadow-[inset_2px_2px_0px_var(--shadow-color)] rounded-lg sm:rounded-none">
                     <div class="flex justify-between"><span>ALBUM:</span> <span class="text-themeText font-bold">${s.album}</span></div>
                     <div class="flex justify-between"><span>YEAR:</span> <span class="text-themeText font-bold">${s.year}</span></div>
                     <div class="flex justify-between"><span>DURATION:</span> <span class="text-themeText font-bold">${formatTime(actualDuration)}</span></div>
@@ -2034,10 +2034,10 @@ Developer    : Ashutosh Roy
                 } else {
                     const keys = Object.keys(state.playlists);
                     if (keys.length === 0) {
-                        pList.innerHTML = `<div class="text-center font-code font-bold uppercase text-themeMuted py-3 text-xs border-[length:var(--border-width)] border-dashed border-themeMuted">Create a playlist below</div>`;
+                        pList.innerHTML = `<div class="text-center font-code font-bold uppercase text-themeMuted py-3 text-xs border-[length:var(--border-width)] border-dashed border-themeMuted rounded-xl sm:rounded-none">Create a playlist below</div>`;
                     } else {
                         pList.innerHTML = keys.map(name => `
-                            <div class="flex justify-between items-center p-3 bg-themeBg border-[length:var(--border-width)] border-themeBorder hover:bg-dominant cursor-none transition-colors shadow-theme touch-target h-12 text-themeText hover:text-themeBorder" onclick="addToPlaylist('${name}')" role="button">
+                            <div class="flex justify-between items-center p-3 bg-themeBg border-[length:var(--border-width)] border-themeBorder hover:bg-dominant cursor-none transition-colors shadow-theme touch-target h-12 text-themeText hover:text-themeBorder rounded-xl sm:rounded-none" onclick="addToPlaylist('${name}')" role="button">
                                 <span class="font-display font-black text-[10px] sm:text-xs uppercase">${name}</span>
                                 <i class="ph ph-plus font-bold text-lg border-l-2 border-current pl-2"></i>
                             </div>
@@ -2150,33 +2150,33 @@ Developer    : Ashutosh Roy
             
             if (state.currentSong) {
                 html += `
-                <div class="text-[10px] font-bold bg-[#ffffff] text-[#000000] px-1.5 py-0.5 uppercase flex-shrink-0 w-max border-[length:var(--border-width)] border-themeBorder mb-2">NOW PLAYING</div>
-                <div class="flex items-center gap-2 sm:gap-3 p-2 bg-themeBg border-[length:var(--border-width)] border-themeBorder mb-4 sm:mb-6 shadow-theme">
-                    <div class="w-10 h-10 border-[length:var(--border-width)] border-themeBorder bg-themeBg flex-shrink-0">
+                <div class="text-[10px] font-bold bg-[#ffffff] text-[#000000] px-2 py-1 rounded-md uppercase flex-shrink-0 w-max border-[length:var(--border-width)] border-themeBorder mb-2 shadow-sm">NOW PLAYING</div>
+                <div class="flex items-center gap-2 sm:gap-3 p-2 bg-themeBg border-[length:var(--border-width)] border-themeBorder mb-4 sm:mb-6 shadow-theme rounded-xl sm:rounded-none">
+                    <div class="w-10 h-10 border-[length:var(--border-width)] border-themeBorder bg-themeBg flex-shrink-0 rounded-md sm:rounded-none overflow-hidden">
                         <img src="${state.currentSong.image}" class="w-full h-full object-cover">
                     </div>
                     <div class="min-w-0 flex-1">
                         <div class="font-display font-black text-[10px] sm:text-sm uppercase text-themeText truncate">${state.currentSong.title}</div>
                         <div class="font-code font-bold text-[9px] sm:text-[10px] text-themeMuted uppercase truncate mt-0.5">${state.currentSong.artists}</div>
                     </div>
-                    <div class="px-1 sm:px-2"><div class="w-3 h-3 sm:w-4 sm:h-4 border-2 border-themeBorder bg-dominant animate-pulse shadow-[2px_2px_0px_var(--shadow-color)]"></div></div>
+                    <div class="px-1 sm:px-2"><div class="w-3 h-3 sm:w-4 sm:h-4 border-2 border-themeBorder bg-dominant animate-pulse shadow-[2px_2px_0px_var(--shadow-color)] rounded-full"></div></div>
                 </div>`;
             }
 
             if(state.queue.length) {
-                html += '<div class="text-[10px] font-bold bg-[#ffffff] text-[#000000] px-1.5 py-0.5 uppercase flex-shrink-0 w-max border-[length:var(--border-width)] border-themeBorder mb-2">UP NEXT</div>';
+                html += '<div class="text-[10px] font-bold bg-[#ffffff] text-[#000000] px-2 py-1 rounded-md uppercase flex-shrink-0 w-max border-[length:var(--border-width)] border-themeBorder mb-2 shadow-sm">UP NEXT</div>';
                 html += '<div id="sortableQueue" class="space-y-2 sm:space-y-3">';
                 state.queue.slice(0, 50).forEach((s, i) => {
-                    html += `<div class="flex items-center gap-2 sm:gap-3 p-2 bg-themeBg border-[length:var(--border-width)] border-themeBorder cursor-none sortable-item transition-transform hover:-translate-y-1 hover:shadow-theme hover:bg-themeCard" data-index="${i}">
-                        <div class="drag-handle p-1 sm:p-2 cursor-none border-r-[length:var(--border-width)] border-themeBorder -ml-2 touch-none bg-themeCard touch-target min-h-0 text-themeText flex-shrink-0 flex items-center justify-center"><i class="ph ph-dots-six-vertical text-lg font-bold"></i></div>
-                        <div class="w-8 h-8 border-2 border-themeBorder bg-themeBg flex-shrink-0">
+                    html += `<div class="flex items-center gap-2 sm:gap-3 p-2 bg-themeBg border-[length:var(--border-width)] border-themeBorder cursor-none sortable-item transition-transform hover:-translate-y-1 hover:shadow-theme hover:bg-themeCard rounded-xl sm:rounded-none" data-index="${i}">
+                        <div class="drag-handle p-1 sm:p-2 cursor-none border-r-[length:var(--border-width)] border-themeBorder -ml-2 touch-none bg-themeCard touch-target min-h-0 text-themeText flex-shrink-0 flex items-center justify-center rounded-l-lg sm:rounded-none"><i class="ph ph-dots-six-vertical text-lg font-bold"></i></div>
+                        <div class="w-8 h-8 border-2 border-themeBorder bg-themeBg flex-shrink-0 rounded-md sm:rounded-none overflow-hidden">
                             <img src="${s.image}" class="w-full h-full object-cover">
                         </div>
-                        <div class="min-w-0 flex-1" onclick="playQueuedSong(${i})" role="button">
+                        <div class="min-w-0 flex-1 cursor-pointer" onclick="playQueuedSong(${i})" role="button">
                             <div class="font-display font-black text-[9px] sm:text-xs uppercase text-themeText truncate">${s.title}</div>
                             <div class="font-code font-bold text-[8px] sm:text-[10px] text-themeMuted uppercase truncate mt-0.5">${s.artists}</div>
                         </div>
-                        <button class="brutal-btn bg-[#FF0000] text-[#FFFFFF] px-2 py-1 touch-target min-h-0 w-8 h-8 flex justify-center items-center flex-shrink-0 border-[length:var(--border-width)] border-themeBorder" onclick="event.stopPropagation(); removeQueuedSong(${i});" aria-label="Remove from queue"><i class="ph ph-minus font-bold text-sm text-[#FFFFFF]"></i></button>
+                        <button class="brutal-btn bg-[#FF0000] text-[#FFFFFF] px-2 py-1 touch-target min-h-0 w-8 h-8 flex justify-center items-center flex-shrink-0 border-[length:var(--border-width)] border-themeBorder rounded-full" onclick="event.stopPropagation(); removeQueuedSong(${i});" aria-label="Remove from queue"><i class="ph ph-minus font-bold text-sm text-[#FFFFFF]"></i></button>
                     </div>`;
                 });
                 html += '</div>';
@@ -2212,12 +2212,11 @@ Developer    : Ashutosh Roy
 
         function setupEventListeners() {
             audios.forEach(a => {
+                // timeupdate uses optimized save trigger. UI updates are handled by requestAnimationFrame in startPlayerUI.
                 a.addEventListener('timeupdate', e => {
                     if (e.target !== getActiveAudio()) return; 
                     if (state.isScrubbing || isNaN(e.target.duration)) return;
                     
-                    // Note: Actual UI updates are decoupled to RAF via startPlayerUI
-                    // LocalStorage saves conditionally decoupled here
                     const second = Math.floor(e.target.currentTime);
                     if (second % 5 === 0 && second !== lastSavedSecond) {
                         lastSavedSecond = second;
@@ -2227,7 +2226,7 @@ Developer    : Ashutosh Roy
                 
                 a.addEventListener('pause', e => {
                     if (e.target !== getActiveAudio()) return;
-                    if (uiFrame) {
+                    if (uiFrame && !fadeTimer) {
                         cancelAnimationFrame(uiFrame);
                         uiFrame = null;
                     }
@@ -2305,7 +2304,7 @@ Developer    : Ashutosh Roy
         window.addEventListener('DOMContentLoaded', init);
         if ("serviceWorker" in navigator) {
             window.addEventListener("load", () => {
-                navigator.serviceWorker.register("/sw.js");
+                navigator.serviceWorker.register("/sw.js").catch(()=>{});
             });
         }
     </script>

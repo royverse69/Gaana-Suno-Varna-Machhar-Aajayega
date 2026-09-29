@@ -124,19 +124,19 @@ Developer    : Ashutosh Roy
         [data-theme="glass"] {
             --bg: #000000;
             --text: #FFFFFF;
-            --card: rgba(28, 28, 30, 0.45);
+            --card: rgba(30, 30, 35, 0.65);
             --card-yellow: rgba(255, 255, 255, 0.05);
             --card-cyan: rgba(255, 255, 255, 0.05);
             --card-pink: rgba(255, 255, 255, 0.05);
             --card-purple: rgba(255, 255, 255, 0.05);
             --card-orange: rgba(255, 255, 255, 0.05);
-            --border: rgba(255, 255, 255, 0.15);
-            --accent1: #0A84FF;
-            --accent2: #FF375F;
-            --accent3: #FFD60A;
+            --border: rgba(255, 255, 255, 0.1);
+            --accent1: #FA243C; /* Apple Music Red */
+            --accent2: #B026FF;
+            --accent3: #FF2E93;
             --muted: rgba(235, 235, 245, 0.6);
             --shadow-color: transparent;
-            --border-width: 1px;
+            --border-width: 0.5px;
             --shadow-offset: 0px; 
             --icon-bg: transparent;
             --icon-fg: var(--text);
@@ -144,8 +144,8 @@ Developer    : Ashutosh Roy
 
         [data-theme="glass"] body {
             background-color: #000000;
-            background-image: radial-gradient(circle at 15% 15%, rgba(60, 20, 80, 0.6) 0%, transparent 40%),
-                              radial-gradient(circle at 85% 85%, rgba(20, 60, 80, 0.6) 0%, transparent 40%);
+            background-image: radial-gradient(circle at 10% 20%, rgba(250, 36, 60, 0.15) 0%, transparent 40%),
+                              radial-gradient(circle at 90% 80%, rgba(30, 100, 255, 0.15) 0%, transparent 40%);
             background-attachment: fixed;
         }
 
@@ -161,11 +161,11 @@ Developer    : Ashutosh Roy
         [data-theme="glass"] section,
         [data-theme="glass"] .mobile-search-row {
             background: var(--card) !important;
-            backdrop-filter: blur(24px) saturate(180%) !important;
-            -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
-            border: 1px solid var(--border) !important;
-            border-radius: 20px !important;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.3) !important;
+            backdrop-filter: blur(40px) saturate(200%) !important;
+            -webkit-backdrop-filter: blur(40px) saturate(200%) !important;
+            border: 0.5px solid var(--border) !important;
+            border-radius: 18px !important;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important;
         }
 
         [data-theme="glass"] .brutal-btn {
@@ -195,8 +195,20 @@ Developer    : Ashutosh Roy
 
         @media (max-width: 768px) {
             :root { --border-width: 2px; --shadow-offset: 2px; }
-            [data-theme="glass"] { --border-width: 1px; --shadow-offset: 0px; }
+            [data-theme="glass"] { --border-width: 0.5px; --shadow-offset: 0px; }
             .scanlines, .noise { display: none !important; }
+            
+            [data-theme="glass"] .theme-glass-blur,
+            [data-theme="glass"] .modal-overlay,
+            [data-theme="glass"] .bottom-sheet {
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+                background: rgba(20, 20, 25, 0.98) !important;
+            }
+            #fullscreenPlayer > div.blur-\[100px\] {
+                filter: none !important;
+                opacity: 0.15;
+            }
         }
 
         .reduce-motion *, @media (prefers-reduced-motion: reduce) {
@@ -389,6 +401,16 @@ Developer    : Ashutosh Roy
                 </div>
             </div>
 
+            <section id="radioSection" class="w-full mt-[-10px] sm:mt-[-20px] fade-in hidden-safely" style="display:block;">
+                <div class="relative bg-themeCard border-[length:var(--border-width)] border-themeBorder shadow-theme p-4 sm:p-6 overflow-hidden flex items-center justify-between gap-4 w-full cursor-pointer touch-target group hover:-translate-y-1 transition-transform" onclick="startRadioMode()">
+                    <div class="relative z-10 w-full flex-1">
+                        <h3 class="font-display text-xl sm:text-2xl font-black mb-1 uppercase text-themeText flex items-center gap-2"><i class="ph ph-radio text-themeAccent3"></i> Endless Radio</h3>
+                        <p class="font-code font-bold text-themeMuted uppercase text-[10px] sm:text-xs max-w-sm">Let the algorithm take over. Smart auto-play with zero interruptions.</p>
+                    </div>
+                    <button class="brutal-btn neo-solid-icon bg-themeText text-themeBg w-12 h-12 flex items-center justify-center flex-shrink-0 rounded-full group-active:scale-95 transition-transform border-[length:var(--border-width)] border-themeBorder"><i class="ph ph-play text-xl font-black ml-1"></i></button>
+                </div>
+            </section>
+
             <section id="resumeSection" class="hidden-safely w-full fade-in">
                 <h3 class="font-display text-lg sm:text-xl font-black mb-3 uppercase text-themeMuted">Continue Listening</h3>
                 <div class="relative bg-cardOrange border-[length:var(--border-width)] border-themeBorder shadow-theme p-3 flex items-center justify-between gap-4 cursor-pointer touch-target w-full sm:max-w-md transition-transform active:translate-y-1 overflow-hidden" onclick="resumePlayback()" role="button">
@@ -486,18 +508,18 @@ Developer    : Ashutosh Roy
 
                 <section id="searchViewSection" class="hidden-safely w-full fade-in">
                     <div id="searchDefaultState" class="w-full flex flex-col gap-6">
-                        <div>
+                        <div class="overflow-visible">
                             <h3 class="font-display text-sm sm:text-base font-black mb-3 uppercase text-themeMuted flex items-center gap-2"><i class="ph ph-clock-counter-clockwise"></i> Recent Searches</h3>
                             <div id="recentSearchesGrid" class="flex flex-wrap gap-2"></div>
                         </div>
-                        <div>
+                        <div class="overflow-visible">
                             <h3 class="font-display text-sm sm:text-base font-black mb-3 uppercase text-themeMuted flex items-center gap-2"><i class="ph ph-fire"></i> Popular</h3>
                             <div class="flex flex-wrap gap-3">
-                                <button class="brutal-btn bg-cardYellow text-themeText px-4 py-2 text-xs touch-target min-h-0" onclick="performFullSearch('Bollywood')">Bollywood</button>
-                                <button class="brutal-btn bg-cardCyan text-themeText px-4 py-2 text-xs touch-target min-h-0" onclick="performFullSearch('Hip Hop')">Hip Hop</button>
-                                <button class="brutal-btn bg-cardPink text-themeText px-4 py-2 text-xs touch-target min-h-0" onclick="performFullSearch('Lo-Fi')">Lo-Fi</button>
-                                <button class="brutal-btn bg-themeCard text-themeText px-4 py-2 text-xs touch-target min-h-0" onclick="performFullSearch('Arijit Singh')">Arijit Singh</button>
-                                <button class="brutal-btn bg-themeCard text-themeText px-4 py-2 text-xs touch-target min-h-0" onclick="performFullSearch('The Weeknd')">The Weeknd</button>
+                                <button class="brutal-btn bg-cardYellow text-themeText px-4 py-2.5 text-xs touch-target min-h-0 h-auto whitespace-normal text-left" onclick="performFullSearch('Bollywood')">Bollywood</button>
+                                <button class="brutal-btn bg-cardCyan text-themeText px-4 py-2.5 text-xs touch-target min-h-0 h-auto whitespace-normal text-left" onclick="performFullSearch('Hip Hop')">Hip Hop</button>
+                                <button class="brutal-btn bg-cardPink text-themeText px-4 py-2.5 text-xs touch-target min-h-0 h-auto whitespace-normal text-left" onclick="performFullSearch('Lo-Fi')">Lo-Fi</button>
+                                <button class="brutal-btn bg-themeCard text-themeText px-4 py-2.5 text-xs touch-target min-h-0 h-auto whitespace-normal text-left" onclick="performFullSearch('Arijit Singh')">Arijit Singh</button>
+                                <button class="brutal-btn bg-themeCard text-themeText px-4 py-2.5 text-xs touch-target min-h-0 h-auto whitespace-normal text-left" onclick="performFullSearch('The Weeknd')">The Weeknd</button>
                             </div>
                         </div>
                     </div>
@@ -683,9 +705,9 @@ Developer    : Ashutosh Roy
                     <div class="flex flex-col gap-4 font-code text-[10px] font-bold uppercase">
                         <div class="flex justify-between items-center">
                             <span>Theme</span>
-                            <select id="themeSelect" onchange="changeTheme(this.value)" class="bg-themeBg border-2 border-themeBorder p-2 text-themeText outline-none touch-target min-h-0 cursor-pointer shadow-[2px_2px_0px_var(--shadow-color)]">
-                                <option value="neo">Neo Brutal</option>
-                                <option value="glass">Dark Liquid Glass</option>
+                            <select id="themeSelect" onchange="changeTheme(this.value)" class="bg-themeBg border-2 border-themeBorder p-2 text-themeText outline-none touch-target min-h-0 cursor-pointer shadow-[2px_2px_0px_var(--shadow-color)] appearance-none rounded-none w-32">
+                                <option value="neo" class="bg-themeCard text-themeText font-bold">Neo Brutal</option>
+                                <option value="glass" class="bg-themeCard text-themeText font-bold">Liquid Glass</option>
                             </select>
                         </div>
                         <div class="flex justify-between items-center mt-2">
@@ -919,7 +941,7 @@ Developer    : Ashutosh Roy
                 }
                 rGrid.innerHTML = recentSearches.map(q => {
                     const safeQ = q.replace(/'/g, "\\'");
-                    return `<button class="brutal-btn bg-themeBg text-themeText px-3 py-1 text-[10px] touch-target min-h-[36px] whitespace-nowrap" onclick="performFullSearch('${safeQ}')">${q}</button>`;
+                    return `<button class="brutal-btn bg-themeBg text-themeText px-4 py-2.5 text-[10px] sm:text-xs touch-target min-h-0 h-auto whitespace-normal text-left leading-tight" onclick="performFullSearch('${safeQ}')">${q}</button>`;
                 }).join('');
             }
         }
@@ -1088,10 +1110,7 @@ Developer    : Ashutosh Roy
             };
             const getArtist = (song) => {
                 if (!song) return "Unknown Artist";
-                let a = song.subtitle || song.primaryArtists || song.singers || song.artist;
-                if(!a && song.more_info?.artistMap?.primary_artists?.length) {
-                    a = song.more_info.artistMap.primary_artists.map(x=>x.name).join(', ');
-                }
+                let a = song.subtitle || song.primaryArtists || song.singers || song.artist || song.more_info?.singers || song.more_info?.artistMap?.primary_artists?.map(x=>x.name).join(', ');
                 if (!a) return "Unknown Artist";
                 if (typeof a === 'string') return decodeHTMLEntities(a);
                 if (typeof a === 'object' && a !== null) {
@@ -1101,11 +1120,13 @@ Developer    : Ashutosh Roy
                 }
                 return "Unknown Artist";
             };
+            const dur = parseInt(raw.duration) || parseInt(raw.more_info?.duration) || 0;
+            const yr = raw.year || raw.more_info?.year || "Unknown";
             return {
                 id: raw.id, title: decodeHTMLEntities(raw.title || raw.name || "Unknown"),
                 artists: getArtist(raw),
                 album: decodeHTMLEntities(raw.album?.name || raw.album || "Unknown Album"),
-                year: raw.year || "Unknown", duration: raw.duration || 0, language: raw.language || "Unknown", image: getImg(raw.image), raw: raw 
+                year: yr, duration: dur, language: raw.language || "Unknown", image: getImg(raw.image), raw: raw 
             };
         }
 
@@ -1564,6 +1585,25 @@ Developer    : Ashutosh Roy
             } catch (error) { return null; }
         }
 
+        window.startRadioMode = async function() {
+            haptic();
+            state.queue = [];
+            IDB.set('queue', []);
+            const btn = event.currentTarget.querySelector('i.ph-play');
+            if(btn) btn.className = "ph ph-spinner animate-spin text-xl font-black ml-0";
+            try {
+                const res = await fetchWithCache(`${BACKEND_BASE}trending`);
+                if (res && res.songs && res.songs.length > 0) {
+                    const mixed = res.songs.sort(() => Math.random() - 0.5);
+                    const firstSong = normalizeSong(mixed[0]);
+                    await playSong(firstSong);
+                }
+            } catch(e) {
+                alert("Radio failed to start. Check connection.");
+            }
+            if(btn) btn.className = "ph ph-play text-xl font-black ml-1";
+        }
+
         window.preloadSong = async function(songJson) {
             const song = JSON.parse(decodeURIComponent(songJson));
             if (cacheStore.has(song.id)) return; 
@@ -1610,16 +1650,24 @@ Developer    : Ashutosh Roy
                 else if (data?.data && Array.isArray(data.data)) results = data.data; 
                 else if (Array.isArray(data)) results = data;
                 
-                const normalizeTitle = t => t.toLowerCase().replace(/[^a-z0-9]/g, '');
+                // Fallback robust recommendation: search similar by primary artist if queue is empty
+                if(results.length < 3 && song.artists) {
+                    const pArtist = song.artists.split(',')[0].trim();
+                    const searchData = await fetchSearchResults(pArtist);
+                    if(searchData && searchData.length) results = [...results, ...searchData];
+                }
+                
+                const normalizeTitleStrict = t => t.toLowerCase().replace(/[^a-z0-9]/g, '').replace(/slowed|reverb|lofi|remix|version|acoustic|unplugged/g, '');
+                
                 const currentTitles = new Set([
-                    normalizeTitle(song.title),
-                    ...state.queue.map(q => normalizeTitle(q.title)),
-                    ...state.history.map(h => normalizeTitle(h.title))
+                    normalizeTitleStrict(song.title),
+                    ...state.queue.map(q => normalizeTitleStrict(q.title)),
+                    ...state.history.map(h => normalizeTitleStrict(h.title))
                 ]);
                 
                 const newSongs = results.map(normalizeSong).filter(s => {
                     if (state.playedSongs.has(s.id) || s.id === song.id) return false;
-                    const nt = normalizeTitle(s.title);
+                    const nt = normalizeTitleStrict(s.title);
                     if (currentTitles.has(nt)) return false; 
                     currentTitles.add(nt);
                     return true;
@@ -1929,6 +1977,7 @@ Developer    : Ashutosh Roy
             const container = document.getElementById('trackDetailsContent');
             if(!container) return;
             const s = state.currentSong;
+            const actualDuration = getActiveAudio().duration || s.duration;
             
             let html = `
                 <div class="flex items-center gap-3 bg-themeBg border-[length:var(--border-width)] border-themeBorder p-2">
@@ -1938,11 +1987,11 @@ Developer    : Ashutosh Roy
                         <div class="truncate text-themeMuted text-[9px] mt-0.5">${s.artists}</div>
                     </div>
                 </div>
-                <div class="bg-themeBg border-[length:var(--border-width)] border-themeBorder p-2 text-[9px] text-themeMuted space-y-1">
-                    <div class="flex justify-between"><span>ALBUM:</span> <span class="text-themeText">${s.album}</span></div>
-                    <div class="flex justify-between"><span>YEAR:</span> <span class="text-themeText">${s.year}</span></div>
-                    <div class="flex justify-between"><span>DURATION:</span> <span class="text-themeText">${formatTime(s.duration)}</span></div>
-                    <div class="flex justify-between"><span>LANGUAGE:</span> <span class="text-themeText">${s.language}</span></div>
+                <div class="bg-themeBg border-[length:var(--border-width)] border-themeBorder p-2 text-[9px] text-themeMuted space-y-1 mt-2 shadow-[inset_2px_2px_0px_var(--shadow-color)]">
+                    <div class="flex justify-between"><span>ALBUM:</span> <span class="text-themeText font-bold">${s.album}</span></div>
+                    <div class="flex justify-between"><span>YEAR:</span> <span class="text-themeText font-bold">${s.year}</span></div>
+                    <div class="flex justify-between"><span>DURATION:</span> <span class="text-themeText font-bold">${formatTime(actualDuration)}</span></div>
+                    <div class="flex justify-between"><span>LANGUAGE:</span> <span class="text-themeText font-bold">${s.language}</span></div>
                 </div>
             `;
             container.innerHTML = html;

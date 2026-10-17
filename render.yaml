@@ -1,7 +1,7 @@
 
 services:
   - type: web
-    name: royverse-music-api <api kya check kar rha hai gana sun le loree >
+    name: royverse-music-api (api kya check kar rha hai gana sun le loree )
     env: python
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn app:app

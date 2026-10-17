@@ -274,7 +274,7 @@ def add_cache_headers(response):
 # --- Service routes ---
 @app.route("/")
 def home():
-    return jsonify({"status": "online", "name": "Royverse Music API · Mujic backend", "version": "2.0.0"})
+    return jsonify({"status": "online", "name": "Royverse Music API gana sun le lore api kya check akr rha 😁· Mujic backend", "version": "2.0.0"})
 
 
 @app.route("/health")

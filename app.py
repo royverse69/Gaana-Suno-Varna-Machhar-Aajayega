@@ -166,7 +166,7 @@ def generate_recommendations(song_id):
 # --- Base Routes ---
 @app.route("/")
 def home():
-    return jsonify({"status": "online", "name": "Royverse Music API Edge-Optimized"})
+    return jsonify({"status": "online", "name": "Royverse Music API v2.14f (api kya check kar rha hai gana sun na loree )"})
 
 @app.route("/health")
 def health():

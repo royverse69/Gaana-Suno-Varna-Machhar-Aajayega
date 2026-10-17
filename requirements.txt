@@ -1,5 +1,5 @@
-Flask
-Flask-Cors
-requests
-gunicorn
-flask-compress
+Flask>=3.0,<4.0
+flask-cors>=4.0,<6.0
+flask-compress>=1.15,<2.0
+requests>=2.31,<3.0
+gunicorn>=22.0,<24.0

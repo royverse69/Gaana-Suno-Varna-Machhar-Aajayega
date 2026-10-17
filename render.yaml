@@ -1,7 +1,14 @@
-
 services:
   - type: web
-    name: royverse-music-api (api kya check kar rha hai gana sun le loree )
-    env: python
+    name: mujic-music-backend
+    runtime: python
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn app:app
+    startCommand: gunicorn --workers 1 --threads 8 --timeout 120 app:app
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.6
+      - key: UPSTREAM_CATALOGUE_API
+        value: https://music-api.albatross0071.workers.dev/api
+      - key: CACHE_TTL_SECONDS
+        value: "1800"

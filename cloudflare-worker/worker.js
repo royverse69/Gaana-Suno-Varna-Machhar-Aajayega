@@ -23,6 +23,8 @@ let BASE_API = "https://music-api.albatross0071.workers.dev/api";
 let CACHE_TTL = 1800;
 let TIMEOUT_MS = 18000;
 let ALLOWED_ORIGINS = ["https://royverse69.github.io"];
+let CATALOGUE_FALLBACK = ""; // optional second catalogue bridge (e.g. Render /api) used only when the first one fails
+const FALLBACK_TIMEOUT_MS = 50000; // Render free plan may be cold-starting
 let MEDIA_FALLBACK = ""; // optional backend whose /media is used when the Saavn CDN refuses this edge location
 
 // ---- per-isolate memory caches (best effort; Cloudflare edge cache backs the upstream calls) ----
@@ -56,16 +58,39 @@ function passthrough(up) {
   return new Response(up.body, { status: up.status, headers: h });
 }
 
-async function upstreamJson(url, params, timeoutMs) {
+async function fetchJsonOnce(url, params, timeoutMs) {
   const u = new URL(url);
   if (params) for (const [k, v] of Object.entries(params)) u.searchParams.set(k, String(v));
   const res = await fetch(u.toString(), {
     headers: { "User-Agent": UA, Accept: "application/json" },
-    signal: AbortSignal.timeout(timeoutMs || TIMEOUT_MS),
+    signal: AbortSignal.timeout(timeoutMs),
     cf: { cacheEverything: true, cacheTtlByStatus: { "200-299": CACHE_TTL, "300-599": 0 } },
   });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
+}
+const apiBroken = (payload) => !payload || typeof payload !== "object" || payload.success === false;
+
+// Primary catalogue first (fast, same edge); if it errors or reports failure, try the fallback bridge once.
+async function upstreamJson(url, params, timeoutMs) {
+  let payload;
+  let err;
+  try {
+    payload = await fetchJsonOnce(url, params, timeoutMs || TIMEOUT_MS);
+    if (!apiBroken(payload)) return payload;
+  } catch (e) {
+    err = e;
+  }
+  if (CATALOGUE_FALLBACK && url.startsWith(BASE_API)) {
+    try {
+      const p2 = await fetchJsonOnce(CATALOGUE_FALLBACK + url.slice(BASE_API.length), params, FALLBACK_TIMEOUT_MS);
+      if (!apiBroken(p2)) return p2;
+    } catch (e) {
+      if (payload === undefined) err = err || e;
+    }
+  }
+  if (payload !== undefined) return payload;
+  throw err;
 }
 
 const normalText = (v) =>
@@ -323,6 +348,35 @@ async function mediaProxy(url, request) {
 }
 
 // ---- catalogue bridge ----
+async function fetchCatalogue(base, parts, search, request, timeoutMs) {
+  const up = await fetch(`${base}/${parts.join("/")}${search}`, {
+    headers: { "User-Agent": UA, Accept: request.headers.get("Accept") || "application/json" },
+    redirect: "manual",
+    signal: AbortSignal.timeout(timeoutMs),
+  });
+  if (up.status >= 300 && up.status < 400) {
+    up.body?.cancel();
+    return { redirect: true, status: 502, type: "application/json", text: JSON.stringify({ success: false, error: "Upstream catalogue returned a redirect" }) };
+  }
+  return { status: up.status, type: up.headers.get("Content-Type") || "application/json", text: await up.text() };
+}
+
+// True when the answer looks like a block/failure rather than real data.
+function catalogueBroken(r, parts) {
+  if (r.redirect || r.status < 200 || r.status >= 300) return true;
+  if (!r.type.toLowerCase().includes("json")) return true;
+  let j;
+  try { j = JSON.parse(r.text); } catch { return true; }
+  if (j && j.success === false) return true;
+  const first = (parts[0] || "").toLowerCase();
+  if (first !== "search" && !parts.includes("suggestions") && j && typeof j === "object" && "data" in j) {
+    const d = j.data;
+    if (d == null) return true;
+    if (Array.isArray(d) ? d.length === 0 : typeof d === "object" && Object.keys(d).length === 0) return true;
+  }
+  return false;
+}
+
 async function catalogueProxy(url, request) {
   let parts;
   try {
@@ -337,22 +391,65 @@ async function catalogueProxy(url, request) {
   ) {
     return json({ success: false, error: "Catalogue route not allowed" }, 404);
   }
-  const target = `${BASE_API}/${parts.join("/")}${url.search}`;
+
+  const reply = (r, via, cacheable) => {
+    const headers = { "Content-Type": r.type, "X-Catalogue-Via": via };
+    if (!cacheable) headers["X-No-Edge-Cache"] = "1";
+    return new Response(r.text, { status: r.status, headers });
+  };
+
+  let primary = null;
   try {
-    const up = await fetch(target, {
-      headers: { "User-Agent": UA, Accept: request.headers.get("Accept") || "application/json" },
-      redirect: "manual",
-      signal: AbortSignal.timeout(TIMEOUT_MS),
-    });
-    if (up.status >= 300 && up.status < 400) {
-      up.body?.cancel();
-      return json({ success: false, error: "Upstream catalogue returned a redirect" }, 502);
-    }
-    return passthrough(up);
+    primary = await fetchCatalogue(BASE_API, parts, url.search, request, TIMEOUT_MS);
   } catch (e) {
     console.warn(`Catalogue proxy failed for ${url.pathname}:`, String(e));
-    return json({ success: false, error: "Upstream catalogue temporarily unavailable" }, 502);
   }
+  if (primary && !catalogueBroken(primary, parts)) return reply(primary, "edge", true);
+
+  if (CATALOGUE_FALLBACK) {
+    try {
+      const fb = await fetchCatalogue(CATALOGUE_FALLBACK, parts, url.search, request, FALLBACK_TIMEOUT_MS);
+      if (!catalogueBroken(fb, parts)) return reply(fb, "fallback", true);
+      console.warn(`Fallback catalogue also failed for ${url.pathname}: HTTP ${fb.status}`);
+    } catch (e) {
+      console.warn(`Fallback catalogue failed for ${url.pathname}:`, String(e));
+    }
+  }
+  if (primary) return reply(primary, "edge-unverified", false); // return what we got, but never cache it
+  return json({ success: false, error: "Upstream catalogue temporarily unavailable" }, 502);
+}
+
+// ---- diagnostics: fixed probes only, no user input ----
+async function diag(request) {
+  const probes = ["search/artists?query=The%20Weeknd", "search/songs?query=The%20Weeknd", "search/songs?query=Arijit%20Singh"];
+  const out = {
+    colo: request.cf && request.cf.colo, country: request.cf && request.cf.country,
+    primary_base: BASE_API, fallback_base: CATALOGUE_FALLBACK || null, probes: {},
+  };
+  for (const pr of probes) {
+    const [pathOnly, qs] = pr.split("?");
+    const call = (base, tmo) => {
+      const parts = pathOnly.split("/");
+      const t0 = Date.now();
+      return fetch(`${base}/${pr}`, { headers: { "User-Agent": UA, Accept: "application/json" }, redirect: "manual", signal: AbortSignal.timeout(tmo) })
+        .then(async (res) => {
+          const text = await res.text();
+          let j = null;
+          try { j = JSON.parse(text); } catch {}
+          const d = j && j.data;
+          return { status: res.status, ms: Date.now() - t0, success: j ? j.success : null,
+            count: d && Array.isArray(d.results) ? d.results.length : Array.isArray(d) ? d.length : null, sample: text.slice(0, 120) };
+        })
+        .catch((e) => ({ error: String(e), ms: Date.now() - t0 }));
+    };
+    out.probes[pr] = {
+      primary: await call(BASE_API, TIMEOUT_MS),
+      fallback: CATALOGUE_FALLBACK ? await call(CATALOGUE_FALLBACK, FALLBACK_TIMEOUT_MS) : null,
+    };
+  }
+  const r = json(out);
+  r.headers.set("Cache-Control", "no-store");
+  return r;
 }
 
 // ---- lyrics ----
@@ -564,6 +661,7 @@ async function route(request, url) {
   }
   if (p.startsWith("/api/")) return catalogueProxy(url, request);
   if (p === "/media") return mediaProxy(url, request);
+  if (p === "/_diag") return diag(request);
 
   if (p === "/lyrics/search") {
     if (!(url.searchParams.get("q") || "").trim()) return json({ error: "query required" }, 400);
@@ -638,6 +736,11 @@ async function cachedRoute(request, url, ctx) {
   }
 
   const res = await route(request, url);
+  if (res.headers.has("X-No-Edge-Cache")) {
+    const o = new Response(res.body, res);
+    o.headers.delete("X-No-Edge-Cache");
+    return o;
+  }
   if (res.status !== 200) return res;
   const type = res.headers.get("Content-Type") || "";
   const storeIt = (isApi && type.includes("json")) || (isMedia && type.startsWith("image/"));
@@ -681,6 +784,7 @@ export default {
     TIMEOUT_MS = parseFloat(env.UPSTREAM_TIMEOUT_SECONDS || "18") * 1000;
     ALLOWED_ORIGINS = (env.ALLOWED_ORIGINS || "https://royverse69.github.io")
       .split(",").map((s) => s.trim()).filter(Boolean);
+    CATALOGUE_FALLBACK = (env.CATALOGUE_FALLBACK_API || "").replace(/\/+$/, "");
     MEDIA_FALLBACK = (env.MEDIA_FALLBACK_ORIGIN || "").replace(/\/+$/, "");
 
     const url = new URL(request.url);

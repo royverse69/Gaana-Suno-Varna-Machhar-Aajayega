@@ -1,4 +1,7 @@
-
+/**
+ * Mujic/Royverse music backend: Cloudflare Workers port of the Flask app.py.
+ * Same routes, same JSON shapes, same allowlist rules. Not an arbitrary URL proxy.
+ */
 
 const UA = "Mujic-Worker-Backend/1.0";
 const MAX_BULK_IDS = 50;
@@ -20,6 +23,7 @@ let BASE_API = "https://music-api.albatross0071.workers.dev/api";
 let CACHE_TTL = 1800;
 let TIMEOUT_MS = 18000;
 let ALLOWED_ORIGINS = ["https://royverse69.github.io"];
+let MEDIA_FALLBACK = ""; // optional backend whose /media is used when the Saavn CDN refuses this edge location
 
 // ---- per-isolate memory caches (best effort; Cloudflare edge cache backs the upstream calls) ----
 const searchCache = new Map();
@@ -277,12 +281,44 @@ async function mediaProxy(url, request) {
   }
   if (!ok) return json({ error: "Too many media redirects" }, 502);
 
+  // The Saavn CDN can refuse requests that leave from a Cloudflare location outside its allowed region.
+  // If that happens, retry this one request through the fallback backend's /media (e.g. Render).
+  let via = "edge";
+  if ([401, 403, 451].includes(upstream.status) && MEDIA_FALLBACK) {
+    const blocked = upstream.status;
+    upstream.body?.cancel();
+    console.warn(`Saavn CDN returned ${blocked} to this edge; retrying via fallback media backend`);
+    const fbHeaders = { Accept: forwarded.Accept || "*/*" };
+    for (const n of ["Range", "If-Range", "If-None-Match", "If-Modified-Since"]) {
+      if (forwarded[n]) fbHeaders[n] = forwarded[n];
+    }
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 45000); // Render free plan may be cold-starting
+    try {
+      const fb = await fetch(`${MEDIA_FALLBACK}/media?url=${encodeURIComponent(target)}`, {
+        headers: fbHeaders, redirect: "manual", signal: ctrl.signal,
+      });
+      if (fb.status >= 400) {
+        fb.body?.cancel();
+        return json({ error: "Catalogue media blocked from this region", upstream_status: blocked }, 502);
+      }
+      upstream = fb;
+      via = "fallback";
+    } catch (e) {
+      console.warn("Fallback media backend failed:", String(e));
+      return json({ error: "Catalogue media blocked from this region", upstream_status: blocked }, 502);
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
   const headers = new Headers();
   for (const n of ["Content-Type", "Content-Length", "Content-Range", "Accept-Ranges", "ETag", "Last-Modified"]) {
     const v = upstream.headers.get(n);
     if (v) headers.set(n, v);
   }
   headers.set("Cache-Control", "public, max-age=900");
+  headers.set("X-Media-Via", via);
   return new Response(upstream.body, { status: upstream.status, headers });
 }
 
@@ -645,6 +681,7 @@ export default {
     TIMEOUT_MS = parseFloat(env.UPSTREAM_TIMEOUT_SECONDS || "18") * 1000;
     ALLOWED_ORIGINS = (env.ALLOWED_ORIGINS || "https://royverse69.github.io")
       .split(",").map((s) => s.trim()).filter(Boolean);
+    MEDIA_FALLBACK = (env.MEDIA_FALLBACK_ORIGIN || "").replace(/\/+$/, "");
 
     const url = new URL(request.url);
     const origin = request.headers.get("Origin");

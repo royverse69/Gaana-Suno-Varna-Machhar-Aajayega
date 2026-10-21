@@ -362,7 +362,7 @@ async function fetchCatalogue(base, parts, search, request, timeoutMs) {
 }
 
 // True when the answer looks like a block/failure rather than real data.
-function catalogueBroken(r, parts) {
+function catalogueBroken(r, parts, search = "") {
   if (r.redirect || r.status < 200 || r.status >= 300) return true;
   if (!r.type.toLowerCase().includes("json")) return true;
   let j;
@@ -373,6 +373,14 @@ function catalogueBroken(r, parts) {
     const d = j.data;
     if (d == null) return true;
     if (Array.isArray(d) ? d.length === 0 : typeof d === "object" && Object.keys(d).length === 0) return true;
+  }
+  // Saavn can answer 200 with the collection details but NO tracks (seen for editorial/English playlists
+  // when the request leaves from some regions). First page only: later pages may legitimately be empty.
+  const d = j && j.data;
+  if (d && typeof d === "object" && !Array.isArray(d)) {
+    const page = Number(new URLSearchParams(search).get("page") || 0) || 0;
+    if (page === 0 && (first === "playlists" || first === "albums") && parts.length === 1 && Array.isArray(d.songs) && d.songs.length === 0) return true;
+    if (first === "artists" && parts.length === 1 && Array.isArray(d.topSongs) && Array.isArray(d.topAlbums) && d.topSongs.length === 0 && d.topAlbums.length === 0) return true;
   }
   return false;
 }
@@ -404,12 +412,12 @@ async function catalogueProxy(url, request) {
   } catch (e) {
     console.warn(`Catalogue proxy failed for ${url.pathname}:`, String(e));
   }
-  if (primary && !catalogueBroken(primary, parts)) return reply(primary, "edge", true);
+  if (primary && !catalogueBroken(primary, parts, url.search)) return reply(primary, "edge", true);
 
   if (CATALOGUE_FALLBACK) {
     try {
       const fb = await fetchCatalogue(CATALOGUE_FALLBACK, parts, url.search, request, FALLBACK_TIMEOUT_MS);
-      if (!catalogueBroken(fb, parts)) return reply(fb, "fallback", true);
+      if (!catalogueBroken(fb, parts, url.search)) return reply(fb, "fallback", true);
       console.warn(`Fallback catalogue also failed for ${url.pathname}: HTTP ${fb.status}`);
     } catch (e) {
       console.warn(`Fallback catalogue failed for ${url.pathname}:`, String(e));
@@ -421,7 +429,7 @@ async function catalogueProxy(url, request) {
 
 // ---- diagnostics: fixed probes only, no user input ----
 async function diag(request) {
-  const probes = ["search/artists?query=The%20Weeknd", "search/songs?query=The%20Weeknd", "search/songs?query=Arijit%20Singh"];
+  const probes = ["search/artists?query=The%20Weeknd", "search/songs?query=The%20Weeknd", "search/songs?query=Arijit%20Singh", "playlists?id=1081991857&page=0&limit=20"];
   const out = {
     colo: request.cf && request.cf.colo, country: request.cf && request.cf.country,
     primary_base: BASE_API, fallback_base: CATALOGUE_FALLBACK || null, probes: {},
@@ -438,7 +446,7 @@ async function diag(request) {
           try { j = JSON.parse(text); } catch {}
           const d = j && j.data;
           return { status: res.status, ms: Date.now() - t0, success: j ? j.success : null,
-            count: d && Array.isArray(d.results) ? d.results.length : Array.isArray(d) ? d.length : null, sample: text.slice(0, 120) };
+            count: Array.isArray(d?.results) ? d.results.length : Array.isArray(d?.songs) ? d.songs.length : Array.isArray(d) ? d.length : null, sample: text.slice(0, 120) };
         })
         .catch((e) => ({ error: String(e), ms: Date.now() - t0 }));
     };

@@ -19,6 +19,7 @@ const TRENDING_MAP = {
 let BASE_API = "https://music-api.albatross0071.workers.dev/api";
 let CACHE_TTL = 1800;
 let TIMEOUT_MS = 18000;
+let ALLOWED_ORIGINS = ["https://royverse69.github.io"];
 
 // ---- per-isolate memory caches (best effort; Cloudflare edge cache backs the upstream calls) ----
 const searchCache = new Map();
@@ -577,11 +578,55 @@ async function route(request, url) {
   return json({ error: "Not found" }, 404);
 }
 
-// ---- CORS + cache headers (mirrors Flask CORS(*) and after_request) ----
+// ---- origin allowlist (CORS) ----
+const LOCAL_ORIGIN = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/;
+function originAllowed(origin) {
+  if (ALLOWED_ORIGINS.includes("*")) return true;
+  return ALLOWED_ORIGINS.includes(origin) || LOCAL_ORIGIN.test(origin);
+}
+
+// ---- edge cache: /api/* JSON and /media artwork only (never audio, never Range requests) ----
+async function cachedRoute(request, url, ctx) {
+  const p = url.pathname;
+  const isApi = p.startsWith("/api/");
+  const isMedia = p === "/media" && !request.headers.get("Range");
+  if (request.method !== "GET" || !(isApi || isMedia)) return route(request, url);
+
+  const cache = caches.default;
+  const key = new Request(url.toString(), { method: "GET" });
+  const hit = await cache.match(key);
+  if (hit) {
+    const r = new Response(hit.body, hit);
+    r.headers.set("X-Cache", "HIT");
+    return r;
+  }
+
+  const res = await route(request, url);
+  if (res.status !== 200) return res;
+  const type = res.headers.get("Content-Type") || "";
+  const storeIt = (isApi && type.includes("json")) || (isMedia && type.startsWith("image/"));
+  if (!storeIt) return res;
+
+  const out = new Response(res.body, res);
+  out.headers.set(
+    "Cache-Control",
+    isApi
+      ? `public, max-age=300, s-maxage=${p.startsWith("/api/search") ? 300 : CACHE_TTL}`
+      : "public, max-age=900, s-maxage=604800"
+  );
+  out.headers.set("X-Cache", "MISS");
+  ctx.waitUntil(cache.put(key, out.clone()));
+  return out;
+}
+
+// ---- CORS + cache headers (mirrors Flask after_request, with an origin allowlist) ----
 function finalize(request, url, response) {
   const res = new Response(response.body, response);
   const h = res.headers;
-  h.set("Access-Control-Allow-Origin", "*");
+  const origin = request.headers.get("Origin");
+  if (ALLOWED_ORIGINS.includes("*")) h.set("Access-Control-Allow-Origin", "*");
+  else if (origin && originAllowed(origin)) h.set("Access-Control-Allow-Origin", origin);
+  h.append("Vary", "Origin");
   h.set("Access-Control-Expose-Headers", "Content-Length, Content-Range, Accept-Ranges, ETag");
   if (request.method === "GET" || request.method === "HEAD") {
     if (res.status === 200 && url.pathname !== "/health" && url.pathname !== "/stats") {
@@ -594,29 +639,36 @@ function finalize(request, url, response) {
 }
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     BASE_API = (env.UPSTREAM_CATALOGUE_API || BASE_API).replace(/\/+$/, "");
     CACHE_TTL = parseInt(env.CACHE_TTL_SECONDS || "1800", 10);
     TIMEOUT_MS = parseFloat(env.UPSTREAM_TIMEOUT_SECONDS || "18") * 1000;
+    ALLOWED_ORIGINS = (env.ALLOWED_ORIGINS || "https://royverse69.github.io")
+      .split(",").map((s) => s.trim()).filter(Boolean);
 
     const url = new URL(request.url);
+    const origin = request.headers.get("Origin");
+
+    // Browsers from any other website are refused (requests without an Origin header, e.g. <audio>, curl, still work).
+    if (origin && !originAllowed(origin)) {
+      return finalize(request, url, json({ error: "Origin not allowed" }, 403));
+    }
     if (request.method === "OPTIONS") {
-      return new Response(null, {
+      return finalize(request, url, new Response(null, {
         status: 204,
         headers: {
-          "Access-Control-Allow-Origin": "*",
           "Access-Control-Allow-Methods": "GET, HEAD, OPTIONS",
           "Access-Control-Allow-Headers": request.headers.get("Access-Control-Request-Headers") || "*",
           "Access-Control-Max-Age": "86400",
         },
-      });
+      }));
     }
     if (request.method !== "GET" && request.method !== "HEAD") {
       return finalize(request, url, json({ error: "Method not allowed" }, 405));
     }
     let response;
     try {
-      response = await route(request, url);
+      response = await cachedRoute(request, url, ctx);
     } catch (e) {
       console.error("Unhandled error:", String(e));
       response = json({ error: "Internal server error" }, 500);

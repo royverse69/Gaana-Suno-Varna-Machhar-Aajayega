@@ -1,9 +1,15 @@
-   name = "mujic-apiv2"
-   main = "cloudflare-worker/worker.js"
-   compatibility_date = "2025-01-01"
-   workers_dev = true
+name = "mujic-apiv2"
+main = "cloudflare-worker/worker.js"
+compatibility_date = "2025-01-01"
+workers_dev = true
 
-   [vars]
-   UPSTREAM_CATALOGUE_API = "https://music-api.albatross0071.workers.dev/api"
-   CACHE_TTL_SECONDS = "1800"
-   UPSTREAM_TIMEOUT_SECONDS = "18"
+[vars]
+UPSTREAM_CATALOGUE_API = "https://music-api.albatross0071.workers.dev/api"
+CACHE_TTL_SECONDS = "1800"
+UPSTREAM_TIMEOUT_SECONDS = "18"
+# Comma-separated list of websites allowed to call this API from a browser.
+# localhost / 127.0.0.1 are always allowed for testing. Use "*" to allow everyone.
+ALLOWED_ORIGINS = "https://royverse69.github.io"
+
+[observability]
+enabled = true

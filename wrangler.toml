@@ -3,6 +3,11 @@ main = "cloudflare-worker/worker.js"
 compatibility_date = "2025-01-01"
 workers_dev = true
 
+# Run the Worker in the Cloudflare data center closest to AWS Mumbai, so requests to the
+# Saavn CDN leave from India instead of whichever location the viewer happened to hit.
+[placement]
+region = "aws:ap-south-1"
+
 [vars]
 UPSTREAM_CATALOGUE_API = "https://music-api.albatross0071.workers.dev/api"
 CACHE_TTL_SECONDS = "1800"
@@ -10,6 +15,9 @@ UPSTREAM_TIMEOUT_SECONDS = "18"
 # Comma-separated list of websites allowed to call this API from a browser.
 # localhost / 127.0.0.1 are always allowed for testing. Use "*" to allow everyone.
 ALLOWED_ORIGINS = "https://royverse69.github.io"
+# If the Saavn CDN answers 401/403/451 to the Worker, that one /media request is retried via this backend.
+# Remove this line to disable.
+MEDIA_FALLBACK_ORIGIN = "https://gaana-suno-varna-machhar-aajayega.onrender.com"
 
 [observability]
 enabled = true

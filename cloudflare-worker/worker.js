@@ -69,7 +69,16 @@ async function fetchJsonOnce(url, params, timeoutMs) {
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }
-const apiBroken = (payload) => !payload || typeof payload !== "object" || payload.success === false;
+const songHasAudio = (s) => !!(s && Array.isArray(s.downloadUrl) && s.downloadUrl.some((x) => x && x.url));
+// Song-detail answers that come back WITHOUT download links are unusable for playback (seen when Saavn
+// answers a request from some regions); treat them as a failure so the fallback bridge gets a try.
+function songsLackAudio(url, payload) {
+  if (!/\/songs(?:\/|\?|$)/.test(url) || url.includes("/suggestions")) return false;
+  const list = payload && Array.isArray(payload.data) ? payload.data : [];
+  return list.length > 0 && list.some((x) => !songHasAudio(x));
+}
+const apiBroken = (payload, url = "") =>
+  !payload || typeof payload !== "object" || payload.success === false || songsLackAudio(url, payload);
 
 // Primary catalogue first (fast, same edge); if it errors or reports failure, try the fallback bridge once.
 async function upstreamJson(url, params, timeoutMs) {
@@ -77,14 +86,14 @@ async function upstreamJson(url, params, timeoutMs) {
   let err;
   try {
     payload = await fetchJsonOnce(url, params, timeoutMs || TIMEOUT_MS);
-    if (!apiBroken(payload)) return payload;
+    if (!apiBroken(payload, url)) return payload;
   } catch (e) {
     err = e;
   }
   if (CATALOGUE_FALLBACK && url.startsWith(BASE_API)) {
     try {
       const p2 = await fetchJsonOnce(CATALOGUE_FALLBACK + url.slice(BASE_API.length), params, FALLBACK_TIMEOUT_MS);
-      if (!apiBroken(p2)) return p2;
+      if (!apiBroken(p2, url)) return p2;
     } catch (e) {
       if (payload === undefined) err = err || e;
     }
@@ -271,6 +280,14 @@ async function mediaProxy(url, request) {
   const target = (url.searchParams.get("url") || "").trim();
   if (!allowedMediaUrl(target)) return json({ error: "Unsupported catalogue media host" }, 403);
 
+  // Song/album/artist PAGES on jiosaavn.com are web pages, not media: refuse instantly instead of fetching HTML.
+  try {
+    const pu = new URL(target);
+    if (/(^|\.)jiosaavn\.com$/i.test(pu.hostname) && /^\/(?:song|album|artist|featured|s\/playlist|playlist|radio)(?:\/|$)/i.test(pu.pathname)) {
+      return json({ error: "That address is a web page, not a media file" }, 415);
+    }
+  } catch {}
+
   const forwarded = { "Accept-Encoding": "identity", "User-Agent": UA };
   for (const n of ["Range", "If-Range", "If-None-Match", "If-Modified-Since", "Accept"]) {
     const v = request.headers.get(n);
@@ -337,6 +354,11 @@ async function mediaProxy(url, request) {
     }
   }
 
+  if (/^text\/html/i.test(upstream.headers.get("Content-Type") || "") && upstream.status < 400) {
+    upstream.body?.cancel();
+    return json({ error: "Upstream returned a web page, not media" }, 415);
+  }
+
   const headers = new Headers();
   for (const n of ["Content-Type", "Content-Length", "Content-Range", "Accept-Ranges", "ETag", "Last-Modified"]) {
     const v = upstream.headers.get(n);
@@ -376,6 +398,7 @@ function catalogueBroken(r, parts, search = "") {
   }
   // Saavn can answer 200 with the collection details but NO tracks (seen for editorial/English playlists
   // when the request leaves from some regions). First page only: later pages may legitimately be empty.
+  if (first === "songs" && !parts.includes("suggestions") && j && Array.isArray(j.data) && j.data.length && j.data.some((x) => !songHasAudio(x))) return true;
   const d = j && j.data;
   if (d && typeof d === "object" && !Array.isArray(d)) {
     const page = Number(new URLSearchParams(search).get("page") || 0) || 0;

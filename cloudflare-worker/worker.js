@@ -3,7 +3,7 @@
  * Same routes, same JSON shapes, same allowlist rules. Not an arbitrary URL proxy.
  */
 
-const UA = "Mujic-Worker-Backend/1.1";
+const UA = "Mujic-Worker-Backend/2.1.2";
 const MAX_BULK_IDS = 50;
 const CATALOGUE_PREFIXES = new Set(["search", "songs", "albums", "artists", "playlists"]);
 const MEDIA_DOMAINS = ["saavncdn.com", "jiosaavn.com"];
@@ -22,7 +22,7 @@ const TRENDING_MAP = {
 let BASE_API = "https://music-api.albatross0071.workers.dev/api";
 let CACHE_TTL = 1800;
 let TIMEOUT_MS = 18000;
-let ALLOWED_ORIGINS = ["https://royverse69.github.io"];
+let ALLOWED_ORIGINS = ["https://royverse69.github.io", "https://mujic.my.id"];
 let CATALOGUE_FALLBACK = ""; // optional second catalogue bridge (e.g. Render /api) used only when the first one fails
 const FALLBACK_TIMEOUT_MS = 50000; // Render free plan may be cold-starting
 let MEDIA_FALLBACK = ""; // optional server-to-server media fallback
@@ -385,6 +385,17 @@ async function decryptMediaToken(token) {
   return payload.u;
 }
 
+function mediaUrlSuffix(value) {
+  try {
+    const pathname = new URL(String(value)).pathname;
+    const match = pathname.match(/\.([a-z0-9]{2,5})$/i);
+    const extension = String(match?.[1] || '').toLowerCase();
+    return ['m4a', 'mp4', 'aac', 'mp3', 'jpg', 'jpeg', 'png', 'webp', 'avif'].includes(extension) ? `.${extension}` : '';
+  } catch {
+    return '';
+  }
+}
+
 async function rewriteMediaReferences(value, publicOrigin, memo = new Map()) {
   if (typeof value === "string") {
     if (!isProxyableMediaUrl(value)) {
@@ -393,7 +404,9 @@ async function rewriteMediaReferences(value, publicOrigin, memo = new Map()) {
     }
     if (memo.has(value)) return memo.get(value);
     const token = await encryptMediaUrl(value);
-    const rewritten = new URL(`/m/${token}`, publicOrigin).toString();
+    // Retaining a safe file-extension hint lets the UI preserve AAC/M4A download selection
+    // without exposing the original host or path. The extension is not part of the encrypted URL.
+    const rewritten = new URL(`/m/${token}${mediaUrlSuffix(value)}`, publicOrigin).toString();
     memo.set(value, rewritten);
     return rewritten;
   }
@@ -846,10 +859,14 @@ async function route(request, url) {
     try { return decodeURIComponent(rest); } catch { return rest; }
   };
 
-  if (p === "/") {
-    return json({ status: "online", name: "Mujic Media Gateway", version: "2.1.0" });
+  if (p === "/health") {
+    const configured = typeof MEDIA_TOKEN_SECRET === "string" && MEDIA_TOKEN_SECRET.trim().length >= 32;
+    return json({
+      status: configured ? "ok" : "degraded",
+      secure_media: configured ? "configured" : "not_configured",
+      timestamp: Math.floor(Date.now() / 1000),
+    }, configured ? 200 : 503);
   }
-  if (p === "/health") return json({ status: "ok", timestamp: Math.floor(Date.now() / 1000) });
   if (p === "/stats") {
     if (!diagnosticAuthorized(request)) return reverseEngineeringResponse();
     return json({
@@ -860,7 +877,8 @@ async function route(request, url) {
   if (p.startsWith("/api/")) return catalogueProxy(url, request);
   if (p.startsWith("/m/") && !seg("/m/").includes("/")) {
     try {
-      const target = await decryptMediaToken(seg("/m/"));
+      const token = seg("/m/").replace(/\.(?:m4a|mp4|aac|mp3|jpg|jpeg|png|webp|avif)$/i, "");
+      const target = await decryptMediaToken(token);
       return await mediaProxy(target, request);
     } catch (error) {
       const message = String(error && error.message || error);
@@ -995,7 +1013,7 @@ export default {
     BASE_API = (env.UPSTREAM_CATALOGUE_API || BASE_API).replace(/\/+$/, "");
     CACHE_TTL = parseInt(env.CACHE_TTL_SECONDS || "1800", 10);
     TIMEOUT_MS = parseFloat(env.UPSTREAM_TIMEOUT_SECONDS || "18") * 1000;
-    ALLOWED_ORIGINS = (env.ALLOWED_ORIGINS || "https://royverse69.github.io")
+    ALLOWED_ORIGINS = (env.ALLOWED_ORIGINS || "https://royverse69.github.io,https://mujic.my.id")
       .split(",").map((s) => s.trim()).filter(Boolean);
     CATALOGUE_FALLBACK = (env.CATALOGUE_FALLBACK_API || "").replace(/\/+$/, "");
     MEDIA_FALLBACK = (env.MEDIA_FALLBACK_ORIGIN || "").replace(/\/+$/, "");

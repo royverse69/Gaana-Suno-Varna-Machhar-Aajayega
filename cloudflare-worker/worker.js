@@ -3,7 +3,7 @@
  * Same routes, same JSON shapes, same allowlist rules. Not an arbitrary URL proxy.
  */
 
-const UA = "Mujic-Worker-Backend/1.0";
+const UA = "Mujic-Worker-Backend/1.1";
 const MAX_BULK_IDS = 50;
 const CATALOGUE_PREFIXES = new Set(["search", "songs", "albums", "artists", "playlists"]);
 const MEDIA_DOMAINS = ["saavncdn.com", "jiosaavn.com"];
@@ -25,7 +25,22 @@ let TIMEOUT_MS = 18000;
 let ALLOWED_ORIGINS = ["https://royverse69.github.io"];
 let CATALOGUE_FALLBACK = ""; // optional second catalogue bridge (e.g. Render /api) used only when the first one fails
 const FALLBACK_TIMEOUT_MS = 50000; // Render free plan may be cold-starting
-let MEDIA_FALLBACK = ""; // optional backend whose /media is used when the Saavn CDN refuses this edge location
+let MEDIA_FALLBACK = ""; // optional server-to-server media fallback
+let MEDIA_TOKEN_SECRET = ""; // configure as a Cloudflare Worker Secret (never commit it)
+let cachedMediaKeySecret = "";
+let cachedMediaKeyPromise = null;
+let ADMIN_DIAGNOSTIC_TOKEN = ""; // optional secret for private cache stats
+const MEDIA_TOKEN_TTL_SECONDS = 24 * 60 * 60;
+const mediaTokenCache = new Map();
+const mediaTokenEncoder = new TextEncoder();
+const REVERSE_ENGINEERING_MESSAGE = "< GANA SUN N LORE  BACKEND ME KYU M@@ CHVDA RHA >";
+const REVERSE_ENGINEERING_ENDPOINTS = new Set([
+  "/_diag", "/debug", "/__debug", "/__routes", "/__source", "/source", "/routes",
+  "/docs", "/api-docs", "/openapi.json", "/swagger", "/swagger.json",
+  "/api/docs", "/api/openapi.json", "/api/swagger.json",
+  "/config", "/env", "/.env", "/wrangler.toml", "/worker.js", "/worker.mjs",
+  "/.git/config", "/.git/head", "/debug/vars", "/server-status",
+]);
 
 // ---- per-isolate memory caches (best effort; Cloudflare edge cache backs the upstream calls) ----
 const searchCache = new Map();
@@ -264,7 +279,7 @@ async function generateRecommendations(songId) {
   return final;
 }
 
-// ---- media allowlist ----
+// ---- media URL allowlist and opaque encrypted media tokens ----
 function allowedMediaUrl(value) {
   try {
     const u = new URL(String(value || ""));
@@ -276,17 +291,174 @@ function allowedMediaUrl(value) {
   }
 }
 
-async function mediaProxy(url, request) {
-  const target = (url.searchParams.get("url") || "").trim();
-  if (!allowedMediaUrl(target)) return json({ error: "Unsupported catalogue media host" }, 403);
-
-  // Song/album/artist PAGES on jiosaavn.com are web pages, not media: refuse instantly instead of fetching HTML.
+function isJioSaavnUrl(value) {
   try {
-    const pu = new URL(target);
-    if (/(^|\.)jiosaavn\.com$/i.test(pu.hostname) && /^\/(?:song|album|artist|featured|s\/playlist|playlist|radio)(?:\/|$)/i.test(pu.pathname)) {
-      return json({ error: "That address is a web page, not a media file" }, 415);
+    const u = new URL(String(value || ""));
+    const host = u.hostname.toLowerCase().replace(/\.$/, "");
+    return host === "jiosaavn.com" || host.endsWith(".jiosaavn.com");
+  } catch {
+    return false;
+  }
+}
+
+function isProxyableMediaUrl(value) {
+  if (!allowedMediaUrl(value)) return false;
+  try {
+    const u = new URL(String(value));
+    const host = u.hostname.toLowerCase().replace(/\.$/, "");
+    if (host === "saavncdn.com" || host.endsWith(".saavncdn.com")) return true;
+    // Do not turn public JioSaavn song/album/artist/playlist pages into media URLs.
+    if (isJioSaavnUrl(value) && /^\/(?:song|album|artist|featured|s\/playlist|playlist|radio)(?:\/|$)/i.test(u.pathname)) return false;
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function base64UrlEncode(bytes) {
+  let binary = "";
+  for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+}
+function base64UrlDecode(value) {
+  if (!/^[A-Za-z0-9_-]+$/.test(value)) throw new Error("Invalid token encoding");
+  const padded = value.replace(/-/g, "+").replace(/_/g, "/") + "=".repeat((4 - value.length % 4) % 4);
+  const binary = atob(padded);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return bytes;
+}
+
+async function getMediaEncryptionKey() {
+  const secret = String(MEDIA_TOKEN_SECRET || "").trim();
+  if (secret.length < 32) {
+    throw new Error("Media proxy is not configured: set MEDIA_TOKEN_SECRET (at least 32 characters)");
+  }
+  // Reuse the imported key for this Worker isolate; recompute only if the secret changes.
+  if (!cachedMediaKeyPromise || cachedMediaKeySecret !== secret) {
+    cachedMediaKeySecret = secret;
+    cachedMediaKeyPromise = (async () => {
+      const digest = await crypto.subtle.digest("SHA-256", mediaTokenEncoder.encode(`mujic-media-token-v1:${secret}`));
+      return crypto.subtle.importKey("raw", digest, { name: "AES-GCM" }, false, ["encrypt", "decrypt"]);
+    })();
+  }
+  return cachedMediaKeyPromise;
+}
+
+async function encryptMediaUrl(target) {
+  if (!isProxyableMediaUrl(target)) throw new Error("Unsupported media target");
+  const key = await getMediaEncryptionKey();
+  const cached = mediaTokenCache.get(target);
+  if (cached && cached.expiresAt > Date.now() + 60000) return cached.token;
+
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const expiresAt = Date.now() + MEDIA_TOKEN_TTL_SECONDS * 1000;
+  const payload = JSON.stringify({ u: target, e: expiresAt });
+  const encrypted = await crypto.subtle.encrypt(
+    { name: "AES-GCM", iv, additionalData: mediaTokenEncoder.encode("mujic-media-v1") },
+    key,
+    mediaTokenEncoder.encode(payload)
+  );
+  const token = `v1.${base64UrlEncode(iv)}.${base64UrlEncode(new Uint8Array(encrypted))}`;
+  if (mediaTokenCache.size > 1200) mediaTokenCache.delete(mediaTokenCache.keys().next().value);
+  mediaTokenCache.set(target, { token, expiresAt });
+  return token;
+}
+
+async function decryptMediaToken(token) {
+  if (!token || token.length > 4096) throw new Error("Invalid media token");
+  const parts = token.split(".");
+  if (parts.length !== 3 || parts[0] !== "v1") throw new Error("Invalid media token");
+  const iv = base64UrlDecode(parts[1]);
+  const ciphertext = base64UrlDecode(parts[2]);
+  if (iv.length !== 12 || ciphertext.length > 8192) throw new Error("Invalid media token");
+  const key = await getMediaEncryptionKey();
+  const decrypted = await crypto.subtle.decrypt(
+    { name: "AES-GCM", iv, additionalData: mediaTokenEncoder.encode("mujic-media-v1") },
+    key,
+    ciphertext
+  );
+  const payload = JSON.parse(new TextDecoder().decode(decrypted));
+  if (!payload || !Number.isFinite(payload.e) || payload.e <= Date.now() || !isProxyableMediaUrl(payload.u)) {
+    throw new Error("Expired or invalid media token");
+  }
+  return payload.u;
+}
+
+async function rewriteMediaReferences(value, publicOrigin, memo = new Map()) {
+  if (typeof value === "string") {
+    if (!isProxyableMediaUrl(value)) {
+      // Preserve JSON shape but scrub non-media JioSaavn page links; they are not used to stream assets.
+      return isJioSaavnUrl(value) ? "" : value;
     }
-  } catch {}
+    if (memo.has(value)) return memo.get(value);
+    const token = await encryptMediaUrl(value);
+    const rewritten = new URL(`/m/${token}`, publicOrigin).toString();
+    memo.set(value, rewritten);
+    return rewritten;
+  }
+  if (Array.isArray(value)) {
+    const out = [];
+    for (const item of value) out.push(await rewriteMediaReferences(item, publicOrigin, memo));
+    return out;
+  }
+  if (value && typeof value === "object") {
+    const out = {};
+    for (const [key, item] of Object.entries(value)) out[key] = await rewriteMediaReferences(item, publicOrigin, memo);
+    return out;
+  }
+  return value;
+}
+
+function removeUpstreamHeaders(headers) {
+  const clean = new Headers(headers);
+  for (const name of [
+    "x-catalogue-via", "x-media-via", "x-upstream-host", "x-upstream-url",
+    "x-no-edge-cache", "server-timing", "via"
+  ]) clean.delete(name);
+  return clean;
+}
+
+async function sanitizePublicResponse(response, url) {
+  const contentType = response.headers.get("Content-Type") || "";
+  if (!contentType.toLowerCase().includes("json")) {
+    return new Response(response.body, {
+      status: response.status,
+      statusText: response.statusText,
+      headers: removeUpstreamHeaders(response.headers),
+    });
+  }
+
+  let bodyText;
+  try {
+    bodyText = await response.text();
+    const payload = JSON.parse(bodyText);
+    const rewritten = await rewriteMediaReferences(payload, url.origin);
+    const headers = removeUpstreamHeaders(response.headers);
+    headers.delete("content-length");
+    headers.delete("content-encoding");
+    headers.delete("etag");
+    headers.delete("last-modified");
+    headers.set("Content-Type", "application/json; charset=utf-8");
+    return new Response(JSON.stringify(rewritten), {
+      status: response.status,
+      statusText: response.statusText,
+      headers,
+    });
+  } catch (error) {
+    const message = String(error && error.message || error);
+    if (message.includes("MEDIA_TOKEN_SECRET") || message.includes("Media proxy is not configured")) {
+      return json({ error: "Secure media proxy is not configured. Set the MEDIA_TOKEN_SECRET Worker secret." }, 503);
+    }
+    // Invalid/non-JSON upstream bodies are never used to leak an unparsed URL-bearing payload.
+    console.warn("Public response sanitization failed:", message);
+    return json({ error: "Upstream response could not be safely processed" }, 502);
+  }
+}
+
+async function mediaProxy(target, request) {
+  target = String(target || "").trim();
+  if (!isProxyableMediaUrl(target)) return json({ error: "Unsupported or invalid media target" }, 403);
 
   const forwarded = { "Accept-Encoding": "identity", "User-Agent": UA };
   for (const n of ["Range", "If-Range", "If-None-Match", "If-Modified-Since", "Accept"]) {
@@ -298,17 +470,17 @@ async function mediaProxy(url, request) {
   let current = target;
   let ok = false;
   for (let i = 0; i < 5; i++) {
-    if (!allowedMediaUrl(current)) {
+    if (!isProxyableMediaUrl(current)) {
       upstream?.body?.cancel();
       return json({ error: "Redirected media host is not allowed" }, 403);
     }
     const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 15000); // header phase only, not the stream
+    const timer = setTimeout(() => ctrl.abort(), 15000);
     try {
-      upstream = await fetch(current, { headers: forwarded, redirect: "manual", signal: ctrl.signal });
+      upstream = await fetch(current, { method: request.method === "HEAD" ? "HEAD" : "GET", headers: forwarded, redirect: "manual", signal: ctrl.signal });
     } catch (e) {
-      console.warn("Media proxy failed:", String(e));
-      return json({ error: "Catalogue media is temporarily unavailable" }, 502);
+      console.warn("Media proxy request failed:", String(e));
+      return json({ error: "Media is temporarily unavailable" }, 502);
     } finally {
       clearTimeout(timer);
     }
@@ -323,32 +495,29 @@ async function mediaProxy(url, request) {
   }
   if (!ok) return json({ error: "Too many media redirects" }, 502);
 
-  // The Saavn CDN can refuse requests that leave from a Cloudflare location outside its allowed region.
-  // If that happens, retry this one request through the fallback backend's /media (e.g. Render).
-  let via = "edge";
+  // Optional region-specific fallback is server-to-server; its identity is not sent in response headers.
   if ([401, 403, 451].includes(upstream.status) && MEDIA_FALLBACK) {
     const blocked = upstream.status;
     upstream.body?.cancel();
-    console.warn(`Saavn CDN returned ${blocked} to this edge; retrying via fallback media backend`);
     const fbHeaders = { Accept: forwarded.Accept || "*/*" };
     for (const n of ["Range", "If-Range", "If-None-Match", "If-Modified-Since"]) {
       if (forwarded[n]) fbHeaders[n] = forwarded[n];
     }
     const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 45000); // Render free plan may be cold-starting
+    const timer = setTimeout(() => ctrl.abort(), 45000);
     try {
       const fb = await fetch(`${MEDIA_FALLBACK}/media?url=${encodeURIComponent(target)}`, {
+        method: request.method === "HEAD" ? "HEAD" : "GET",
         headers: fbHeaders, redirect: "manual", signal: ctrl.signal,
       });
       if (fb.status >= 400) {
         fb.body?.cancel();
-        return json({ error: "Catalogue media blocked from this region", upstream_status: blocked }, 502);
+        return json({ error: "Media is temporarily unavailable", status: blocked }, 502);
       }
       upstream = fb;
-      via = "fallback";
     } catch (e) {
-      console.warn("Fallback media backend failed:", String(e));
-      return json({ error: "Catalogue media blocked from this region", upstream_status: blocked }, 502);
+      console.warn("Media fallback request failed:", String(e));
+      return json({ error: "Media is temporarily unavailable", status: blocked }, 502);
     } finally {
       clearTimeout(timer);
     }
@@ -356,7 +525,7 @@ async function mediaProxy(url, request) {
 
   if (/^text\/html/i.test(upstream.headers.get("Content-Type") || "") && upstream.status < 400) {
     upstream.body?.cancel();
-    return json({ error: "Upstream returned a web page, not media" }, 415);
+    return json({ error: "Media provider returned a web page instead of media" }, 415);
   }
 
   const headers = new Headers();
@@ -365,7 +534,6 @@ async function mediaProxy(url, request) {
     if (v) headers.set(n, v);
   }
   headers.set("Cache-Control", "public, max-age=900");
-  headers.set("X-Media-Via", via);
   return new Response(upstream.body, { status: upstream.status, headers });
 }
 
@@ -423,8 +591,8 @@ async function catalogueProxy(url, request) {
     return json({ success: false, error: "Catalogue route not allowed" }, 404);
   }
 
-  const reply = (r, via, cacheable) => {
-    const headers = { "Content-Type": r.type, "X-Catalogue-Via": via };
+  const reply = (r, cacheable) => {
+    const headers = { "Content-Type": r.type };
     if (!cacheable) headers["X-No-Edge-Cache"] = "1";
     return new Response(r.text, { status: r.status, headers });
   };
@@ -435,53 +603,22 @@ async function catalogueProxy(url, request) {
   } catch (e) {
     console.warn(`Catalogue proxy failed for ${url.pathname}:`, String(e));
   }
-  if (primary && !catalogueBroken(primary, parts, url.search)) return reply(primary, "edge", true);
+  if (primary && !catalogueBroken(primary, parts, url.search)) return reply(primary, true);
 
   if (CATALOGUE_FALLBACK) {
     try {
       const fb = await fetchCatalogue(CATALOGUE_FALLBACK, parts, url.search, request, FALLBACK_TIMEOUT_MS);
-      if (!catalogueBroken(fb, parts, url.search)) return reply(fb, "fallback", true);
+      if (!catalogueBroken(fb, parts, url.search)) return reply(fb, true);
       console.warn(`Fallback catalogue also failed for ${url.pathname}: HTTP ${fb.status}`);
     } catch (e) {
       console.warn(`Fallback catalogue failed for ${url.pathname}:`, String(e));
     }
   }
-  if (primary) return reply(primary, "edge-unverified", false); // return what we got, but never cache it
+  if (primary) return reply(primary, false); // return what we got, but never cache it
   return json({ success: false, error: "Upstream catalogue temporarily unavailable" }, 502);
 }
 
-// ---- diagnostics: fixed probes only, no user input ----
-async function diag(request) {
-  const probes = ["search/artists?query=The%20Weeknd", "search/songs?query=The%20Weeknd", "search/songs?query=Arijit%20Singh", "playlists?id=1081991857&page=0&limit=20"];
-  const out = {
-    colo: request.cf && request.cf.colo, country: request.cf && request.cf.country,
-    primary_base: BASE_API, fallback_base: CATALOGUE_FALLBACK || null, probes: {},
-  };
-  for (const pr of probes) {
-    const [pathOnly, qs] = pr.split("?");
-    const call = (base, tmo) => {
-      const parts = pathOnly.split("/");
-      const t0 = Date.now();
-      return fetch(`${base}/${pr}`, { headers: { "User-Agent": UA, Accept: "application/json" }, redirect: "manual", signal: AbortSignal.timeout(tmo) })
-        .then(async (res) => {
-          const text = await res.text();
-          let j = null;
-          try { j = JSON.parse(text); } catch {}
-          const d = j && j.data;
-          return { status: res.status, ms: Date.now() - t0, success: j ? j.success : null,
-            count: Array.isArray(d?.results) ? d.results.length : Array.isArray(d?.songs) ? d.songs.length : Array.isArray(d) ? d.length : null, sample: text.slice(0, 120) };
-        })
-        .catch((e) => ({ error: String(e), ms: Date.now() - t0 }));
-    };
-    out.probes[pr] = {
-      primary: await call(BASE_API, TIMEOUT_MS),
-      fallback: CATALOGUE_FALLBACK ? await call(CATALOGUE_FALLBACK, FALLBACK_TIMEOUT_MS) : null,
-    };
-  }
-  const r = json(out);
-  r.headers.set("Cache-Control", "no-store");
-  return r;
-}
+// Public diagnostic probes were removed so upstream service addresses and probe queries cannot be exposed.
 
 // ---- lyrics ----
 async function fixedLyricsRequest(base, search, timeoutMs = 8000) {
@@ -672,28 +809,67 @@ async function bulkRecommendations(url) {
   return json({ recommendations: all });
 }
 
+// Internal cache statistics are private when an ADMIN_DIAGNOSTIC_TOKEN is configured.
+function safeTokenEqual(a, b) {
+  if (!a || !b || a.length !== b.length) return false;
+  let mismatch = 0;
+  for (let i = 0; i < a.length; i++) mismatch |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return mismatch === 0;
+}
+function diagnosticAuthorized(request) {
+  if (!ADMIN_DIAGNOSTIC_TOKEN || ADMIN_DIAGNOSTIC_TOKEN.length < 32) return false;
+  const auth = request.headers.get("Authorization") || "";
+  return safeTokenEqual(auth, `Bearer ${ADMIN_DIAGNOSTIC_TOKEN}`);
+}
+
 // ---- router ----
+function reverseEngineeringResponse() {
+  return new Response(REVERSE_ENGINEERING_MESSAGE, {
+    status: 404,
+    headers: {
+      "Content-Type": "text/plain; charset=utf-8",
+      "Cache-Control": "no-store",
+      "X-Content-Type-Options": "nosniff",
+    },
+  });
+}
+
 async function route(request, url) {
   const p = url.pathname;
+  // The root and common documentation/debug/source probes intentionally return a harmless decoy.
+  // Real application routes are matched below and keep their regular response shapes.
+  if (p === "/" || REVERSE_ENGINEERING_ENDPOINTS.has(p.toLowerCase())) {
+    return reverseEngineeringResponse();
+  }
   const seg = (prefix) => {
     const rest = p.slice(prefix.length);
     try { return decodeURIComponent(rest); } catch { return rest; }
   };
 
   if (p === "/") {
-    return json({ status: "online", name: "Royverse Music API gana sun le lore api kya check akr rha 😁· Mujic backend", version: "2.0.0" });
+    return json({ status: "online", name: "Mujic Media Gateway", version: "2.1.0" });
   }
   if (p === "/health") return json({ status: "ok", timestamp: Math.floor(Date.now() / 1000) });
   if (p === "/stats") {
+    if (!diagnosticAuthorized(request)) return reverseEngineeringResponse();
     return json({
       search_cache: searchCache.size, song_cache: songCache.size, lyrics_cache: lyricsCache.size,
       recommend_cache: recommendCache.size, trending_cache: trendingCache.size,
     });
   }
   if (p.startsWith("/api/")) return catalogueProxy(url, request);
-  if (p === "/media") return mediaProxy(url, request);
-  if (p === "/_diag") return diag(request);
-
+  if (p.startsWith("/m/") && !seg("/m/").includes("/")) {
+    try {
+      const target = await decryptMediaToken(seg("/m/"));
+      return await mediaProxy(target, request);
+    } catch (error) {
+      const message = String(error && error.message || error);
+      if (message.includes("MEDIA_TOKEN_SECRET") || message.includes("Media proxy is not configured")) {
+        return json({ error: "Secure media proxy is not configured" }, 503);
+      }
+      return json({ error: "Invalid or expired media token" }, 404);
+    }
+  }
   if (p === "/lyrics/search") {
     if (!(url.searchParams.get("q") || "").trim()) return json({ error: "query required" }, 400);
     return fixedLyricsRequest("https://lrclib.net/api/search", url.search);
@@ -750,33 +926,39 @@ function originAllowed(origin) {
   return ALLOWED_ORIGINS.includes(origin) || LOCAL_ORIGIN.test(origin);
 }
 
-// ---- edge cache: /api/* JSON and /media artwork only (never audio, never Range requests) ----
+// ---- edge cache: raw catalogue JSON stays server-side; public responses are rewritten after cache lookup ----
 async function cachedRoute(request, url, ctx) {
   const p = url.pathname;
   const isApi = p.startsWith("/api/");
-  const isMedia = p === "/media" && !request.headers.get("Range");
-  if (request.method !== "GET" || !(isApi || isMedia)) return route(request, url);
+  const isMedia = p.startsWith("/m/") && !request.headers.get("Range");
+  const cacheableRequest = request.method === "GET" && (isApi || isMedia);
+
+  if (!cacheableRequest) {
+    return sanitizePublicResponse(await route(request, url), url);
+  }
 
   const cache = caches.default;
   const key = new Request(url.toString(), { method: "GET" });
   const hit = await cache.match(key);
   if (hit) {
-    const r = new Response(hit.body, hit);
-    r.headers.set("X-Cache", "HIT");
-    return r;
+    const cached = new Response(hit.body, hit);
+    cached.headers.set("X-Cache", "HIT");
+    return sanitizePublicResponse(cached, url);
   }
 
   const res = await route(request, url);
   if (res.headers.has("X-No-Edge-Cache")) {
-    const o = new Response(res.body, res);
-    o.headers.delete("X-No-Edge-Cache");
-    return o;
+    const uncached = new Response(res.body, res);
+    uncached.headers.delete("X-No-Edge-Cache");
+    return sanitizePublicResponse(uncached, url);
   }
-  if (res.status !== 200) return res;
+  if (res.status !== 200) return sanitizePublicResponse(res, url);
   const type = res.headers.get("Content-Type") || "";
-  const storeIt = (isApi && type.includes("json")) || (isMedia && type.startsWith("image/"));
-  if (!storeIt) return res;
+  const storeIt = (isApi && type.toLowerCase().includes("json")) || (isMedia && type.startsWith("image/"));
+  if (!storeIt) return sanitizePublicResponse(res, url);
 
+  // Cache the raw upstream catalogue payload internally, never the client-facing rewritten copy.
+  // Each public response is sanitized after lookup, including hits from entries created by older Worker versions.
   const out = new Response(res.body, res);
   out.headers.set(
     "Cache-Control",
@@ -786,7 +968,7 @@ async function cachedRoute(request, url, ctx) {
   );
   out.headers.set("X-Cache", "MISS");
   ctx.waitUntil(cache.put(key, out.clone()));
-  return out;
+  return sanitizePublicResponse(out, url);
 }
 
 // ---- CORS + cache headers (mirrors Flask after_request, with an origin allowlist) ----
@@ -817,6 +999,8 @@ export default {
       .split(",").map((s) => s.trim()).filter(Boolean);
     CATALOGUE_FALLBACK = (env.CATALOGUE_FALLBACK_API || "").replace(/\/+$/, "");
     MEDIA_FALLBACK = (env.MEDIA_FALLBACK_ORIGIN || "").replace(/\/+$/, "");
+    MEDIA_TOKEN_SECRET = env.MEDIA_TOKEN_SECRET || "";
+    ADMIN_DIAGNOSTIC_TOKEN = env.ADMIN_DIAGNOSTIC_TOKEN || "";
 
     const url = new URL(request.url);
     const origin = request.headers.get("Origin");

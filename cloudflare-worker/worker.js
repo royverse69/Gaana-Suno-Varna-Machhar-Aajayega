@@ -3,7 +3,7 @@
  * Same routes, same JSON shapes, same allowlist rules. Not an arbitrary URL proxy.
  */
 
-const UA = "Mujic-Worker-Backend/2.1.2";
+const UA = "Mujic-Worker-Backend/2.1.3";
 const MAX_BULK_IDS = 50;
 const CATALOGUE_PREFIXES = new Set(["search", "songs", "albums", "artists", "playlists"]);
 const MEDIA_DOMAINS = ["saavncdn.com", "jiosaavn.com"];
